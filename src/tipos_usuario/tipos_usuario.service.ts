@@ -24,7 +24,7 @@ export class TiposUsuarioService {
 
       await this.tipos_usuariosRepository.save(tipoUsuario);
 
-      return tipoUsuario;
+      return createTiposUsuarioDto;
 
     } catch (error) {
       this.handleDBException(error);
@@ -32,7 +32,7 @@ export class TiposUsuarioService {
 
   }
 
-  findAll(PaginationDto: PaginationDto) {
+  async findAll(PaginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = PaginationDto;
 
     return this.tipos_usuariosRepository.find({
@@ -41,7 +41,7 @@ export class TiposUsuarioService {
     });
   }
 
-  findOne(id: number) {
+  async findOne(id: number) {
     return this.tipos_usuariosRepository.findOneBy({ id });
   }
 
@@ -58,7 +58,7 @@ export class TiposUsuarioService {
 
       await this.tipos_usuariosRepository.save(tipo_usuario);
 
-      return tipo_usuario;
+      return updateTiposUsuarioDto;
 
     } catch (error) {
       this.handleDBException(error);
@@ -88,7 +88,7 @@ export class TiposUsuarioService {
   private handleDBException(error: any) {
     if (error.code === '23505') throw new BadRequestException(error.detail);
 
-    this.logger.error(`Error creating product: ${error.message}`);
-    throw new InternalServerErrorException('Error creating product');
+    this.logger.error(`Error : ${error.message}`);
+    throw new InternalServerErrorException('Error al crear tipo de usuario');
   }
 }
