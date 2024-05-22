@@ -130,6 +130,6 @@ export class UsuariosService {
     if (error.code === '23505') throw new BadRequestException(error.detail);
 
     this.logger.error(`Error : ${error}`);
-    throw new InternalServerErrorException('Error al crear usuario');
+    throw new InternalServerErrorException('Error ');
   }
 }

@@ -89,6 +89,6 @@ export class TiposUsuarioService {
     if (error.code === '23505') throw new BadRequestException(error.detail);
 
     this.logger.error(`Error : ${error.message}`);
-    throw new InternalServerErrorException('Error al crear tipo de usuario');
+    throw new InternalServerErrorException('Error ');
   }
 }
