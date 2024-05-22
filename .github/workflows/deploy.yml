@@ -21,4 +21,4 @@ jobs:
 
     - name: Deploy to DigitalOcean
       run: |
-        ssh -o StrictHostKeyChecking=no root@${{ secrets.DIGITAL_OCEAN_IP }} 'cd /var/www/html/proyecto && git pull && npm install && npm run build && pm2 restart your_project_name'
+        ssh -o StrictHostKeyChecking=no root@${{ secrets.DIGITAL_OCEAN_IP }} 'cd /home/desasolun/Documents/suCarnetOnline/su-carnet-onlineBE && git pull && npm install && npm run build && pm2 restart your_project_name'
