@@ -1,4 +1,6 @@
 import {
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   Entity,
   Index,
@@ -23,10 +25,10 @@ export class Usuarios {
   @Column("character varying", { name: "email", length: 50 })
   email: string;
 
-  @Column("bytea", { name: "passwordhash" })
+  @Column("bytea", { name: "passwordhash", select: false})
   passwordhash: Buffer;
 
-  @Column("bytea", { name: "passwordsalt" })
+  @Column("bytea", { name: "passwordsalt", select: false})
   passwordsalt: Buffer;
 
   @Column("integer", { name: "estado", default: () => "1" })
@@ -35,4 +37,14 @@ export class Usuarios {
   @ManyToOne(() => TipoUsuario, (tipoUsuario) => tipoUsuario.usuarios)
   @JoinColumn([{ name: "id_tipo", referencedColumnName: "id" }])
   idTipo: TipoUsuario;
+
+  @BeforeInsert()
+  checkEmail() {
+    this.email = this.email.toLowerCase().trim();
+  }
+
+  @BeforeUpdate()
+  checkEmailUpdate() {
+   this.checkEmail();
+  }
 }
