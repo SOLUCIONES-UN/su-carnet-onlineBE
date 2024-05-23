@@ -6,25 +6,26 @@ on:
     branches:
       - develop
 
-jobs:
-  deploy:
+deploy:
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Verify SSH Key
-      run: echo ${{ secrets.SSH_PRIVATE_KEY }} | wc -c
+    - name: Install sshpass
+      run: sudo apt-get update && sudo apt-get install -y sshpass
 
-    - name: Verify Server IP
-      run: echo ${{ secrets.SERVER_IP }} | wc -c
-
-    - name: Set up SSH
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-    - name: Deploy to DigitalOcean
+    - name: Deploy to server
+      env:
+        SERVER_USER: ${{ secrets.SERVER_USER }}
+        SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
+        SERVER_IP: ${{ secrets.DIGITAL_OCEAN_IP }}
       run: |
-        ssh -o StrictHostKeyChecking=no root@${{ secrets.DIGITAL_OCEAN_IP }} 'cd /home/desasolun/Documents/suCarnetOnline/su-carnet-onlineBE && git pull && npm install && npm run build && pm2 restart your_project_name'
+        sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP << EOF
+          cd /home/desasolun/Documents/suCarnetOnline/su-carnet-onlineBE
+          git pull origin develop
+          npm install
+          npm run build
+          pm2 restart su-carnet-onlineBE
+        EOF
