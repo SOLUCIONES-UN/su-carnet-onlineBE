@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsNumber, IsString, Matches, MaxLength, MinLength } from "class-validator";
+import { IsEmail, IsNotEmpty, IsNumber, IsString, Matches, MaxLength, NotContains } from "class-validator";
 
 export class CreateUsuarioDto {
 
@@ -20,8 +20,9 @@ export class CreateUsuarioDto {
     @MaxLength(50)
     @Matches(
         /(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-        message: 'El password debe contener por lo menos una letra mayuscula, minusculas y un numero'
+        message: 'El password debe contener por lo menos una letra mayúscula, minúsculas y un número'
     })
+    @NotContains(' ', { message: 'El password no puede contener espacios en blanco' })
     password: string;
 
     @IsNumber()
