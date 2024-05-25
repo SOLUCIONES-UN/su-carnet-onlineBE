@@ -33,12 +33,15 @@ export class TiposUsuarioService {
   }
 
   async findAll(PaginationDto: PaginationDto) {
+
     const { limit = 10, offset = 0 } = PaginationDto;
 
-    return this.tipos_usuariosRepository.find({
+    const tipos_usuario = await this.tipos_usuariosRepository.find({
       skip: offset,
       take: limit,
     });
+    
+    return tipos_usuario;
   }
 
   async findOne(id: number) {
@@ -70,7 +73,7 @@ export class TiposUsuarioService {
     try {
 
       const tipoUsuario = await this.findOne(id);
-      
+
       if (!tipoUsuario) {
         throw new NotFoundException(`TipoUsuario con ID ${id} not encontrado`);
       }

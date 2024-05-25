@@ -30,6 +30,7 @@ export class UsuariosService {
 
       // Buscando la relación TipoUsuario 
       const tipoUsuario = await this.tipos_usuariosRepository.findOneBy({ id: idTipo });
+
       if (!tipoUsuario) {
         throw new NotFoundException(`TipoUsuario con ID ${idTipo} no contrado`);
       }
@@ -61,13 +62,20 @@ export class UsuariosService {
 
   }
 
-  async findAll(PaginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = PaginationDto;
+  async existsEmail(email: string): Promise<boolean> {
+    const count = await this.usuariosRepository.count({ where: { email } });
+    return count > 0;
+  }
 
-    return this.usuariosRepository.find({
+  async findAll(PaginationDto: PaginationDto) {
+
+    const { limit = 10, offset = 1 } = PaginationDto;
+
+    const users = await this.usuariosRepository.find({
       skip: offset,
       take: limit,
     });
+    return users;
   }
 
   async findOne(id: number) {
@@ -111,8 +119,8 @@ export class UsuariosService {
 
     try {
 
-      const usuario = await this.usuariosRepository.findOneBy({id});
-      
+      const usuario = await this.usuariosRepository.findOneBy({ id });
+
       if (!usuario) {
         throw new NotFoundException(`usuario con ID ${id} no encontrado`);
       }

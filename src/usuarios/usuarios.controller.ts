@@ -13,6 +13,13 @@ export class UsuariosController {
   async create(@Body() createUsuarioDto: CreateUsuarioDto) {
     
     try {
+
+      const existeEmail = await this.usuariosService.existsEmail(createUsuarioDto.email);
+
+      if(existeEmail) {
+        return new GenericResponse('401', 'El correo ingresado ya esta siendo utilizado ', null);
+      }
+
       const result = await this.usuariosService.create(createUsuarioDto);
       return new GenericResponse('200', 'EXITO', result);
 
@@ -26,7 +33,7 @@ export class UsuariosController {
     
     try {
 
-      const result = this.usuariosService.findAll(paginationDto);
+      const result = await this.usuariosService.findAll(paginationDto);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
