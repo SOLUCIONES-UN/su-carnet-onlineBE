@@ -1,6 +1,4 @@
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
 import { LoginUserDto } from './dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Usuarios } from '../entities/Usuarios';
@@ -23,34 +21,11 @@ export class AuthService {
 
   ) {}
 
-
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
-    //TODO: Implementar JWT
-  }
-
-  findAll() {
-    return `This action returns all auth`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
-  }
-
-
   async login( LoginUserDto: LoginUserDto) {
 
     const { email, password } = LoginUserDto;
 
-    try {
+   
 
       const user = await this.userRepository.findOne(
         { 
@@ -63,10 +38,10 @@ export class AuthService {
       if(!user) 
         throw new UnauthorizedException('Credenciales invalidas');
   
-      //   const hashToCompare = bcrypt.hashSync(password, user.passwordsalt.toString('base64'));
+      const hashToCompare = bcrypt.hashSync(password, user.passwordsalt.toString('utf-8'));
   
-      // if( hashToCompare !== user.passwordhash.toString('base64'))
-      //   throw new UnauthorizedException('Credenciales invalidas');
+      if( hashToCompare !== user.passwordhash.toString('utf-8') )
+        throw new UnauthorizedException('Credenciales invalidas');
       
       delete user.passwordhash
       delete user.passwordsalt
@@ -76,9 +51,6 @@ export class AuthService {
         token: this.getJwtToken({ email: user.email})
       };
 
-    } catch (error) {
-      this.logger.error(error.message);
-    }
   }
 
 

@@ -31,7 +31,31 @@ export class JwtStrategy extends PassportStrategy( Strategy ) {
 
         const { email } = payload;
 
-        const user = await this.userRepository.findOneBy( { email } );
+        // const user = await this.userRepository.findOne( 
+        //     { 
+        //         where: { email },
+        //         relations: ['idTipo'],
+        //     } 
+            
+        // );
+
+
+        const user = await this.userRepository.createQueryBuilder('usuario')
+            .leftJoinAndSelect('usuario.idTipo', 'tipo')
+            .select([
+                'usuario.id',
+                'usuario.nombres',
+                'usuario.apellidos',
+                'usuario.email',
+                'usuario.estado',
+                'tipo.descripcion',
+                'tipo.estado'
+            ])
+            .where('usuario.email = :email', { email })
+            .getOne();
+
+
+        console.log(user);
 
         if(!user) 
             throw new UnauthorizedException('Token no valido');
