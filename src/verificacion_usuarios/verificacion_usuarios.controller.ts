@@ -6,8 +6,8 @@ import { GenericResponse } from '../common/dtos/genericResponse.dto';
 export class VerificacionUsuariosController {
   constructor(private readonly verificacionUsuariosService: VerificacionUsuariosService) {} 
 
-  @Post(':correoElectronico/:formaEnvio')
-  async generarOtp(@Param('correoElectronico') correoElectronico: string, formaEnvio:string) {
+  @Post(':correoElectronico/:formaEnvio/:accion')
+  async generarOtp(@Param('correoElectronico') correoElectronico: string, @Param ('formaEnvio') formaEnvio:string, @Param ('accion') accion:string) {
     
     try {
 
@@ -17,11 +17,27 @@ export class VerificacionUsuariosController {
         return new GenericResponse('400', 'EL USUARIO NO ESTA ACTIVO O NO EXISTE ', usuarioActivo); 
       }
 
-      const result = await this.verificacionUsuariosService.GenerarOtp(correoElectronico, formaEnvio);
+      const otpGenerado = this.verificacionUsuariosService.generateRandomCode();
+      const result = await this.verificacionUsuariosService.GenerarOtp(correoElectronico, otpGenerado);
+
+      if(result == false){
+        return new GenericResponse('400', 'ERROR AL GUARDAR OTP GENERADO', result); 
+      }
+
+      if(formaEnvio == 'texto'){
+        return new GenericResponse('400', 'ESE MEDIO DE ENVIO DE OTP AUN NO SE IMPLEMENTA', result); 
+      }
+
+      console.log("accion que llega el controlador "+ accion)
+      const enviarCorreo = await this.verificacionUsuariosService.enviarPorEmail(correoElectronico, otpGenerado, accion);
+
+      if(enviarCorreo == false){
+        return new GenericResponse('400', 'ERROR AL ENVIAR CORREO ', result); 
+      }
       return new GenericResponse('200', 'EXITO', result); 
 
     } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al generar el otp', error), HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(new GenericResponse('500', 'ERROR INTERNO ', error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 

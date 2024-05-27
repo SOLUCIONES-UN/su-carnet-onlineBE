@@ -1,17 +1,17 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { CreateVerificacionUsuarioDto } from './dto/create-verificacion_usuario.dto';
-import { UpdateVerificacionUsuarioDto } from './dto/update-verificacion_usuario.dto';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Otps } from '../entities/Otps';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 import { Usuarios } from '../entities/Usuarios';
-import { UsuariosService } from '../usuarios/usuarios.service';
-import { use } from 'passport';
+import * as nodemailer from 'nodemailer';
+import { HtmlEmail } from '../common/dtos/HtmlEmail.dto';
 
 @Injectable()
 export class VerificacionUsuariosService {
+  [x: string]: any;
 
   private readonly logger = new Logger("VerificacionUsuariosService");
+  private readonly transporter;
 
   constructor(
 
@@ -20,30 +20,51 @@ export class VerificacionUsuariosService {
     @InjectRepository(Usuarios)
     private usuariosRepository: Repository<Usuarios>,
 
-  ) { }
+  ) 
+  { 
+    this.transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'appsolucionesun@gmail.com',
+        pass: 'ncjwwibwbqwknliy',
+      },
+    });
+  }
 
-  async GenerarOtp(correo: string, formaEnvio:string): Promise<boolean> {
-
-    let codeVerification = this.generateRandomCode();
-
-    if(formaEnvio == 'texto'){
-      return false; //retornar false porque aun no se ha impplementado esa forma de envio quedara pendiente 
-    }
+  async GenerarOtp(email: string, codeVerification:string): Promise<boolean> {
 
     const otp = this.verificacionUsuariosRepository.create({
       codigo: codeVerification,
-      correo: correo,
+      correo: email,
       fechacreacion: new Date()
     });
-
     await this.verificacionUsuariosRepository.save(otp);
 
     return true;
   }
 
-  private async enviarPorEmail(): Promise<boolean> {
-    // Implementa la lógica de envío por email aquí
-    return true; // Retorna true si el envío fue exitoso
+  async enviarPorEmail(correoDestino: string, otp: string, action:string): Promise<boolean> {
+
+    const usuario = await this.usuariosRepository.findOne({ where: { email:correoDestino } });
+
+    if(!usuario){
+      throw new NotFoundException(`Error al obtener los datos del usuario`);
+    }
+
+    console.log("accion en el metodo enviar correo "+ action)
+    const mailOptions = {
+      from: 'appsolucionesun@gmail.com',
+      to: correoDestino,
+      subject: 'Verificación de usuario ',
+      html: HtmlEmail.bodyForConfirmationCode(usuario.nombres, usuario.apellidos, otp, action),
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      return true;
+    } catch (error) {
+      throw new NotFoundException(`Error al enviar el correo`+ error);
+    }
   }
 
 
@@ -119,7 +140,7 @@ export class VerificacionUsuariosService {
     return true;
   }
 
-  private generateRandomCode(): string {
+  public generateRandomCode(): string {
 
     let codeVerification = '';
 
