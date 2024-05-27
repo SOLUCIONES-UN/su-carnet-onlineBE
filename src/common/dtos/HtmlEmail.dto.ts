@@ -1,10 +1,6 @@
 export class HtmlEmail {
   static bodyForConfirmationCode(names: string, surNames: string, otp: string, action: string): string {
 
-    console.log("accion que llega "+ action);
-
-    let actionOtp = "";
-
     switch (action) {
       case 'create':
         action = "usuario";

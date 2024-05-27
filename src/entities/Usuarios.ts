@@ -23,6 +23,9 @@ export class Usuarios {
   @Column("character varying", { name: "email", length: 50 })
   email: string;
 
+  @Column("character varying", { name: "telefono", length: 15 })
+  telefono: string;
+
   @Column("bytea", { name: "passwordhash" })
   passwordhash: Buffer;
 

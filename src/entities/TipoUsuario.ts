@@ -2,9 +2,12 @@ import {
   Column,
   Entity,
   Index,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { NivelesAcceso } from "./NivelesAcceso";
 import { Usuarios } from "./Usuarios";
 
 @Index("tipo_usuario_pkey", ["id"], { unique: true })
@@ -18,6 +21,10 @@ export class TipoUsuario {
 
   @Column("integer", { name: "estado", default: () => "1" })
   estado: number;
+
+  @ManyToOne(() => NivelesAcceso, (nivelesAcceso) => nivelesAcceso.tipoUsuarios)
+  @JoinColumn([{ name: "nivel_id", referencedColumnName: "id" }])
+  nivel: NivelesAcceso;
 
   @OneToMany(() => Usuarios, (usuarios) => usuarios.idTipo)
   usuarios: Usuarios[];
