@@ -17,6 +17,10 @@ jobs:
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+    - name: NPM or Yarn install with caching
+      uses: bahmutov/npm-install@v1.1.0
+    - name: Run tests
+      uses: Borales/actions-yarn@v2.3.0
 
     - name: conect to server
       run: |
