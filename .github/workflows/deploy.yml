@@ -1,31 +1,23 @@
-name: Deploy proyecto to digital ocean
-
+name: Deploy to Server
 
 on:
   push:
     branches:
       - develop
+
 jobs:
   deploy:
-      runs-on: ubuntu-latest
-  
-      steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-  
-      - name: Install sshpass
-        run: sudo apt-get update && sudo apt-get install -y sshpass
-  
-      - name: Deploy to server
-        env:
-          SERVER_USER: ${{ secrets.SERVER_USER }}
-          SERVER_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
-          SERVER_IP: ${{ secrets.DIGITAL_OCEAN_IP }}
-        run: |
-          sshpass -p "$SERVER_PASSWORD" ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP << EOF
-            cd /home/desasolun/Documents/suCarnetOnline/su-carnet-onlineBE
-            git pull origin develop
-            npm install
-            npm run build
-            pm2 restart su-carnet-onlineBE
-          EOF
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Deploy to server
+      run: |
+        ssh -o StrictHostKeyChecking=no desasolun@${{ secrets.DIGITAL_OCEAN_IP }} 'cd /home/desasolun/Documents/suCarnetOnline/su-carnet-onlineBE && git pull origin develop && npm install && npm run build && pm2 restart su-carnet-onlineBE'

@@ -16,6 +16,10 @@ export class CreateUsuarioDto {
     email: string;
 
     @IsString()
+    @IsNotEmpty({ message: 'El campo telefono es requerido' })
+    telefono: string;
+
+    @IsString()
     @IsNotEmpty({ message: 'El campo password es requerido' })
     @MaxLength(50)
     @Matches(

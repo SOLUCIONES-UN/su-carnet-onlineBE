@@ -6,6 +6,7 @@ import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
 import { TiposUsuarioModule } from './tipos_usuario/tipos_usuario.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
+import { VerificacionUsuariosModule } from './verificacion_usuarios/verificacion_usuarios.module';
 
 @Module({
   imports: [
@@ -32,6 +33,8 @@ import { UsuariosModule } from './usuarios/usuarios.module';
     TiposUsuarioModule,
 
     UsuariosModule,
+
+    VerificacionUsuariosModule,
   ],
 })
 export class AppModule {}
