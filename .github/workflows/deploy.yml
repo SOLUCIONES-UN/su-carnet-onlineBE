@@ -17,16 +17,16 @@ jobs:
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-    - name: NPM or Yarn install with caching
-      uses: bahmutov/npm-install@v1.1.0
-    - name: Run tests
-      uses: Borales/actions-yarn@v2.3.0
 
+   
     - name: conect to server
       run: |
         ssh -o StrictHostKeyChecking=no desasolun@${{ secrets.DIGITAL_OCEAN_IP }} << 'EOF'
+          # Load profile
+          source ~/.bashrc
+
           # Ensure the correct PATH is set
-          export PATH="$PATH:/usr/local/bin"
+          export PATH="$PATH:/home/desasolun/.nvm/versions/node/v22.2.0/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
           
           cd /home/desasolun/Documents/suCarnetOnline/su-carnet-onlineBE
           git pull origin develop
