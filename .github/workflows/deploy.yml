@@ -20,4 +20,4 @@ jobs:
 
     - name: Deploy to server
       run: |
-        ssh -o StrictHostKeyChecking=no desasolun@${{ secrets.DIGITAL_OCEAN_IP }} 'cd /home/desasolun/Documents/suCarnetOnline/su-carnet-onlineBE && git pull origin develop && npm install && npm run build && pm2 restart su-carnet-onlineBE'
+        ssh -o StrictHostKeyChecking=no desasolun@${{ secrets.DIGITAL_OCEAN_IP }} 'cd /home/desasolun/Documents/suCarnetOnline/su-carnet-onlineBE && git pull origin develop && yarn && yarn run build && pm2 restart su-carnet-onlineBE'
