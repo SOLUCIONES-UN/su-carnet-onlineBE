@@ -19,12 +19,9 @@ jobs:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
     - name: Deploy to server
-      run: |
-        ssh -o StrictHostKeyChecking=no desasolun@${{ secrets.DIGITAL_OCEAN_IP }} << 'EOF'
-          export PATH="$PATH:/usr/local/bin"
-          cd /home/desasolun/Documents/suCarnetOnline/su-carnet-onlineBE
-          git pull origin develop
-          yarn
-          yarn run build
-          pm2 restart su-carnet-onlineBE
-        EOF
+    - run: ssh -o StrictHostKeyChecking=no desasolun@${{ secrets.DIGITAL_OCEAN_IP }} 
+    - run: cd /home/desasolun/Documents/suCarnetOnline/su-carnet-onlineBE
+    - run: git pull origin develop
+    - run: yarn
+    - run: yarn run build
+    - run: pm2 restart su-carnet-onlineBE
