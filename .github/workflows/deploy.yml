@@ -18,10 +18,15 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-    - name: Deploy to server
-    - run: ssh -o StrictHostKeyChecking=no desasolun@${{ secrets.DIGITAL_OCEAN_IP }} 
-    - run: cd /home/desasolun/Documents/suCarnetOnline/su-carnet-onlineBE
-    - run: git pull origin develop
-    - run: yarn
-    - run: yarn run build
-    - run: pm2 restart su-carnet-onlineBE
+    - name: conect to server
+      run: ssh -o StrictHostKeyChecking=no desasolun@${{ secrets.DIGITAL_OCEAN_IP }}
+    - name: ubicar proyecto
+      run: cd /home/desasolun/Documents/suCarnetOnline/su-carnet-onlineBE
+    - name: actualizar repositorio
+      run: git pull origin develop
+    - name: instalar dependencias
+      run: yarn
+    - name: construir proyecto
+      run: yarn run build
+    - name: reiniciar manejador de procesos node
+      run: pm2 restart su-carnet-onlineBE
