@@ -21,6 +21,7 @@ jobs:
     - name: Deploy to server
       run: |
         ssh -o StrictHostKeyChecking=no desasolun@${{ secrets.DIGITAL_OCEAN_IP }} << 'EOF'
+          export PATH="$PATH:/usr/local/bin"
           cd /home/desasolun/Documents/suCarnetOnline/su-carnet-onlineBE
           git pull origin develop
           yarn
