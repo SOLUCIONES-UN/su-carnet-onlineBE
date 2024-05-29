@@ -1,22 +1,25 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpException, HttpStatus, Put } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
+import { changePasswordDto } from './dto/changePasswordDto';
+import { VerificacionUsuariosService } from '../verificacion_usuarios/verificacion_usuarios.service';
 
 @Controller('usuarios')
 export class UsuariosController {
-  constructor(private readonly usuariosService: UsuariosService) {}
+  constructor(private readonly usuariosService: UsuariosService,
+    private readonly VerificacionUsuariosService: VerificacionUsuariosService) { }
 
   @Post()
   async create(@Body() createUsuarioDto: CreateUsuarioDto) {
-    
+
     try {
 
       const existeEmail = await this.usuariosService.existsEmail(createUsuarioDto.email);
 
-      if(existeEmail) {
+      if (existeEmail) {
         return new GenericResponse('401', 'El correo ingresado ya esta siendo utilizado ', null);
       }
 
@@ -30,7 +33,7 @@ export class UsuariosController {
 
   @Get()
   async findAll(@Query() paginationDto: PaginationDto) {
-    
+
     try {
 
       const result = await this.usuariosService.findAll(paginationDto);
@@ -43,7 +46,7 @@ export class UsuariosController {
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    
+
     try {
 
       const result = await this.usuariosService.findOne(+id);
@@ -57,21 +60,59 @@ export class UsuariosController {
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateUsuarioDto: UpdateUsuarioDto) {
 
-   try {
+    try {
 
-    const result = await this.usuariosService.update(+id, updateUsuarioDto);
-    return new GenericResponse('200', 'EXITO', result);
+      const result = await this.usuariosService.update(+id, updateUsuarioDto);
+      return new GenericResponse('200', 'EXITO', result);
 
-   } catch (error) {
-    throw new HttpException(new GenericResponse('500', 'Error al editar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-   }
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al editar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Put('changePassword')
+  async changePassword(@Body() changePasswordDto: changePasswordDto) {
+
+    try {
+      // Verificar si el email existe
+      const user = await this.usuariosService.verifiUser(changePasswordDto.email);
+
+      if (!user) {
+        return new GenericResponse('400', 'El usuario no existe o no esta verificado', null);
+      }
+
+      // Verificar si el código de verificación es correcto
+      const existeOtp = await this.VerificacionUsuariosService.existsOtp(changePasswordDto.verificationCode);
+      if (!existeOtp) {
+        return new GenericResponse('400', 'El código de verificación no es correcto', null);
+      }
+
+      // Verificar si el código de verificación ha expirado
+      const codigoExpirado = await this.VerificacionUsuariosService.codigoExpirado(changePasswordDto.verificationCode);
+      if (codigoExpirado) {
+        return new GenericResponse('400', 'El código de verificación ha expirado, debe generar otro', null);
+      }
+
+      // Cambiar la contraseña
+      const result = await this.usuariosService.changePassword(changePasswordDto);
+
+      if (!result) {
+        return new GenericResponse('400', 'Error al cambiar la contraseña', null);
+      }
+
+      await this.VerificacionUsuariosService.remove(changePasswordDto.verificationCode);
+
+      return new GenericResponse('200', 'Éxito', 'Contraseña cambiada con éxito');
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al cambiar la contraseña', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @Delete(':id')
   async remove(@Param('id') id: string) {
-    
+
     try {
-      
+
       const result = await this.usuariosService.remove(+id);
       return new GenericResponse('200', 'EXITO', result);
 

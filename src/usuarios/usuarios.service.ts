@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
@@ -7,6 +7,9 @@ import { Usuarios } from '../entities/Usuarios';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { TipoUsuario } from '../entities/TipoUsuario';
+import { changePasswordDto } from './dto/changePasswordDto';
+import { Otps } from '../entities/Otps';
+import { use } from 'passport';
 
 @Injectable()
 export class UsuariosService {
@@ -19,6 +22,9 @@ export class UsuariosService {
 
     @InjectRepository(TipoUsuario)
     private tipos_usuariosRepository: Repository<TipoUsuario>,
+
+    @InjectRepository(Otps)
+    private verificacion_usuariosRepository: Repository<TipoUsuario>,
 
   ) { }
 
@@ -115,6 +121,59 @@ export class UsuariosService {
     }
   }
 
+
+  async verifiUser(email:string){
+
+    const user = await this.usuariosRepository.findOne({
+      where: { email: email, estado: 2 },
+    });
+
+    return user;
+  }
+
+  async verfiPassword(currentPassword:string, user:Usuarios): Promise<boolean>{
+
+    // Verificar la contraseña actual
+    const isMatch = await bcrypt.compare(currentPassword, user.passwordhash.toString());
+    if (!isMatch) {
+      return false;
+    }
+
+    return true;
+  }
+
+  async changePassword(changePasswordDto: changePasswordDto): Promise<boolean> {
+
+    try {
+
+      const user = await this.usuariosRepository.findOne({
+        where: { email: changePasswordDto.email, estado: 2 },
+      });
+  
+      // Encriptar la nueva contraseña
+      const salt = await bcrypt.genSalt();
+      const hash = await bcrypt.hash(changePasswordDto.newPassword, salt);
+  
+      // Convertir el hash y el salt en Buffer si es necesario
+      const passwordHashBuffer = Buffer.from(hash);
+      const passwordSaltBuffer = Buffer.from(salt);
+  
+      // Actualizar el usuario con la nueva contraseña y el salt
+      user.passwordhash = passwordHashBuffer;
+      user.passwordsalt = passwordSaltBuffer;
+      user.estado = 2; 
+  
+      await this.usuariosRepository.save(user);
+  
+      return true;  
+
+    } catch (error) {
+      this.handleDBException(error);
+      return false;
+    }
+  }
+  
+
   async remove(id: number) {
 
     try {
@@ -137,7 +196,7 @@ export class UsuariosService {
   private handleDBException(error: any) {
     if (error.code === '23505') throw new BadRequestException(error.detail);
 
-    this.logger.error(`Error : ${error}`);
-    throw new InternalServerErrorException('Error ');
+    this.logger.error(`Error: ${error.message}`);
+    throw new InternalServerErrorException(NotFoundException);
   }
 }
