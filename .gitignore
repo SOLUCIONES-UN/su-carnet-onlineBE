@@ -6,6 +6,7 @@
 postgres/
 
 .env
+dump-SucardsOnlineDB-202405222130
 
 # Logs
 logs

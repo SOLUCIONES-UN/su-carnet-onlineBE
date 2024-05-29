@@ -12,12 +12,13 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Get('TestPrivateRoute')
-  @Auth('User')
+  @Auth('admin')
   
   findAll(
     @GetUser() user : Usuarios,
   ) {
 
+    
 
     return user;
   }

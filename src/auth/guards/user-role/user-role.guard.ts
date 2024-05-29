@@ -26,7 +26,8 @@ export class UserRoleGuard implements CanActivate {
     if( !user )
       throw new InternalServerErrorException('Usuario no encontrado (request)');
 
-    console.log('User: ', user.idTipo.descripcion);
+    if( validRoles.length === 0)
+      return true;
 
     const userRole = user.idTipo.descripcion;
 
