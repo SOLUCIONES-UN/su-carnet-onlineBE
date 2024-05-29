@@ -54,9 +54,6 @@ export class JwtStrategy extends PassportStrategy( Strategy ) {
             .where('usuario.email = :email', { email })
             .getOne();
 
-
-        console.log(user);
-
         if(!user) 
             throw new UnauthorizedException('Token no valido');
 
