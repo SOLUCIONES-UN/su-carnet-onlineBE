@@ -90,7 +90,7 @@ export class UsuariosService {
       if (!usuario) {
         throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
       }
-
+ 
       if (updateUsuarioDto.idTipo) {
         const tipoUsuario = await this.tipos_usuariosRepository.findOneBy({ id: updateUsuarioDto.idTipo });
         if (!tipoUsuario) {
