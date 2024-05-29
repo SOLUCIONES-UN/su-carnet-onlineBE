@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, MinLength } from "class-validator";
+import { IsNotEmpty, IsNumber, IsString, MinLength } from "class-validator";
 
 export class CreateTiposUsuarioDto {
     
@@ -6,4 +6,7 @@ export class CreateTiposUsuarioDto {
     @MinLength(1)
     @IsNotEmpty({ message: 'El campo descripcion es requerido' })
     descripcion: string;
+    @IsNumber()
+    @IsNotEmpty({ message: 'El campo  nivel_id es requerido' })
+    nivel_id: number;
 }

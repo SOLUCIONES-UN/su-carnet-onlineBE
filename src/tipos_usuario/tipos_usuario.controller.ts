@@ -35,6 +35,19 @@ export class TiposUsuarioController {
     }
   }
 
+  @Get('getNivelesAcceso')
+  async getNivelesAcceso(@Query() paginationDto: PaginationDto) {
+
+    try {
+
+      const result = await this.tiposUsuarioService.getNivelesAcceso(paginationDto);
+      return new GenericResponse('200', 'EXITO', result);
+
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
 
