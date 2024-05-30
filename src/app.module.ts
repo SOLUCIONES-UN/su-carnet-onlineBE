@@ -7,6 +7,9 @@ import { AuthModule } from './auth/auth.module';
 import { TiposUsuarioModule } from './tipos_usuario/tipos_usuario.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
 import { VerificacionUsuariosModule } from './verificacion_usuarios/verificacion_usuarios.module';
+import { VendedoresModule } from './vendedores/vendedores.module';
+import { EmpresasInformacionModule } from './empresas_informacion/empresas_informacion.module';
+import { SucursalesInformacionModule } from './sucursales_informacion/sucursales_informacion.module';
 
 @Module({
   imports: [
@@ -35,6 +38,12 @@ import { VerificacionUsuariosModule } from './verificacion_usuarios/verificacion
     UsuariosModule,
 
     VerificacionUsuariosModule,
+
+    VendedoresModule,
+
+    EmpresasInformacionModule,
+
+    SucursalesInformacionModule,
   ],
 })
 export class AppModule {}

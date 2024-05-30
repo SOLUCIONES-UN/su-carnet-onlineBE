@@ -6,7 +6,6 @@ import { TipoUsuario } from '../entities/TipoUsuario';
 import { Repository } from 'typeorm';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { NivelesAcceso } from '../entities/NivelesAcceso';
-import { userInfo } from 'os';
 
 @Injectable()
 export class TiposUsuarioService {
@@ -53,6 +52,7 @@ export class TiposUsuarioService {
     const { limit = 10, offset = 0 } = PaginationDto;
 
     const tipos_usuario = await this.tipos_usuariosRepository.find({
+      where: { estado: 1 },
       skip: offset,
       take: limit,
     });
@@ -104,7 +104,7 @@ export class TiposUsuarioService {
       await this.tipos_usuariosRepository.save(updatedTipoUsuario);
   
       // Devolver el tipo de usuario actualizado
-      return updatedTipoUsuario;
+      return updateTiposUsuarioDto;
   
     } catch (error) {
       this.handleDBException(error);
