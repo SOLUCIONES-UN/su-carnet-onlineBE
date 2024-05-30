@@ -117,7 +117,7 @@ export class UsuariosController {
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al elimiar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(new GenericResponse('500', 'Error al eliminar', error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

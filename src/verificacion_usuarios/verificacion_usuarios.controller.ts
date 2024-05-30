@@ -28,7 +28,6 @@ export class VerificacionUsuariosController {
         return new GenericResponse('400', 'ESE MEDIO DE ENVIO DE OTP AUN NO SE IMPLEMENTA', result); 
       }
 
-      console.log("accion que llega el controlador "+ accion)
       const enviarCorreo = await this.verificacionUsuariosService.enviarPorEmail(correoElectronico, otpGenerado, accion);
 
       if(enviarCorreo == false){
@@ -56,7 +55,10 @@ export class VerificacionUsuariosController {
 
       const codigoExpirado = await this.verificacionUsuariosService.codigoExpirado(otp);
 
-      if(codigoExpirado == true) return new GenericResponse('400', 'EL CODIGO DE VERIFICACION A EXPIRADO DEBE GENERAR OTRO ', codigoExpirado); 
+      if(codigoExpirado == true){
+        await this.verificacionUsuariosService.remove(otp);
+        return new GenericResponse('400', 'EL CODIGO DE VERIFICACION A EXPIRADO DEBE GENERAR OTRO ', codigoExpirado); 
+      }
 
       const result = await this.verificacionUsuariosService.confirmarUsuario(correoElectronico, otp);
       return new GenericResponse('200', 'EXITO', result); 

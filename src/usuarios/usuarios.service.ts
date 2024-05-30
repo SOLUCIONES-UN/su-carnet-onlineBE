@@ -4,12 +4,10 @@ import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Usuarios } from '../entities/Usuarios';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { TipoUsuario } from '../entities/TipoUsuario';
 import { changePasswordDto } from './dto/changePasswordDto';
-import { Otps } from '../entities/Otps';
-import { use } from 'passport';
 
 @Injectable()
 export class UsuariosService {
@@ -22,9 +20,6 @@ export class UsuariosService {
 
     @InjectRepository(TipoUsuario)
     private tipos_usuariosRepository: Repository<TipoUsuario>,
-
-    @InjectRepository(Otps)
-    private verificacion_usuariosRepository: Repository<TipoUsuario>,
 
   ) { }
 
@@ -78,6 +73,9 @@ export class UsuariosService {
     const { limit = 10, offset = 1 } = PaginationDto;
 
     const users = await this.usuariosRepository.find({
+      where: {
+        estado: In([1, 2]),
+      },
       skip: offset,
       take: limit,
     });

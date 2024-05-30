@@ -51,7 +51,6 @@ export class VerificacionUsuariosService {
       throw new NotFoundException(`Error al obtener los datos del usuario`);
     }
 
-    console.log("accion en el metodo enviar correo "+ action)
     const mailOptions = {
       from: 'appsolucionesun@gmail.com',
       to: correoDestino,
