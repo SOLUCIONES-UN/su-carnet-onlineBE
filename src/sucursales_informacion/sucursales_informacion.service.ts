@@ -40,7 +40,7 @@ export class SucursalesInformacionService {
   
       await this.sucursalesRepository.save(sucursal);
   
-      return empresa; 
+      return sucursal; 
 
     } catch (error) {
       this.handleDBException(error);
