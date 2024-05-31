@@ -10,6 +10,8 @@ import { VerificacionUsuariosModule } from './verificacion_usuarios/verificacion
 import { VendedoresModule } from './vendedores/vendedores.module';
 import { EmpresasInformacionModule } from './empresas_informacion/empresas_informacion.module';
 import { SucursalesInformacionModule } from './sucursales_informacion/sucursales_informacion.module';
+import { SucursalesAreasInformacionModule } from './sucursales_areas_informacion/sucursales_areas_informacion.module';
+import { SucursalesAreasPuertasModule } from './sucursales_areas_puertas/sucursales_areas_puertas.module';
 
 @Module({
   imports: [
@@ -44,6 +46,10 @@ import { SucursalesInformacionModule } from './sucursales_informacion/sucursales
     EmpresasInformacionModule,
 
     SucursalesInformacionModule,
+
+    SucursalesAreasInformacionModule,
+
+    SucursalesAreasPuertasModule,
   ],
 })
 export class AppModule {}

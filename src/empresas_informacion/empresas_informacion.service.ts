@@ -68,6 +68,7 @@ export class EmpresasInformacionService {
   async update(id: number, updateEmpresasInformacionDto: UpdateEmpresasInformacionDto) {
     
     try {
+      
       const { idVendedor, ...infoData } = updateEmpresasInformacionDto;
   
       const empresa = await this.empresaRepository.findOneBy({ id });
