@@ -57,6 +57,7 @@ export class SucursalesAreasInformacionService {
       where: { estado: 1 },
       skip: offset,
       take: limit,
+      relations: ['idSucursal'],
     });
     
     return areaSucursales;
@@ -103,7 +104,7 @@ export class SucursalesAreasInformacionService {
     
     try {
       
-      const areaSucursal = await this.findOne(id);
+      const areaSucursal = await this.sucursalesAreasRepository.findOneBy({id});
 
       if(!areaSucursal){
         throw new NotFoundException(`areaSucursal con ID ${id} not encontrada`);
