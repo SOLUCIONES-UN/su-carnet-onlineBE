@@ -77,7 +77,7 @@ export class VendedoresService {
       const vendedor = await this.findOne(id);
 
       if (!vendedor) {
-        throw new NotFoundException(`vendedor con ID ${id} not encontrado`);
+        throw new NotFoundException(`vendedor con ID ${id} no encontrado`);
       }
 
       vendedor.estado = 0;

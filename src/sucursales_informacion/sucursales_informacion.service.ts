@@ -56,6 +56,7 @@ export class SucursalesInformacionService {
       where: { estado: 1 },
       skip: offset,
       take: limit,
+      relations: ['idEmpresa'],
     });
     
     return sucursales;

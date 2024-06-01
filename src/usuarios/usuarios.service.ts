@@ -78,6 +78,7 @@ export class UsuariosService {
       },
       skip: offset,
       take: limit,
+      relations: ['idTipo'],
     });
     return users;
   }

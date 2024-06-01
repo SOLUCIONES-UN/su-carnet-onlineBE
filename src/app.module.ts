@@ -12,6 +12,10 @@ import { EmpresasInformacionModule } from './empresas_informacion/empresas_infor
 import { SucursalesInformacionModule } from './sucursales_informacion/sucursales_informacion.module';
 import { SucursalesAreasInformacionModule } from './sucursales_areas_informacion/sucursales_areas_informacion.module';
 import { SucursalesAreasPuertasModule } from './sucursales_areas_puertas/sucursales_areas_puertas.module';
+import { SucursalesAreasGruposInformacionModule } from './sucursales_areas_grupos_informacion/sucursales_areas_grupos_informacion.module';
+import { TipoDocumentosModule } from './tipo-documentos/tipo-documentos.module';
+import { TipoPaisesModule } from './tipo_paises/tipo_paises.module';
+import { TipoPermisosModule } from './tipo_permisos/tipo_permisos.module';
 
 @Module({
   imports: [
@@ -50,6 +54,14 @@ import { SucursalesAreasPuertasModule } from './sucursales_areas_puertas/sucursa
     SucursalesAreasInformacionModule,
 
     SucursalesAreasPuertasModule,
+
+    SucursalesAreasGruposInformacionModule,
+
+    TipoDocumentosModule,
+
+    TipoPaisesModule,
+
+    TipoPermisosModule,
   ],
 })
 export class AppModule {}

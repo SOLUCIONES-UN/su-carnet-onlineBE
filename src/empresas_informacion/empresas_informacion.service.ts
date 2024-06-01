@@ -56,6 +56,7 @@ export class EmpresasInformacionService {
       where: { estado: 1 },
       skip: offset,
       take: limit,
+      relations: ['idVendedor'],
     });
     
     return empresas;

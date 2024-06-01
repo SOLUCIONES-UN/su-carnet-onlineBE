@@ -55,6 +55,7 @@ export class TiposUsuarioService {
       where: { estado: 1 },
       skip: offset,
       take: limit,
+      relations: ['nivel'],
     });
     
     return tipos_usuario;

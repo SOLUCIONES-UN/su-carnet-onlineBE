@@ -55,6 +55,7 @@ export class SucursalesAreasPuertasService {
     const areaSucursalesPuertas = await this.sucursalesAreas_Puertas_Repository.find({
       skip: offset,
       take: limit,
+      relations: ['idSucursalArea'],
     });
     
     return areaSucursalesPuertas;
