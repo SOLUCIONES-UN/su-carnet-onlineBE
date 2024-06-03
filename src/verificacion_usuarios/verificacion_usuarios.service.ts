@@ -62,6 +62,7 @@ export class VerificacionUsuariosService {
       await this.transporter.sendMail(mailOptions);
       return true;
     } catch (error) {
+      console.log(error);
       throw new NotFoundException(`Error al enviar el correo`+ error);
     }
   }
