@@ -8,7 +8,7 @@ import { confirmarUsuario } from './dto/confirmar-usuario.dto';
 export class VerificacionUsuariosController {
   constructor(private readonly verificacionUsuariosService: VerificacionUsuariosService) {} 
 
-  @Post('generar_otp')
+  @Post('generar-otp')
   async generarOtp(@Body() CreateVerificacionUsuarioDto: CreateVerificacionUsuarioDto) {
     
     try {
@@ -42,7 +42,7 @@ export class VerificacionUsuariosController {
     }
   }
 
-  @Post('confirmar_usuario')
+  @Post('confirmar-usuario')
   async confirmarUsuario(@Body() confirmarUsuario: confirmarUsuario) {
     
     try {
