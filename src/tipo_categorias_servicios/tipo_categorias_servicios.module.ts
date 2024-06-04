@@ -3,11 +3,12 @@ import { TipoCategoriasServiciosService } from './tipo_categorias_servicios.serv
 import { TipoCategoriasServiciosController } from './tipo_categorias_servicios.controller';
 import { TipoCategoriasServicios } from '../entities/TipoCategoriasServicios';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { TipoServicios } from '../entities/TipoServicios';
 
 @Module({
 
   imports:[
-    TypeOrmModule.forFeature([TipoCategoriasServicios]),
+    TypeOrmModule.forFeature([TipoCategoriasServicios, TipoServicios]),
   ],
 
   controllers: [TipoCategoriasServiciosController],

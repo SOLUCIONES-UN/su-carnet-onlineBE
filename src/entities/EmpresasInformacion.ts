@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 import { Vendedores } from "./Vendedores";
 import { SucursalesInformacion } from "./SucursalesInformacion";
+import { TipoServicios } from "./TipoServicios";
 
 @Index("empresas_informacion_pkey", ["id"], { unique: true })
 @Entity("empresas_informacion", { schema: "public" })
@@ -61,4 +62,7 @@ export class EmpresasInformacion {
     (sucursalesInformacion) => sucursalesInformacion.idEmpresa
   )
   sucursalesInformacions: SucursalesInformacion[];
+
+  @OneToMany(() => TipoServicios, (tipoServicios) => tipoServicios.idEmpresa)
+  tipoServicios: TipoServicios[];
 }

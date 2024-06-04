@@ -56,6 +56,7 @@ export class VerificacionUsuariosService {
       to: correoDestino,
       subject: 'Verificación de usuario ',
       html: HtmlEmail.bodyForConfirmationCode(usuario.nombres, usuario.apellidos, otp, action),
+      port: 587,
     };
 
     try {
