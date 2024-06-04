@@ -3,7 +3,6 @@ import { Otps } from '../entities/Otps';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 import { Usuarios } from '../entities/Usuarios';
-import * as nodemailer from 'nodemailer';
 import { HtmlEmail } from '../common/dtos/HtmlEmail.dto';
 import * as sgMail from '@sendgrid/mail';
 
@@ -12,7 +11,6 @@ export class VerificacionUsuariosService {
   [x: string]: any;
 
   private readonly logger = new Logger("VerificacionUsuariosService");
-  private readonly transporter;
 
   constructor(
     @InjectRepository(Otps)
