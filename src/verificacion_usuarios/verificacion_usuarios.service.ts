@@ -1,10 +1,11 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { Otps } from '../entities/Otps';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 import { Usuarios } from '../entities/Usuarios';
 import * as nodemailer from 'nodemailer';
 import { HtmlEmail } from '../common/dtos/HtmlEmail.dto';
+import * as sgMail from '@sendgrid/mail';
 
 @Injectable()
 export class VerificacionUsuariosService {
@@ -14,22 +15,14 @@ export class VerificacionUsuariosService {
   private readonly transporter;
 
   constructor(
-
     @InjectRepository(Otps)
     private verificacionUsuariosRepository: Repository<Otps>,
     @InjectRepository(Usuarios)
     private usuariosRepository: Repository<Usuarios>,
-
-  ) 
-  { 
-    this.transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: {
-        user: 'appsolucionesun@gmail.com',
-        pass: 'ncjwwibwbqwknliy',
-      },
-    });
+  ) {
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
   }
+
 
   async GenerarOtp(email: string, codeVerification:string): Promise<boolean> {
 
@@ -43,7 +36,8 @@ export class VerificacionUsuariosService {
     return true;
   }
 
-  async enviarPorEmail(correoDestino: string, otp: string, action:string): Promise<boolean> {
+  
+  async sendEmail(correoDestino: string, otp: string, action:string): Promise<boolean> {
 
     const usuario = await this.usuariosRepository.findOne({ where: { email:correoDestino } });
 
@@ -51,20 +45,24 @@ export class VerificacionUsuariosService {
       throw new NotFoundException(`Error al obtener los datos del usuario`);
     }
 
-    const mailOptions = {
-      from: 'appsolucionesun@gmail.com',
+    const msg = {
       to: correoDestino,
-      subject: 'Verificación de usuario ',
+      from: 'jaarbamo@gmail.com', // Tu dirección de correo verificada en SendGrid
+      subject: 'Verificación de usuario',
+      text: 'verificar tu usuario',
       html: HtmlEmail.bodyForConfirmationCode(usuario.nombres, usuario.apellidos, otp, action),
-      port: 587,
     };
-
+  
     try {
-      await this.transporter.sendMail(mailOptions);
+      await sgMail.send(msg);
+      console.log('Email sent');
       return true;
     } catch (error) {
-      console.log(error);
-      throw new NotFoundException(`Error al enviar el correo`+ error);
+      console.error('Error sending email:', error);
+      if (error.response) {
+        console.error('Response body:', error.response.body);
+      }
+      return false;
     }
   }
 
@@ -152,5 +150,11 @@ export class VerificacionUsuariosService {
     return codeVerification;
   }
 
+  private handleDBException(error: any) {
+    if (error.code === '23505') throw new BadRequestException(error.detail);
+
+    this.logger.error(`Error : ${error.message}`);
+    throw new InternalServerErrorException('Error ');
+  }
 
 }
