@@ -7,6 +7,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { EmpresasDocumentos } from "./EmpresasDocumentos";
 import { Vendedores } from "./Vendedores";
 import { SucursalesInformacion } from "./SucursalesInformacion";
 import { TipoServicios } from "./TipoServicios";
@@ -52,6 +53,12 @@ export class EmpresasInformacion {
 
   @Column("integer", { name: "estado", default: () => "1" })
   estado: number;
+
+  @OneToMany(
+    () => EmpresasDocumentos,
+    (empresasDocumentos) => empresasDocumentos.idEmpresa
+  )
+  empresasDocumentos: EmpresasDocumentos[];
 
   @ManyToOne(() => Vendedores, (vendedores) => vendedores.empresasInformacions)
   @JoinColumn([{ name: "id_vendedor", referencedColumnName: "id" }])

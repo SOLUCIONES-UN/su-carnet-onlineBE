@@ -18,6 +18,7 @@ import { TipoPaisesModule } from './tipo_paises/tipo_paises.module';
 import { TipoPermisosModule } from './tipo_permisos/tipo_permisos.module';
 import { TipoCategoriasServiciosModule } from './tipo_categorias_servicios/tipo_categorias_servicios.module';
 import { TipoServiciosModule } from './tipo_servicios/tipo_servicios.module';
+import { EmpresasDocumentosModule } from './empresas_documentos/empresas_documentos.module';
 
 @Module({
   imports: [
@@ -68,6 +69,8 @@ import { TipoServiciosModule } from './tipo_servicios/tipo_servicios.module';
     TipoCategoriasServiciosModule,
 
     TipoServiciosModule,
+
+    EmpresasDocumentosModule,
   ],
 })
 export class AppModule {}

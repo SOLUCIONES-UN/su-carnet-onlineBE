@@ -23,7 +23,7 @@ export class CreateSucursalesInformacionDto {
     archivoImagen2: string;
 
     @IsNumber()
-    @IsNotEmpty({ message: 'El campo archivoImagen2 es requerido' })
+    @IsNotEmpty({ message: 'El campo idEmpresa es requerido' })
     idEmpresa: number;
 
 }
