@@ -68,7 +68,7 @@ export class RegistroAfiliacionesService {
       const RegistroAfiliacion = await this.RegistroAfiliacionesRepository.findOneBy({id});
 
       if(!RegistroAfiliacion){
-        throw new NotFoundException(`empresa con ID ${id} not encontrado`);
+        throw new NotFoundException(`RegistroAfiliacion con ID ${id} not encontrado`);
       }
 
       RegistroAfiliacion.estado = 'INA';
