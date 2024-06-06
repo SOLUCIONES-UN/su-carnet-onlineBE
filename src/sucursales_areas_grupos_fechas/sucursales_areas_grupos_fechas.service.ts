@@ -21,27 +21,37 @@ export class SucursalesAreasGruposFechasService {
 
   ) { }
 
+  // Función para transformar la fecha
+  transformDate(dateString: string): string {
+    const [day, month, year] = dateString.split("/");
+    return `${year}-${month}-${day}`;
+  }
+
+
   async create(createSucursalesAreasGruposFechaDto: CreateSucursalesAreasGruposFechaDto) {
-    
+
     try {
 
       const { idAreaGrupo, ...infoData } = createSucursalesAreasGruposFechaDto;
-  
+
       const SucursalesAreasGruposInformacion = await this.SucursalesAreasGruposInformacionRepository.findOneBy({ id: idAreaGrupo });
-  
+
       if (!SucursalesAreasGruposInformacion) {
         throw new NotFoundException(`SucursalesAreasGruposInformacion con ID ${idAreaGrupo} no encontrada`);
       }
-  
+
+      const fechaTransformada = this.transformDate(createSucursalesAreasGruposFechaDto.fecha);
+
       const Grupos_fechas = this.SucursalesAreasGruposFechasRepository.create({
         ...infoData,
-        idAreaGrupo: SucursalesAreasGruposInformacion
+        idAreaGrupo: SucursalesAreasGruposInformacion,
+        fecha: fechaTransformada
       });
-  
+
       await this.SucursalesAreasGruposFechasRepository.save(Grupos_fechas);
-  
-      return Grupos_fechas; 
-  
+
+      return Grupos_fechas;
+
     } catch (error) {
       this.handleDBException(error);
     }
@@ -56,49 +66,52 @@ export class SucursalesAreasGruposFechasService {
       take: limit,
       relations: ['idAreaGrupo'],
     });
-    
+
     return sucursalesAreasGruposHorarios;
   }
 
   async update(id: number, updateSucursalesAreasGruposFechaDto: UpdateSucursalesAreasGruposFechaDto) {
-    
+
     try {
       const { idAreaGrupo, ...infoData } = updateSucursalesAreasGruposFechaDto;
-  
+
       const sucursales_areas_grupos_fechas = await this.SucursalesAreasGruposFechasRepository.findOneBy({ id });
 
       if (!sucursales_areas_grupos_fechas) {
         throw new NotFoundException(`sucursales_areas_grupos_fechas con ID ${id} no encontrada`);
       }
-  
+
       const SucursalesAreasGruposInformacion = await this.SucursalesAreasGruposInformacionRepository.findOneBy({ id: idAreaGrupo });
 
       if (!SucursalesAreasGruposInformacion) {
         throw new NotFoundException(`SucursalesAreasGruposInformacion con ID ${idAreaGrupo} no encontrada`);
       }
-  
+
+      const fechaTransformada = this.transformDate(updateSucursalesAreasGruposFechaDto.fecha);
+
       const update_sucursales_areas_grupos_fechas = this.SucursalesAreasGruposFechasRepository.merge(sucursales_areas_grupos_fechas, {
         ...infoData,
-        idAreaGrupo: SucursalesAreasGruposInformacion
+        idAreaGrupo: SucursalesAreasGruposInformacion,
+        fecha: fechaTransformada
       });
-  
+
       // Guardar los cambios en la base de datos
       await this.SucursalesAreasGruposFechasRepository.save(update_sucursales_areas_grupos_fechas);
-  
+
       return update_sucursales_areas_grupos_fechas;
-  
+
     } catch (error) {
       this.handleDBException(error);
     }
   }
 
   async remove(id: number) {
-    
+
     try {
-      
+
       const sucursales_areas_grupos_fechas = await this.SucursalesAreasGruposFechasRepository.findOne({ where: { id } });
 
-      if(!sucursales_areas_grupos_fechas){
+      if (!sucursales_areas_grupos_fechas) {
         throw new NotFoundException(`sucursales_areas_grupos_horario con ID ${id} not encontrado`);
       }
       return await this.SucursalesAreasGruposFechasRepository.remove(sucursales_areas_grupos_fechas);

@@ -11,6 +11,7 @@ import { SucursalesAreasGruposFechas } from "./SucursalesAreasGruposFechas";
 import { SucursalesAreasGruposHorarios } from "./SucursalesAreasGruposHorarios";
 import { SucursalesAreasInformacion } from "./SucursalesAreasInformacion";
 import { SucursalesAreasGruposPuertas } from "./SucursalesAreasGruposPuertas";
+import { SucursalesAreasPermisos } from "./SucursalesAreasPermisos";
 
 @Index("sucursales_areas_grupos_informacion_pkey", ["id"], { unique: true })
 @Entity("sucursales_areas_grupos_informacion", { schema: "public" })
@@ -49,4 +50,10 @@ export class SucursalesAreasGruposInformacion {
     (sucursalesAreasGruposPuertas) => sucursalesAreasGruposPuertas.idAreaGrupo
   )
   sucursalesAreasGruposPuertas: SucursalesAreasGruposPuertas[];
+
+  @OneToMany(
+    () => SucursalesAreasPermisos,
+    (sucursalesAreasPermisos) => sucursalesAreasPermisos.idAreaGrupo
+  )
+  sucursalesAreasPermisos: SucursalesAreasPermisos[];
 }

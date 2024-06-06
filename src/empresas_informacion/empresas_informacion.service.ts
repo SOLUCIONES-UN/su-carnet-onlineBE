@@ -20,6 +20,12 @@ export class EmpresasInformacionService {
     private vendedoresRepository: Repository<Vendedores>,
 
   ) { }
+  
+  // Función para transformar la fecha
+  transformDate(dateString: string): string {
+    const [day, month, year] = dateString.split("/");
+    return `${year}-${month}-${day}`;
+  }
 
   async create(createEmpresasInformacionDto: CreateEmpresasInformacionDto) {
 
@@ -33,9 +39,14 @@ export class EmpresasInformacionService {
         throw new NotFoundException(`Vendedor con ID ${idVendedor} no encontrado`);
       }
   
+      const fechaInicioTransformada = this.transformDate(createEmpresasInformacionDto.fechaInicio);
+      const fechaVencimientoTransformada = this.transformDate(createEmpresasInformacionDto.fechaVencimiento);
+
       const empresa = this.empresaRepository.create({
         ...infoData,
         idVendedor: vendedor,
+        fechaInicio: fechaInicioTransformada,
+        fechaVencimiento: fechaVencimientoTransformada
       });
   
       await this.empresaRepository.save(empresa);
@@ -90,9 +101,14 @@ export class EmpresasInformacionService {
         throw new NotFoundException(`vendedor con ID ${idVendedor} no encontrado`);
       }
   
+      const fechaInicioTransformada = this.transformDate(updateEmpresasInformacionDto.fechaInicio);
+      const fechaVencimientoTransformada = this.transformDate(updateEmpresasInformacionDto.fechaVencimiento);
+
       const updatedEmpresa = this.empresaRepository.merge(empresa, {
         ...infoData,
-        idVendedor: vendedor
+        idVendedor: vendedor,
+        fechaInicio: fechaInicioTransformada,
+        fechaVencimiento: fechaVencimientoTransformada
       });
   
       // Guardar los cambios en la base de datos
