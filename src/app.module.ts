@@ -19,6 +19,8 @@ import { TipoPermisosModule } from './tipo_permisos/tipo_permisos.module';
 import { TipoCategoriasServiciosModule } from './tipo_categorias_servicios/tipo_categorias_servicios.module';
 import { TipoServiciosModule } from './tipo_servicios/tipo_servicios.module';
 import { EmpresasDocumentosModule } from './empresas_documentos/empresas_documentos.module';
+import { SucursalesDocumentosModule } from './sucursales_documentos/sucursales_documentos.module';
+import { RegistroAfiliacionesModule } from './registro_afiliaciones/registro_afiliaciones.module';
 
 @Module({
   imports: [
@@ -71,6 +73,10 @@ import { EmpresasDocumentosModule } from './empresas_documentos/empresas_documen
     TipoServiciosModule,
 
     EmpresasDocumentosModule,
+
+    SucursalesDocumentosModule,
+
+    RegistroAfiliacionesModule,
   ],
 })
 export class AppModule {}

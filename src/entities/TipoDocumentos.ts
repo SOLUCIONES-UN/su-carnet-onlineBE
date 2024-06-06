@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { EmpresasDocumentos } from "./EmpresasDocumentos";
+import { SucursalesDocumentos } from "./SucursalesDocumentos";
 
 @Index("tipo_documentos_pkey", ["id"], { unique: true })
 @Entity("tipo_documentos", { schema: "public" })
@@ -38,4 +39,10 @@ export class TipoDocumentos {
     (empresasDocumentos) => empresasDocumentos.idTipoDocumento
   )
   empresasDocumentos: EmpresasDocumentos[];
+
+  @OneToMany(
+    () => SucursalesDocumentos,
+    (sucursalesDocumentos) => sucursalesDocumentos.idTipoDocumento
+  )
+  sucursalesDocumentos: SucursalesDocumentos[];
 }
