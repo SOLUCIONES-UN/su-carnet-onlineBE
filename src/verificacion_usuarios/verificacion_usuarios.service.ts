@@ -141,7 +141,7 @@ export class VerificacionUsuariosService {
 
     let codeVerification = '';
 
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 4; i++) {
       const randomDigit = Math.floor(Math.random() * 9) + 1;
       codeVerification += randomDigit.toString();
     }

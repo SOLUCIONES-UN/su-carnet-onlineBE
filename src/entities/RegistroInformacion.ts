@@ -7,6 +7,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { RegistroDocumentos } from "./RegistroDocumentos";
 import { TipoPaises } from "./TipoPaises";
 import { SucursalesAreasPermisos } from "./SucursalesAreasPermisos";
 
@@ -50,6 +51,12 @@ export class RegistroInformacion {
 
   @Column("character varying", { name: "estado", nullable: true, length: 4 })
   estado: string | null;
+
+  @OneToMany(
+    () => RegistroDocumentos,
+    (registroDocumentos) => registroDocumentos.idRegistroInformacion
+  )
+  registroDocumentos: RegistroDocumentos[];
 
   @ManyToOne(() => TipoPaises, (tipoPaises) => tipoPaises.registroInformacions)
   @JoinColumn([{ name: "id_pais", referencedColumnName: "id" }])
