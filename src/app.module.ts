@@ -22,6 +22,7 @@ import { EmpresasDocumentosModule } from './empresas_documentos/empresas_documen
 import { SucursalesDocumentosModule } from './sucursales_documentos/sucursales_documentos.module';
 import { RegistroAfiliacionesModule } from './registro_afiliaciones/registro_afiliaciones.module';
 import { SucursalesAreasGruposPuertasModule } from './sucursales_areas_grupos_puertas/sucursales_areas_grupos_puertas.module';
+import { SucursalesAreasGruposHorariosModule } from './sucursales_areas_grupos_horarios/sucursales_areas_grupos_horarios.module';
 
 @Module({
   imports: [
@@ -80,6 +81,8 @@ import { SucursalesAreasGruposPuertasModule } from './sucursales_areas_grupos_pu
     RegistroAfiliacionesModule,
 
     SucursalesAreasGruposPuertasModule,
+
+    SucursalesAreasGruposHorariosModule,
   ],
 })
 export class AppModule {}
