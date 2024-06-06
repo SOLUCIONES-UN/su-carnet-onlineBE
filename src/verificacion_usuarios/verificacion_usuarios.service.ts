@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 import { Usuarios } from '../entities/Usuarios';
 import { HtmlEmail } from '../common/dtos/HtmlEmail.dto';
-import * as sgMail from '@sendgrid/mail';
+import * as sgMail from '@sendgrid/mail'; 
 
 @Injectable()
 export class VerificacionUsuariosService {
