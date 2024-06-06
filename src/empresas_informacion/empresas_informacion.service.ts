@@ -66,6 +66,12 @@ export class EmpresasInformacionService {
     return this.empresaRepository.findOneBy({ id });
   }
 
+  async GetEmpresaByDisclaimer(disclaimer: string) {
+    return await this.empresaRepository.findOne({
+      where: { disclaimer: disclaimer },
+    });
+  }
+
   async update(id: number, updateEmpresasInformacionDto: UpdateEmpresasInformacionDto) {
     
     try {

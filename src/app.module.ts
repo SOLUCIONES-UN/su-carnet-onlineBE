@@ -18,6 +18,12 @@ import { TipoPaisesModule } from './tipo_paises/tipo_paises.module';
 import { TipoPermisosModule } from './tipo_permisos/tipo_permisos.module';
 import { TipoCategoriasServiciosModule } from './tipo_categorias_servicios/tipo_categorias_servicios.module';
 import { TipoServiciosModule } from './tipo_servicios/tipo_servicios.module';
+import { EmpresasDocumentosModule } from './empresas_documentos/empresas_documentos.module';
+import { SucursalesDocumentosModule } from './sucursales_documentos/sucursales_documentos.module';
+import { RegistroAfiliacionesModule } from './registro_afiliaciones/registro_afiliaciones.module';
+import { SucursalesAreasGruposPuertasModule } from './sucursales_areas_grupos_puertas/sucursales_areas_grupos_puertas.module';
+import { SucursalesAreasGruposHorariosModule } from './sucursales_areas_grupos_horarios/sucursales_areas_grupos_horarios.module';
+import { SucursalesAreasGruposFechasModule } from './sucursales_areas_grupos_fechas/sucursales_areas_grupos_fechas.module';
 
 @Module({
   imports: [
@@ -68,6 +74,18 @@ import { TipoServiciosModule } from './tipo_servicios/tipo_servicios.module';
     TipoCategoriasServiciosModule,
 
     TipoServiciosModule,
+
+    EmpresasDocumentosModule,
+
+    SucursalesDocumentosModule,
+
+    RegistroAfiliacionesModule,
+
+    SucursalesAreasGruposPuertasModule,
+
+    SucursalesAreasGruposHorariosModule,
+
+    SucursalesAreasGruposFechasModule,
   ],
 })
 export class AppModule {}

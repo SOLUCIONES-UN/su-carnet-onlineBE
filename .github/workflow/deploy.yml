@@ -24,7 +24,6 @@ jobs:
         ssh -o StrictHostKeyChecking=no desasolun@${{ secrets.DIGITAL_OCEAN_IP }} << 'EOF'
           # Load profile
           source ~/.bashrc
-
           # Ensure the correct PATH is set
           export PATH="$PATH:/home/desasolun/.nvm/versions/node/v22.2.0/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
           

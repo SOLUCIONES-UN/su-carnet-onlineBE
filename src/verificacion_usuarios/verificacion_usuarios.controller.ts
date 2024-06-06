@@ -30,7 +30,7 @@ export class VerificacionUsuariosController {
         return new GenericResponse('400', 'ESE MEDIO DE ENVIO DE OTP AUN NO SE IMPLEMENTA', result); 
       }
 
-      const enviarCorreo = await this.verificacionUsuariosService.enviarPorEmail(CreateVerificacionUsuarioDto.correoElectronico, otpGenerado, CreateVerificacionUsuarioDto.accion);
+      const enviarCorreo = await this.verificacionUsuariosService.sendEmail(CreateVerificacionUsuarioDto.correoElectronico, otpGenerado, CreateVerificacionUsuarioDto.accion);
 
       if(enviarCorreo == false){
         return new GenericResponse('400', 'ERROR AL ENVIAR CORREO ', result); 

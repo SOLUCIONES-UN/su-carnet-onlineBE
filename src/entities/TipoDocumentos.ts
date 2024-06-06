@@ -1,4 +1,12 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  Index,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { EmpresasDocumentos } from "./EmpresasDocumentos";
+import { SucursalesDocumentos } from "./SucursalesDocumentos";
 
 @Index("tipo_documentos_pkey", ["id"], { unique: true })
 @Entity("tipo_documentos", { schema: "public" })
@@ -25,4 +33,16 @@ export class TipoDocumentos {
 
   @Column("integer", { name: "estado", default: () => "1" })
   estado: number;
+
+  @OneToMany(
+    () => EmpresasDocumentos,
+    (empresasDocumentos) => empresasDocumentos.idTipoDocumento
+  )
+  empresasDocumentos: EmpresasDocumentos[];
+
+  @OneToMany(
+    () => SucursalesDocumentos,
+    (sucursalesDocumentos) => sucursalesDocumentos.idTipoDocumento
+  )
+  sucursalesDocumentos: SucursalesDocumentos[];
 }

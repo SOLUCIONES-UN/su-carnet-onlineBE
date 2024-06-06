@@ -4,8 +4,10 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { SucursalesAreasGruposPuertas } from "./SucursalesAreasGruposPuertas";
 import { SucursalesAreasInformacion } from "./SucursalesAreasInformacion";
 
 @Index("sucursales_areas_puertas_pkey", ["id"], { unique: true })
@@ -22,6 +24,12 @@ export class SucursalesAreasPuertas {
 
   @Column("character varying", { name: "genera_alerta", length: 2 })
   generaAlerta: string;
+
+  @OneToMany(
+    () => SucursalesAreasGruposPuertas,
+    (sucursalesAreasGruposPuertas) => sucursalesAreasGruposPuertas.idPuerta
+  )
+  sucursalesAreasGruposPuertas: SucursalesAreasGruposPuertas[];
 
   @ManyToOne(
     () => SucursalesAreasInformacion,

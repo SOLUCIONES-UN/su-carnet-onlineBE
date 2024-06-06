@@ -4,6 +4,7 @@ import { CreateEmpresasInformacionDto } from './dto/create-empresas_informacion.
 import { UpdateEmpresasInformacionDto } from './dto/update-empresas_informacion.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { getEmpresasInformacion } from './dto/get-empresas_informacion.dto';
 
 @Controller('empresas-informacion')
 export class EmpresasInformacionController {
@@ -42,6 +43,19 @@ export class EmpresasInformacionController {
     try {
 
       const result = await this.empresasInformacionService.findOne(+id);
+      return new GenericResponse('200', 'EXITO', result);
+
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @Post('empresa-disclaimer')
+  async GetEmpresaByDisclaimer(@Body() getEmpresasInformacion: getEmpresasInformacion) {
+
+    try {
+
+      const result = await this.empresasInformacionService.GetEmpresaByDisclaimer(getEmpresasInformacion.disclaimer);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
