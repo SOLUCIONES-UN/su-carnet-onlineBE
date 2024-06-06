@@ -1,0 +1,35 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+   
+    - name: conect to server
+      run: |
+        ssh -o StrictHostKeyChecking=no desasolun@${{ secrets.DIGITAL_OCEAN_IP }} << 'EOF'
+          # Load profile
+          source ~/.bashrc
+          # Ensure the correct PATH is set
+          export PATH="$PATH:/home/desasolun/.nvm/versions/node/v22.2.0/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+          
+          cd /home/desasolun/Documents/suCarnetOnline/su-carnet-onlineBE
+          git pull origin develop
+          yarn
+          yarn run build
+          pm2 restart su-carnet-onlineBE
+        EOF
