@@ -4,9 +4,11 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { TipoPaises } from "./TipoPaises";
+import { SucursalesAreasPermisos } from "./SucursalesAreasPermisos";
 
 @Index("registro_informacion_pkey", ["id"], { unique: true })
 @Entity("registro_informacion", { schema: "public" })
@@ -52,4 +54,10 @@ export class RegistroInformacion {
   @ManyToOne(() => TipoPaises, (tipoPaises) => tipoPaises.registroInformacions)
   @JoinColumn([{ name: "id_pais", referencedColumnName: "id" }])
   idPais: TipoPaises;
+
+  @OneToMany(
+    () => SucursalesAreasPermisos,
+    (sucursalesAreasPermisos) => sucursalesAreasPermisos.idRegistro
+  )
+  sucursalesAreasPermisos: SucursalesAreasPermisos[];
 }
