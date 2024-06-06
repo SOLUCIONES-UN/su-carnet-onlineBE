@@ -57,7 +57,7 @@ export class RegistroInformacionService {
         telefono: telefonoEncrypted,
         correo: correoEncrypted,
         idPais: TipoPaises,
-        fechaNacimiento: fechaNacimientoTransformada,  // Asegúrate de que esto sea un Date
+        fechaNacimiento: fechaNacimientoTransformada,  
         estado: 'ACT'
       });
 

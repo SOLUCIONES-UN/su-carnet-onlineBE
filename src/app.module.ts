@@ -27,6 +27,7 @@ import { SucursalesAreasGruposFechasModule } from './sucursales_areas_grupos_fec
 import { RegistroInformacionModule } from './registro_informacion/registro_informacion.module';
 import { SucursalesAreasPermisosModule } from './sucursales_areas_permisos/sucursales_areas_permisos.module';
 import { SucursalesAreasLogsModule } from './sucursales_areas_logs/sucursales_areas_logs.module';
+import { RegistroDocumentosModule } from './registro_documentos/registro_documentos.module';
 
 @Module({
   imports: [
@@ -95,6 +96,8 @@ import { SucursalesAreasLogsModule } from './sucursales_areas_logs/sucursales_ar
     SucursalesAreasPermisosModule,
 
     SucursalesAreasLogsModule,
+
+    RegistroDocumentosModule,
   ],
 })
 export class AppModule {}
