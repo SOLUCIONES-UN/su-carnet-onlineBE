@@ -24,6 +24,7 @@ import { RegistroAfiliacionesModule } from './registro_afiliaciones/registro_afi
 import { SucursalesAreasGruposPuertasModule } from './sucursales_areas_grupos_puertas/sucursales_areas_grupos_puertas.module';
 import { SucursalesAreasGruposHorariosModule } from './sucursales_areas_grupos_horarios/sucursales_areas_grupos_horarios.module';
 import { SucursalesAreasGruposFechasModule } from './sucursales_areas_grupos_fechas/sucursales_areas_grupos_fechas.module';
+import { RegistroInformacionModule } from './registro_informacion/registro_informacion.module';
 
 @Module({
   imports: [
@@ -86,6 +87,8 @@ import { SucursalesAreasGruposFechasModule } from './sucursales_areas_grupos_fec
     SucursalesAreasGruposHorariosModule,
 
     SucursalesAreasGruposFechasModule,
+
+    RegistroInformacionModule,
   ],
 })
 export class AppModule {}
