@@ -1,31 +1,31 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
-import { CreateSucursalesAreasGruposHorarioDto } from './dto/create-sucursales_areas_grupos_horario.dto';
-import { UpdateSucursalesAreasGruposHorarioDto } from './dto/update-sucursales_areas_grupos_horario.dto';
-import { SucursalesAreasGruposHorarios } from '../entities/SucursalesAreasGruposHorarios';
-import { InjectRepository } from '@nestjs/typeorm';
+import { CreateSucursalesAreasGruposFechaDto } from './dto/create-sucursales_areas_grupos_fecha.dto';
+import { UpdateSucursalesAreasGruposFechaDto } from './dto/update-sucursales_areas_grupos_fecha.dto';
+import { SucursalesAreasGruposFechas } from '../entities/SucursalesAreasGruposFechas';
 import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { SucursalesAreasGruposInformacion } from '../entities/SucursalesAreasGruposInformacion';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Injectable()
-export class SucursalesAreasGruposHorariosService {
+export class SucursalesAreasGruposFechasService {
 
-  private readonly logger = new Logger("SucursalesAreasGruposHorariosService");
+  private readonly logger = new Logger("SucursalesAreasGruposFechasService");
 
   constructor(
-    @InjectRepository(SucursalesAreasGruposHorarios)
-    private SucursalesAreasGruposHorariosRepository: Repository<SucursalesAreasGruposHorarios>,
+    @InjectRepository(SucursalesAreasGruposFechas)
+    private SucursalesAreasGruposFechasRepository: Repository<SucursalesAreasGruposFechas>,
 
     @InjectRepository(SucursalesAreasGruposInformacion)
     private SucursalesAreasGruposInformacionRepository: Repository<SucursalesAreasGruposInformacion>,
 
   ) { }
 
-  async create(createSucursalesAreasGruposHorarioDto: CreateSucursalesAreasGruposHorarioDto) {
+  async create(createSucursalesAreasGruposFechaDto: CreateSucursalesAreasGruposFechaDto) {
     
     try {
 
-      const { idAreaGrupo, ...infoData } = createSucursalesAreasGruposHorarioDto;
+      const { idAreaGrupo, ...infoData } = createSucursalesAreasGruposFechaDto;
   
       const SucursalesAreasGruposInformacion = await this.SucursalesAreasGruposInformacionRepository.findOneBy({ id: idAreaGrupo });
   
@@ -33,14 +33,14 @@ export class SucursalesAreasGruposHorariosService {
         throw new NotFoundException(`SucursalesAreasGruposInformacion con ID ${idAreaGrupo} no encontrada`);
       }
   
-      const GruposHorarios = this.SucursalesAreasGruposHorariosRepository.create({
+      const Grupos_fechas = this.SucursalesAreasGruposFechasRepository.create({
         ...infoData,
         idAreaGrupo: SucursalesAreasGruposInformacion
       });
   
-      await this.SucursalesAreasGruposHorariosRepository.save(GruposHorarios);
+      await this.SucursalesAreasGruposFechasRepository.save(Grupos_fechas);
   
-      return GruposHorarios; 
+      return Grupos_fechas; 
   
     } catch (error) {
       this.handleDBException(error);
@@ -51,7 +51,7 @@ export class SucursalesAreasGruposHorariosService {
 
     const { limit = 10, offset = 0 } = PaginationDto;
 
-    const sucursalesAreasGruposHorarios = await this.SucursalesAreasGruposHorariosRepository.find({
+    const sucursalesAreasGruposHorarios = await this.SucursalesAreasGruposFechasRepository.find({
       skip: offset,
       take: limit,
       relations: ['idAreaGrupo'],
@@ -60,15 +60,15 @@ export class SucursalesAreasGruposHorariosService {
     return sucursalesAreasGruposHorarios;
   }
 
-  async update(id: number, updateSucursalesAreasGruposHorarioDto: UpdateSucursalesAreasGruposHorarioDto) {
+  async update(id: number, updateSucursalesAreasGruposFechaDto: UpdateSucursalesAreasGruposFechaDto) {
     
     try {
-      const { idAreaGrupo, ...infoData } = updateSucursalesAreasGruposHorarioDto;
+      const { idAreaGrupo, ...infoData } = updateSucursalesAreasGruposFechaDto;
   
-      const sucursales_areas_grupos_horario = await this.SucursalesAreasGruposHorariosRepository.findOneBy({ id });
+      const sucursales_areas_grupos_fechas = await this.SucursalesAreasGruposFechasRepository.findOneBy({ id });
 
-      if (!sucursales_areas_grupos_horario) {
-        throw new NotFoundException(`sucursales_areas_grupos_horario con ID ${id} no encontrada`);
+      if (!sucursales_areas_grupos_fechas) {
+        throw new NotFoundException(`sucursales_areas_grupos_fechas con ID ${id} no encontrada`);
       }
   
       const SucursalesAreasGruposInformacion = await this.SucursalesAreasGruposInformacionRepository.findOneBy({ id: idAreaGrupo });
@@ -77,15 +77,15 @@ export class SucursalesAreasGruposHorariosService {
         throw new NotFoundException(`SucursalesAreasGruposInformacion con ID ${idAreaGrupo} no encontrada`);
       }
   
-      const update_sucursales_areas_grupos_horario = this.SucursalesAreasGruposHorariosRepository.merge(sucursales_areas_grupos_horario, {
+      const update_sucursales_areas_grupos_fechas = this.SucursalesAreasGruposFechasRepository.merge(sucursales_areas_grupos_fechas, {
         ...infoData,
         idAreaGrupo: SucursalesAreasGruposInformacion
       });
   
       // Guardar los cambios en la base de datos
-      await this.SucursalesAreasGruposHorariosRepository.save(update_sucursales_areas_grupos_horario);
+      await this.SucursalesAreasGruposFechasRepository.save(update_sucursales_areas_grupos_fechas);
   
-      return update_sucursales_areas_grupos_horario;
+      return update_sucursales_areas_grupos_fechas;
   
     } catch (error) {
       this.handleDBException(error);
@@ -96,12 +96,12 @@ export class SucursalesAreasGruposHorariosService {
     
     try {
       
-      const sucursales_areas_grupos_horario = await this.SucursalesAreasGruposHorariosRepository.findOne({ where: { id } });
+      const sucursales_areas_grupos_fechas = await this.SucursalesAreasGruposFechasRepository.findOne({ where: { id } });
 
-      if(!sucursales_areas_grupos_horario){
+      if(!sucursales_areas_grupos_fechas){
         throw new NotFoundException(`sucursales_areas_grupos_horario con ID ${id} not encontrado`);
       }
-      return await this.SucursalesAreasGruposHorariosRepository.remove(sucursales_areas_grupos_horario);
+      return await this.SucursalesAreasGruposFechasRepository.remove(sucursales_areas_grupos_fechas);
 
     } catch (error) {
       this.handleDBException(error);
