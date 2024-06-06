@@ -21,6 +21,7 @@ import { TipoServiciosModule } from './tipo_servicios/tipo_servicios.module';
 import { EmpresasDocumentosModule } from './empresas_documentos/empresas_documentos.module';
 import { SucursalesDocumentosModule } from './sucursales_documentos/sucursales_documentos.module';
 import { RegistroAfiliacionesModule } from './registro_afiliaciones/registro_afiliaciones.module';
+import { SucursalesAreasGruposPuertasModule } from './sucursales_areas_grupos_puertas/sucursales_areas_grupos_puertas.module';
 
 @Module({
   imports: [
@@ -77,6 +78,8 @@ import { RegistroAfiliacionesModule } from './registro_afiliaciones/registro_afi
     SucursalesDocumentosModule,
 
     RegistroAfiliacionesModule,
+
+    SucursalesAreasGruposPuertasModule,
   ],
 })
 export class AppModule {}

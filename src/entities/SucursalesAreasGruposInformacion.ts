@@ -4,9 +4,11 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { SucursalesAreasInformacion } from "./SucursalesAreasInformacion";
+import { SucursalesAreasGruposPuertas } from "./SucursalesAreasGruposPuertas";
 
 @Index("sucursales_areas_grupos_informacion_pkey", ["id"], { unique: true })
 @Entity("sucursales_areas_grupos_informacion", { schema: "public" })
@@ -27,4 +29,10 @@ export class SucursalesAreasGruposInformacion {
   )
   @JoinColumn([{ name: "id_sucursal_area", referencedColumnName: "id" }])
   idSucursalArea: SucursalesAreasInformacion;
+
+  @OneToMany(
+    () => SucursalesAreasGruposPuertas,
+    (sucursalesAreasGruposPuertas) => sucursalesAreasGruposPuertas.idAreaGrupo
+  )
+  sucursalesAreasGruposPuertas: SucursalesAreasGruposPuertas[];
 }
