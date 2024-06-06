@@ -26,6 +26,7 @@ import { SucursalesAreasGruposHorariosModule } from './sucursales_areas_grupos_h
 import { SucursalesAreasGruposFechasModule } from './sucursales_areas_grupos_fechas/sucursales_areas_grupos_fechas.module';
 import { RegistroInformacionModule } from './registro_informacion/registro_informacion.module';
 import { SucursalesAreasPermisosModule } from './sucursales_areas_permisos/sucursales_areas_permisos.module';
+import { SucursalesAreasLogsModule } from './sucursales_areas_logs/sucursales_areas_logs.module';
 
 @Module({
   imports: [
@@ -92,6 +93,8 @@ import { SucursalesAreasPermisosModule } from './sucursales_areas_permisos/sucur
     RegistroInformacionModule,
 
     SucursalesAreasPermisosModule,
+
+    SucursalesAreasLogsModule,
   ],
 })
 export class AppModule {}
