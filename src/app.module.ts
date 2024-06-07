@@ -29,6 +29,7 @@ import { SucursalesAreasPermisosModule } from './sucursales_areas_permisos/sucur
 import { SucursalesAreasLogsModule } from './sucursales_areas_logs/sucursales_areas_logs.module';
 import { RegistroDocumentosModule } from './registro_documentos/registro_documentos.module';
 import { OutsoursingInformacionModule } from './outsoursing_informacion/outsoursing_informacion.module';
+import { OutsoursingServiciosModule } from './outsoursing_servicios/outsoursing_servicios.module';
 
 @Module({
   imports: [
@@ -101,6 +102,8 @@ import { OutsoursingInformacionModule } from './outsoursing_informacion/outsours
     RegistroDocumentosModule,
 
     OutsoursingInformacionModule,
+
+    OutsoursingServiciosModule,
   ],
 })
 export class AppModule {}

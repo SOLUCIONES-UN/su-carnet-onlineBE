@@ -1,25 +1,24 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, Query, ParseIntPipe } from '@nestjs/common';
-import { RegistroAfiliacionesService } from './registro_afiliaciones.service';
-import { CreateRegistroAfiliacioneDto } from './dto/create-registro_afiliacione.dto';
+import { OutsoursingServiciosService } from './outsoursing_servicios.service';
+import { CreateOutsoursingServicioDto } from './dto/create-outsoursing_servicio.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 
-@Controller('registro-afiliaciones')
-export class RegistroAfiliacionesController {
-  constructor(private readonly registroAfiliacionesService: RegistroAfiliacionesService) {}
+@Controller('outsoursing-servicios')
+export class OutsoursingServiciosController {
+  constructor(private readonly outsoursingServiciosService: OutsoursingServiciosService) {}
 
   @Post()
-  async create(@Body() createRegistroAfiliacioneDto: CreateRegistroAfiliacioneDto) {
-   
+  async create(@Body() createOutsoursingServicioDto: CreateOutsoursingServicioDto) {
+
     try {
 
-      const result = await this.registroAfiliacionesService.create(createRegistroAfiliacioneDto);
+      const result = await this.outsoursingServiciosService.create(createOutsoursingServicioDto);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
       throw new HttpException(new GenericResponse('500', 'Error al agregar', error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
   }
 
   @Get()
@@ -27,7 +26,7 @@ export class RegistroAfiliacionesController {
 
     try {
 
-      const result = await this.registroAfiliacionesService.findAll(paginationDto);
+      const result = await this.outsoursingServiciosService.findAll(paginationDto);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
@@ -40,7 +39,7 @@ export class RegistroAfiliacionesController {
 
     try {
 
-      const result = await this.registroAfiliacionesService.remove(+id);
+      const result = await this.outsoursingServiciosService.remove(+id);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
