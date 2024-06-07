@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { CreateRegistroDocumentoDto } from './dto/create-registro_documento.dto';
-import { UpdateRegistroDocumentoDto } from './dto/update-registro_documento.dto';
 import { RegistroDocumentos } from '../entities/RegistroDocumentos';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';

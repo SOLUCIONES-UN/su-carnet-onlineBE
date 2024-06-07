@@ -32,6 +32,7 @@ import { OutsoursingInformacionModule } from './outsoursing_informacion/outsours
 import { OutsoursingServiciosModule } from './outsoursing_servicios/outsoursing_servicios.module';
 import { OutsoursingAfiliacionesModule } from './outsoursing_afiliaciones/outsoursing_afiliaciones.module';
 import { OutsoursingDocumentosModule } from './outsoursing_documentos/outsoursing_documentos.module';
+import { RegistroDispositivosModule } from './registro_dispositivos/registro_dispositivos.module';
 
 @Module({
   imports: [
@@ -110,6 +111,8 @@ import { OutsoursingDocumentosModule } from './outsoursing_documentos/outsoursin
     OutsoursingAfiliacionesModule,
 
     OutsoursingDocumentosModule,
+
+    RegistroDispositivosModule,
   ],
 })
 export class AppModule {}

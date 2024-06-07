@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { OutsoursingAfiliaciones } from "./OutsoursingAfiliaciones";
+import { RegistroDispositivos } from "./RegistroDispositivos";
 import { RegistroDocumentos } from "./RegistroDocumentos";
 import { TipoPaises } from "./TipoPaises";
 import { SucursalesAreasPermisos } from "./SucursalesAreasPermisos";
@@ -58,6 +59,12 @@ export class RegistroInformacion {
     (outsoursingAfiliaciones) => outsoursingAfiliaciones.idRegistroInformacion
   )
   outsoursingAfiliaciones: OutsoursingAfiliaciones[];
+
+  @OneToMany(
+    () => RegistroDispositivos,
+    (registroDispositivos) => registroDispositivos.idRegistroInformacion
+  )
+  registroDispositivos: RegistroDispositivos[];
 
   @OneToMany(
     () => RegistroDocumentos,

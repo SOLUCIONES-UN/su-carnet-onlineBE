@@ -1,10 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, Query, ParseIntPipe } from '@nestjs/common';
 import { RegistroDocumentosService } from './registro_documentos.service';
 import { CreateRegistroDocumentoDto } from './dto/create-registro_documento.dto';
-import { UpdateRegistroDocumentoDto } from './dto/update-registro_documento.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
-import path = require('path/win32');
 
 @Controller('registro-documentos')
 export class RegistroDocumentosController {
