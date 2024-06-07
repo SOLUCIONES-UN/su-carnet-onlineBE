@@ -31,6 +31,7 @@ import { RegistroDocumentosModule } from './registro_documentos/registro_documen
 import { OutsoursingInformacionModule } from './outsoursing_informacion/outsoursing_informacion.module';
 import { OutsoursingServiciosModule } from './outsoursing_servicios/outsoursing_servicios.module';
 import { OutsoursingAfiliacionesModule } from './outsoursing_afiliaciones/outsoursing_afiliaciones.module';
+import { OutsoursingDocumentosModule } from './outsoursing_documentos/outsoursing_documentos.module';
 
 @Module({
   imports: [
@@ -107,6 +108,8 @@ import { OutsoursingAfiliacionesModule } from './outsoursing_afiliaciones/outsou
     OutsoursingServiciosModule,
 
     OutsoursingAfiliacionesModule,
+
+    OutsoursingDocumentosModule,
   ],
 })
 export class AppModule {}

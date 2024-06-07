@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { OutsoursingAfiliaciones } from "./OutsoursingAfiliaciones";
+import { OutsoursingDocumentos } from "./OutsoursingDocumentos";
 import { EmpresasInformacion } from "./EmpresasInformacion";
 import { OutsoursingServicios } from "./OutsoursingServicios";
 
@@ -31,6 +32,12 @@ export class OutsoursingInformacion {
     (outsoursingAfiliaciones) => outsoursingAfiliaciones.idOutsoursing
   )
   outsoursingAfiliaciones: OutsoursingAfiliaciones[];
+
+  @OneToMany(
+    () => OutsoursingDocumentos,
+    (outsoursingDocumentos) => outsoursingDocumentos.idOutsoursing
+  )
+  outsoursingDocumentos: OutsoursingDocumentos[];
 
   @ManyToOne(
     () => EmpresasInformacion,

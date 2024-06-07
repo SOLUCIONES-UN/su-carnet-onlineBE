@@ -4,8 +4,10 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { OutsoursingDocumentos } from "./OutsoursingDocumentos";
 import { RegistroInformacion } from "./RegistroInformacion";
 import { TipoDocumentos } from "./TipoDocumentos";
 
@@ -26,6 +28,12 @@ export class RegistroDocumentos {
 
   @Column("character varying", { name: "estado", nullable: true, length: 4 })
   estado: string | null;
+
+  @OneToMany(
+    () => OutsoursingDocumentos,
+    (outsoursingDocumentos) => outsoursingDocumentos.idDocumento
+  )
+  outsoursingDocumentos: OutsoursingDocumentos[];
 
   @ManyToOne(
     () => RegistroInformacion,
