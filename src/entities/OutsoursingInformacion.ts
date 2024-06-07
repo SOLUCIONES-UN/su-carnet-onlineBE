@@ -4,9 +4,11 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { EmpresasInformacion } from "./EmpresasInformacion";
+import { OutsoursingServicios } from "./OutsoursingServicios";
 
 @Index("outsoursing_informacion_pkey", ["id"], { unique: true })
 @Entity("outsoursing_informacion", { schema: "public" })
@@ -36,4 +38,10 @@ export class OutsoursingInformacion {
   )
   @JoinColumn([{ name: "id_empresa_padre", referencedColumnName: "id" }])
   idEmpresaPadre: EmpresasInformacion;
+
+  @OneToMany(
+    () => OutsoursingServicios,
+    (outsoursingServicios) => outsoursingServicios.idOutsoursing
+  )
+  outsoursingServicios: OutsoursingServicios[];
 }

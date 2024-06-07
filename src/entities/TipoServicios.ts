@@ -4,8 +4,10 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { OutsoursingServicios } from "./OutsoursingServicios";
 import { TipoCategoriasServicios } from "./TipoCategoriasServicios";
 import { EmpresasInformacion } from "./EmpresasInformacion";
 
@@ -23,6 +25,12 @@ export class TipoServicios {
 
   @Column("integer", { name: "estado", default: () => "1" })
   estado: number;
+
+  @OneToMany(
+    () => OutsoursingServicios,
+    (outsoursingServicios) => outsoursingServicios.idServicio
+  )
+  outsoursingServicios: OutsoursingServicios[];
 
   @ManyToOne(
     () => TipoCategoriasServicios,
