@@ -30,6 +30,7 @@ import { SucursalesAreasLogsModule } from './sucursales_areas_logs/sucursales_ar
 import { RegistroDocumentosModule } from './registro_documentos/registro_documentos.module';
 import { OutsoursingInformacionModule } from './outsoursing_informacion/outsoursing_informacion.module';
 import { OutsoursingServiciosModule } from './outsoursing_servicios/outsoursing_servicios.module';
+import { OutsoursingAfiliacionesModule } from './outsoursing_afiliaciones/outsoursing_afiliaciones.module';
 
 @Module({
   imports: [
@@ -104,6 +105,8 @@ import { OutsoursingServiciosModule } from './outsoursing_servicios/outsoursing_
     OutsoursingInformacionModule,
 
     OutsoursingServiciosModule,
+
+    OutsoursingAfiliacionesModule,
   ],
 })
 export class AppModule {}

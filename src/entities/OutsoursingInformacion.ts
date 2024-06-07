@@ -7,6 +7,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { OutsoursingAfiliaciones } from "./OutsoursingAfiliaciones";
 import { EmpresasInformacion } from "./EmpresasInformacion";
 import { OutsoursingServicios } from "./OutsoursingServicios";
 
@@ -24,6 +25,12 @@ export class OutsoursingInformacion {
 
   @Column("character varying", { name: "estado", nullable: true, length: 4 })
   estado: string | null;
+
+  @OneToMany(
+    () => OutsoursingAfiliaciones,
+    (outsoursingAfiliaciones) => outsoursingAfiliaciones.idOutsoursing
+  )
+  outsoursingAfiliaciones: OutsoursingAfiliaciones[];
 
   @ManyToOne(
     () => EmpresasInformacion,

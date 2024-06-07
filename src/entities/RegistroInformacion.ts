@@ -7,6 +7,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { OutsoursingAfiliaciones } from "./OutsoursingAfiliaciones";
 import { RegistroDocumentos } from "./RegistroDocumentos";
 import { TipoPaises } from "./TipoPaises";
 import { SucursalesAreasPermisos } from "./SucursalesAreasPermisos";
@@ -51,6 +52,12 @@ export class RegistroInformacion {
 
   @Column("character varying", { name: "estado", nullable: true, length: 4 })
   estado: string | null;
+
+  @OneToMany(
+    () => OutsoursingAfiliaciones,
+    (outsoursingAfiliaciones) => outsoursingAfiliaciones.idRegistroInformacion
+  )
+  outsoursingAfiliaciones: OutsoursingAfiliaciones[];
 
   @OneToMany(
     () => RegistroDocumentos,
