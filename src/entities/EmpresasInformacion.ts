@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 import { EmpresasDocumentos } from "./EmpresasDocumentos";
 import { Vendedores } from "./Vendedores";
+import { OutsoursingInformacion } from "./OutsoursingInformacion";
 import { RegistroAfiliaciones } from "./RegistroAfiliaciones";
 import { SucursalesInformacion } from "./SucursalesInformacion";
 import { TipoServicios } from "./TipoServicios";
@@ -64,6 +65,18 @@ export class EmpresasInformacion {
   @ManyToOne(() => Vendedores, (vendedores) => vendedores.empresasInformacions)
   @JoinColumn([{ name: "id_vendedor", referencedColumnName: "id" }])
   idVendedor: Vendedores;
+
+  @OneToMany(
+    () => OutsoursingInformacion,
+    (outsoursingInformacion) => outsoursingInformacion.idEmpresaHijo
+  )
+  outsoursingInformacions: OutsoursingInformacion[];
+
+  @OneToMany(
+    () => OutsoursingInformacion,
+    (outsoursingInformacion) => outsoursingInformacion.idEmpresaPadre
+  )
+  outsoursingInformacions2: OutsoursingInformacion[];
 
   @OneToMany(
     () => RegistroAfiliaciones,

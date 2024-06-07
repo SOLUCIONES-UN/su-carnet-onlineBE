@@ -28,6 +28,7 @@ import { RegistroInformacionModule } from './registro_informacion/registro_infor
 import { SucursalesAreasPermisosModule } from './sucursales_areas_permisos/sucursales_areas_permisos.module';
 import { SucursalesAreasLogsModule } from './sucursales_areas_logs/sucursales_areas_logs.module';
 import { RegistroDocumentosModule } from './registro_documentos/registro_documentos.module';
+import { OutsoursingInformacionModule } from './outsoursing_informacion/outsoursing_informacion.module';
 
 @Module({
   imports: [
@@ -98,6 +99,8 @@ import { RegistroDocumentosModule } from './registro_documentos/registro_documen
     SucursalesAreasLogsModule,
 
     RegistroDocumentosModule,
+
+    OutsoursingInformacionModule,
   ],
 })
 export class AppModule {}
