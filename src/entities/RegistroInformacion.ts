@@ -11,6 +11,7 @@ import { OutsoursingAfiliaciones } from "./OutsoursingAfiliaciones";
 import { RegistroDispositivos } from "./RegistroDispositivos";
 import { RegistroDocumentos } from "./RegistroDocumentos";
 import { TipoPaises } from "./TipoPaises";
+import { RegistroMensajes } from "./RegistroMensajes";
 import { SucursalesAreasPermisos } from "./SucursalesAreasPermisos";
 
 @Index("registro_informacion_pkey", ["id"], { unique: true })
@@ -75,6 +76,12 @@ export class RegistroInformacion {
   @ManyToOne(() => TipoPaises, (tipoPaises) => tipoPaises.registroInformacions)
   @JoinColumn([{ name: "id_pais", referencedColumnName: "id" }])
   idPais: TipoPaises;
+
+  @OneToMany(
+    () => RegistroMensajes,
+    (registroMensajes) => registroMensajes.idRegistroInformacion
+  )
+  registroMensajes: RegistroMensajes[];
 
   @OneToMany(
     () => SucursalesAreasPermisos,
