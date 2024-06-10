@@ -30,10 +30,10 @@ export class AuthService {
       const user = await this.userRepository.findOne(
         { 
           where: { email },
-          select: { email: true, passwordhash: true, passwordsalt: true, nombres: true, apellidos: true, telefono: true,} 
+          select: { email: true, passwordhash: true, passwordsalt: true, nombres: true, apellidos: true, telefono: true,  id: true} 
         }
   
-      );
+      ); 
   
       if(!user) 
         throw new UnauthorizedException('Credenciales invalidas');
