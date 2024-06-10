@@ -4,11 +4,12 @@ import { OutsoursingInformacionController } from './outsoursing_informacion.cont
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { OutsoursingInformacion } from '../entities/OutsoursingInformacion';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { TipoRelacionEmpresas } from '../entities/TipoRelacionEmpresas';
 
 @Module({
 
   imports:[
-    TypeOrmModule.forFeature([OutsoursingInformacion, EmpresasInformacion]),
+    TypeOrmModule.forFeature([OutsoursingInformacion, EmpresasInformacion, TipoRelacionEmpresas]),
   ],
 
   controllers: [OutsoursingInformacionController],

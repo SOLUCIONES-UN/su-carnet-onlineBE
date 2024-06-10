@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { TipoRelacionEmpresas } from '../entities/TipoRelacionEmpresas';
 
 @Injectable()
 export class OutsoursingInformacionService {
@@ -19,6 +20,9 @@ export class OutsoursingInformacionService {
     @InjectRepository(EmpresasInformacion)
     private empresaRepository: Repository<EmpresasInformacion>,
 
+    @InjectRepository(TipoRelacionEmpresas)
+    private TipoRelacionEmpresasRepository: Repository<TipoRelacionEmpresas>,
+
   ) { }
 
 
@@ -31,31 +35,39 @@ export class OutsoursingInformacionService {
   async create(createOutsoursingInformacionDto: CreateOutsoursingInformacionDto) {
 
     try {
-      const { idEmpresaPadre, idEmpresaHijo, ...infoData } = createOutsoursingInformacionDto;
+      const { idEmpresa, idEmpresaRelacionada, idTipoRelacion, ...infoData } = createOutsoursingInformacionDto;
 
-      const empresaPadre = await this.empresaRepository.findOneBy({ id: idEmpresaPadre });
+      const empresa = await this.empresaRepository.findOneBy({ id: idEmpresa });
 
-      const empresaHijo = await this.empresaRepository.findOneBy({ id: idEmpresaHijo });
+      const empresaRelacionada = await this.empresaRepository.findOneBy({ id: idEmpresaRelacionada });
 
-      if (!empresaPadre) {
-        throw new NotFoundException(`empresaPadre con ID ${idEmpresaPadre} no encontrada`);
+      const tipoRelacion = await this.TipoRelacionEmpresasRepository.findOneBy({ id: idTipoRelacion});
+
+      if (!empresa) {
+        throw new NotFoundException(`empresa con ID ${idEmpresa} no encontrada`);
       }
 
-      if (!empresaHijo) {
-        throw new NotFoundException(`empresaHijo con ID ${idEmpresaHijo} no encontrada`);
+      if (!empresaRelacionada) {
+        throw new NotFoundException(`empresaRelacionada con ID ${idEmpresaRelacionada} no encontrada`);
+      }
+
+      if (!tipoRelacion) {
+        throw new NotFoundException(`tipoRelacion con ID ${idTipoRelacion} no encontrada`);
       }
 
       const fechaSolicitudTransformada = this.transformDate(createOutsoursingInformacionDto.fechaSolicitud);
-
       const fechaInicioTransformada = this.transformDate(createOutsoursingInformacionDto.fechaInicio);
+      const fechaFinalizacionTransformada = this.transformDate(createOutsoursingInformacionDto.fechaFinalizacion);
 
 
       const OutsoursingInformacion = this.OutsoursingInformacionRepository.create({
         ...infoData,
         fechaInicio: fechaInicioTransformada,
         fechaSolicitud: fechaSolicitudTransformada,
-        idEmpresaPadre: empresaPadre,
-        idEmpresaHijo: empresaHijo,
+        fechaFinalizacion: fechaFinalizacionTransformada,
+        idEmpresa: empresa,
+        idEmpresaRelacionada: empresaRelacionada,
+        idTipoRelacion: tipoRelacion,
         estado: 'ACT'
       });
 
@@ -75,7 +87,7 @@ export class OutsoursingInformacionService {
     const OutsoursingInformacion = await this.OutsoursingInformacionRepository.find({
       skip: offset,
       take: limit,
-      relations: ['idEmpresaPadre', 'idEmpresaHijo'],
+      relations: ['idEmpresa', 'idEmpresaRelacionada', 'idTipoRelacion'],
     });
 
     return OutsoursingInformacion;
@@ -85,36 +97,45 @@ export class OutsoursingInformacionService {
   async update(id: number, updateOutsoursingInformacionDto: UpdateOutsoursingInformacionDto) {
     
     try {
-      const { idEmpresaHijo, idEmpresaPadre, ...infoData } = updateOutsoursingInformacionDto;
+      const { idEmpresa, idEmpresaRelacionada, idTipoRelacion, ...infoData } = updateOutsoursingInformacionDto;
 
-      const OutsoursingInformacion = await this.OutsoursingInformacionRepository.findOneBy({ id });
+      const OutsoursingInformacion = await this.OutsoursingInformacionRepository.findOneBy({id});
+
+      const empresa = await this.empresaRepository.findOneBy({ id: idEmpresa });
+
+      const empresaRelacionada = await this.empresaRepository.findOneBy({ id: idEmpresaRelacionada });
+
+      const tipoRelacion = await this.TipoRelacionEmpresasRepository.findOneBy({ id: idTipoRelacion});
 
       if (!OutsoursingInformacion) {
         throw new NotFoundException(`OutsoursingInformacion con ID ${id} no encontrada`);
       }
 
-      const empresaPadre = await this.empresaRepository.findOneBy({ id: idEmpresaPadre });
-
-      const empresaHijo = await this.empresaRepository.findOneBy({ id: idEmpresaHijo });
-
-      if (!empresaPadre) {
-        throw new NotFoundException(`empresaPadre con ID ${idEmpresaPadre} no encontrada`);
+      if (!empresa) {
+        throw new NotFoundException(`empresa con ID ${idEmpresa} no encontrada`);
       }
 
-      if (!empresaHijo) {
-        throw new NotFoundException(`empresaHijo con ID ${idEmpresaHijo} no encontrada`);
+      if (!empresaRelacionada) {
+        throw new NotFoundException(`empresaRelacionada con ID ${idEmpresaRelacionada} no encontrada`);
       }
+
+      if (!tipoRelacion) {
+        throw new NotFoundException(`tipoRelacion con ID ${idTipoRelacion} no encontrada`);
+      }
+
 
       const fechaSolicitudTransformada = this.transformDate(updateOutsoursingInformacionDto.fechaSolicitud);
-
       const fechaInicioTransformada = this.transformDate(updateOutsoursingInformacionDto.fechaInicio);
+      const fechaFinalizacionTransformada = this.transformDate(updateOutsoursingInformacionDto.fechaFinalizacion);
 
       const update_OutsoursingInformacion = this.OutsoursingInformacionRepository.merge(OutsoursingInformacion, {
         ...infoData,
         fechaInicio: fechaInicioTransformada,
         fechaSolicitud: fechaSolicitudTransformada,
-        idEmpresaPadre: empresaPadre,
-        idEmpresaHijo: empresaHijo,
+        fechaFinalizacion: fechaFinalizacionTransformada,
+        idEmpresa: empresa,
+        idEmpresaRelacionada: empresaRelacionada,
+        idTipoRelacion: tipoRelacion,
       });
 
       // Guardar los cambios en la base de datos
