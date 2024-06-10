@@ -4,8 +4,8 @@ import { RegistroMensajes } from '../entities/RegistroMensajes';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RegistroInformacion } from '../entities/RegistroInformacion';
-import * as bcrypt from 'bcrypt';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { EmpresasMensajes } from '../entities/EmpresasMensajes';
 
 @Injectable()
 export class RegistroMensajesService {
@@ -19,32 +19,33 @@ export class RegistroMensajesService {
     @InjectRepository(RegistroInformacion)
     private RegistroInformacionRepository: Repository<RegistroInformacion>,
 
+    @InjectRepository(EmpresasMensajes)
+    private EmpresasMensajesRepository: Repository<EmpresasMensajes>,
+
   ) { }
 
   async create(createRegistroMensajeDto: CreateRegistroMensajeDto) {
     
     try {
 
-      const { idRegistroInformacion, titulo, contenido, ...infoData } = createRegistroMensajeDto;
+      const { idRegistroInformacion, idMensaje, ...infoData } = createRegistroMensajeDto;
 
       const RegistroInformacion = await this.RegistroInformacionRepository.findOneBy({ id: idRegistroInformacion });
+
+      const mensajes = await this.EmpresasMensajesRepository.findOneBy({ id: idMensaje });
 
       if (!RegistroInformacion) {
         throw new NotFoundException(`RegistroInformacion con ID ${idRegistroInformacion} no encontrada`);
       }
 
-      const saltRounds = 10;
-
-      const [tituloEncript, contenidoEncript] = await Promise.all([
-        bcrypt.hash(titulo, saltRounds),
-        bcrypt.hash(contenido, saltRounds),
-      ]);
+      if (!mensajes) {
+        throw new NotFoundException(`mensajes con ID ${idMensaje} no encontrada`);
+      }
 
       const RegistroMensajes = this.RegistroMensajesRepository.create({
         ...infoData,
-        titulo: tituloEncript,
-        contenido: contenidoEncript,
         idRegistroInformacion: RegistroInformacion,
+        idMensaje: mensajes,
         estado: 'ACT'
       });
 

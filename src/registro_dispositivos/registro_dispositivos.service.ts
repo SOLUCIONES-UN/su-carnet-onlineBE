@@ -20,12 +20,6 @@ export class RegistroDispositivosService {
 
   ) { }
 
-  // Función para transformar la fecha
-  transformDate(dateString: string): string {
-    const [day, month, year] = dateString.split("/");
-    return `${year}-${month}-${day}`;
-  }
-
   async create(createRegistroDispositivoDto: CreateRegistroDispositivoDto) {
     
     try {
@@ -37,12 +31,10 @@ export class RegistroDispositivosService {
         throw new NotFoundException(`registro_informacion con ID ${idRegistroInformacion} no encontrada`);
       } 
 
-      const fechaUltimoUso_Transformada = this.transformDate(createRegistroDispositivoDto.fechaUltimoUso);
-
       const RegistroDispositivos = this.RegistroDispositivosRepository.create({
         ...infoData,
         idRegistroInformacion: registro_informacion,
-        fechaUltimoUso: fechaUltimoUso_Transformada,
+        fechaUltimoUso: new Date,
         estado: 'ACT'
       });
 

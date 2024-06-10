@@ -20,9 +20,6 @@ export class RegistroDocumentos {
   @Column("date", { name: "fecha_vencimiento" })
   fechaVencimiento: string;
 
-  @Column("character varying", { name: "numero" })
-  numero: string;
-
   @Column("character varying", { name: "archivo" })
   archivo: string;
 

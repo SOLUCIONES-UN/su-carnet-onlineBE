@@ -34,6 +34,7 @@ import { OutsoursingAfiliacionesModule } from './outsoursing_afiliaciones/outsou
 import { OutsoursingDocumentosModule } from './outsoursing_documentos/outsoursing_documentos.module';
 import { RegistroDispositivosModule } from './registro_dispositivos/registro_dispositivos.module';
 import { RegistroMensajesModule } from './registro_mensajes/registro_mensajes.module';
+import { EmpresasMensajesModule } from './empresas_mensajes/empresas_mensajes.module';
 
 @Module({
   imports: [
@@ -116,6 +117,8 @@ import { RegistroMensajesModule } from './registro_mensajes/registro_mensajes.mo
     RegistroDispositivosModule,
 
     RegistroMensajesModule,
+
+    EmpresasMensajesModule,
   ],
 })
 export class AppModule {}
