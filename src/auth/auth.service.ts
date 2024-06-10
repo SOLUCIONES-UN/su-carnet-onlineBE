@@ -30,7 +30,7 @@ export class AuthService {
       const user = await this.userRepository.findOne(
         { 
           where: { email },
-          select: { email: true, passwordhash: true, passwordsalt: true} 
+          select: { email: true, passwordhash: true, passwordsalt: true, nombres: true, apellidos: true, telefono: true,} 
         }
   
       );
