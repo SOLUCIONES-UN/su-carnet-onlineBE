@@ -11,7 +11,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import { RekognitionClient, CompareFacesCommand } from "@aws-sdk/client-rekognition";
-import { TextractClient, AnalyzeDocumentCommand, FeatureType } from "@aws-sdk/client-textract";
+import { TextractClient } from "@aws-sdk/client-textract";
 
 @Injectable()
 export class RegistroDocumentosService {
@@ -71,19 +71,6 @@ export class RegistroDocumentosService {
     const command = new CompareFacesCommand(params);
     const response = await this.rekognitionClient.send(command);
     return response.FaceMatches.length > 0;
-  }
-
-  async extractText(documentImagePath: string): Promise<string> {
-    const documentImageBuffer = this.readImageFromFile(documentImagePath);
-
-    const params = {
-      Document: { Bytes: documentImageBuffer },
-      FeatureTypes: [FeatureType.FORMS]
-    };
-
-    const command = new AnalyzeDocumentCommand(params);
-    const response = await this.textractClient.send(command);
-    return response.Blocks.map(block => block.Text).join(' ');
   }
 
 
