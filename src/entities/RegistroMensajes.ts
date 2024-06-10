@@ -6,6 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { EmpresasMensajes } from "./EmpresasMensajes";
 import { RegistroInformacion } from "./RegistroInformacion";
 
 @Index("registro_mensajes_pkey", ["id"], { unique: true })
@@ -14,17 +15,15 @@ export class RegistroMensajes {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;
 
-  @Column("character varying", { name: "titulo" })
-  titulo: string;
-
-  @Column("text", { name: "contenido" })
-  contenido: string;
-
-  @Column("character varying", { name: "accion", length: 2 })
-  accion: string;
-
   @Column("character varying", { name: "estado", length: 4 })
   estado: string;
+
+  @ManyToOne(
+    () => EmpresasMensajes,
+    (empresasMensajes) => empresasMensajes.registroMensajes
+  )
+  @JoinColumn([{ name: "id_mensaje", referencedColumnName: "id" }])
+  idMensaje: EmpresasMensajes;
 
   @ManyToOne(
     () => RegistroInformacion,

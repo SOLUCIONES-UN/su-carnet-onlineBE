@@ -10,10 +10,6 @@ export class CreateRegistroDocumentoDto {
     @IsNotEmpty({ message: 'El campo archivo es requerido' })
     archivo: string;
 
-    @IsString()
-    @IsNotEmpty({ message: 'El campo numero es requerido' })
-    numero: string;
-
     @IsNumber()
     @IsNotEmpty({ message: 'El campo idRegistroInformacion es requerido' })
     idRegistroInformacion: number;

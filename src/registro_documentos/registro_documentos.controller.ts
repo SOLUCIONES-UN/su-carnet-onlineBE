@@ -3,14 +3,32 @@ import { RegistroDocumentosService } from './registro_documentos.service';
 import { CreateRegistroDocumentoDto } from './dto/create-registro_documento.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { verificPerson } from './dto/verifica_persona.dto';
 
 @Controller('registro-documentos')
 export class RegistroDocumentosController {
-  constructor(private readonly registroDocumentosService: RegistroDocumentosService) {}
+  constructor(private readonly registroDocumentosService: RegistroDocumentosService) { }
+
+  //endpoint para verificacion de persona por reconocimeinto facil 
+  @Post('verificPerson')
+  async verificPerson(@Body() verificPerson: verificPerson) {
+
+    try {
+
+      const { sourceImagePath, targetImagePath } = verificPerson;
+
+      const isMatch = await this.registroDocumentosService.compareFaces(sourceImagePath, targetImagePath);
+
+      return { match: isMatch };
+
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al verificar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 
   @Post()
   async create(@Body() createRegistroDocumentoDto: CreateRegistroDocumentoDto) {
-    
+
     try {
 
       const result = await this.registroDocumentosService.create(createRegistroDocumentoDto);

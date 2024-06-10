@@ -7,11 +7,18 @@ import { RegistroInformacion } from '../entities/RegistroInformacion';
 import { TipoDocumentos } from '../entities/TipoDocumentos';
 import * as bcrypt from 'bcrypt';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import * as fs from 'fs';
+import * as path from 'path';
+
+import { RekognitionClient, CompareFacesCommand } from "@aws-sdk/client-rekognition";
+import { TextractClient, AnalyzeDocumentCommand, FeatureType } from "@aws-sdk/client-textract";
 
 @Injectable()
 export class RegistroDocumentosService {
 
   private readonly logger = new Logger("RegistroDocumentosService");
+  private rekognitionClient: RekognitionClient;
+  private textractClient: TextractClient;
 
   constructor(
     @InjectRepository(RegistroDocumentos)
@@ -23,7 +30,62 @@ export class RegistroDocumentosService {
     @InjectRepository(TipoDocumentos)
     private TipoDocumentosRepository: Repository<TipoDocumentos>
 
-  ) { }
+  ) {
+    const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
+    const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+    const region = process.env.AWS_REGION;
+
+    this.rekognitionClient = new RekognitionClient({
+      region,
+      credentials: {
+        accessKeyId,
+        secretAccessKey,
+      }
+    });
+    this.textractClient = new TextractClient({
+      region,
+      credentials: {
+        accessKeyId,
+        secretAccessKey,
+      }
+    });
+  }
+
+
+  private readImageFromFile(filePath: string): Buffer {
+    const absolutePath = path.resolve(filePath);
+    return fs.readFileSync(absolutePath);
+  }
+
+  //Funcion para verificar persona por medio de reconocimiento facial 
+  async compareFaces(sourceImagePath: string, targetImagePath: string): Promise<boolean> {
+    const sourceImageBuffer = this.readImageFromFile(sourceImagePath);
+    const targetImageBuffer = this.readImageFromFile(targetImagePath);
+
+    const params = {
+      SourceImage: { Bytes: sourceImageBuffer },
+      TargetImage: { Bytes: targetImageBuffer },
+      SimilarityThreshold: 90
+    };
+
+    const command = new CompareFacesCommand(params);
+    const response = await this.rekognitionClient.send(command);
+    return response.FaceMatches.length > 0;
+  }
+
+  async extractText(documentImagePath: string): Promise<string> {
+    const documentImageBuffer = this.readImageFromFile(documentImagePath);
+
+    const params = {
+      Document: { Bytes: documentImageBuffer },
+      FeatureTypes: [FeatureType.FORMS]
+    };
+
+    const command = new AnalyzeDocumentCommand(params);
+    const response = await this.textractClient.send(command);
+    return response.Blocks.map(block => block.Text).join(' ');
+  }
+
 
   // Función para transformar la fecha
   transformDate(dateString: string): string {
@@ -32,9 +94,9 @@ export class RegistroDocumentosService {
   }
 
   async create(createRegistroDocumentoDto: CreateRegistroDocumentoDto) {
-    
+
     try {
-      const { idRegistroInformacion, idTipoDocumento, numero, archivo, ...infoData } = createRegistroDocumentoDto;
+      const { idRegistroInformacion, idTipoDocumento, archivo, ...infoData } = createRegistroDocumentoDto;
 
       const registro_informacion = await this.RegistroInformacionRepository.findOneBy({ id: idRegistroInformacion });
 
@@ -50,20 +112,18 @@ export class RegistroDocumentosService {
 
       const saltRounds = 10;
 
-      const [numeroEncript, archivoEncript] = await Promise.all([
-        bcrypt.hash(numero, saltRounds),
-        bcrypt.hash(numero, saltRounds),
+      const [ archivoEncript] = await Promise.all([
+        bcrypt.hash(archivo, saltRounds),
       ]);
 
       const fechaVencimientoTransformada = this.transformDate(createRegistroDocumentoDto.fechaVencimiento);
 
       const RegistroDocumento = this.RegistroDocumentosRepository.create({
         ...infoData,
-        numero: numeroEncript,
         archivo: archivoEncript,
         idRegistroInformacion: registro_informacion,
         idTipoDocumento: TipoDocumentos,
-        fechaVencimiento: fechaVencimientoTransformada, 
+        fechaVencimiento: fechaVencimientoTransformada,
         estado: 'PEN'
       });
 
@@ -84,7 +144,7 @@ export class RegistroDocumentosService {
     const RegistroDocumento = await this.RegistroDocumentosRepository.find({
       skip: offset,
       take: limit,
-      relations: ['idRegistroInformacion',"idTipoDocumento"],
+      relations: ['idRegistroInformacion', "idTipoDocumento"],
     });
 
     return RegistroDocumento;
@@ -92,7 +152,7 @@ export class RegistroDocumentosService {
 
 
   async acepatarDocumento(id: number) {
-   
+
     try {
 
       const RegistroDocumento = await this.RegistroDocumentosRepository.findOneBy({ id });
@@ -110,7 +170,7 @@ export class RegistroDocumentosService {
   }
 
   async remove(id: number) {
-    
+
     try {
 
       const RegistroDocumento = await this.RegistroDocumentosRepository.findOneBy({ id });
