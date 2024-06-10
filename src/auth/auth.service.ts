@@ -1,4 +1,4 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, UnauthorizedException } from '@nestjs/common';
 import { LoginUserDto } from './dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Usuarios } from '../entities/Usuarios';
@@ -6,6 +6,8 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtPayload } from './interface/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
+import { GenerateToken } from './dto/generateToken.dto';
+import { use } from 'passport';
 
 @Injectable()
 export class AuthService {
@@ -53,6 +55,28 @@ export class AuthService {
 
   }
 
+  async newToken(email: string, accesKey: string): Promise<string>{
+
+    if(accesKey === process.env.JWT_SECRET){
+      
+      const payload: JwtPayload = {
+        email: email
+      };
+  
+      return this.getJwtToken(payload);
+    }
+
+    return "error";
+  }
+
+  async exisUser(email: string){
+    const user = await this.userRepository.findOne({
+      where: { email: email, estado: 2 },
+    });
+
+    return user;
+  }
+
 
   private getJwtToken( payload: JwtPayload ) 
   {
@@ -62,4 +86,5 @@ export class AuthService {
     return token;
 
   }
+
 }

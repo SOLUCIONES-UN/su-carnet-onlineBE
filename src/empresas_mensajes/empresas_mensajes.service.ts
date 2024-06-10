@@ -1,13 +1,11 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { CreateEmpresasMensajeDto } from './dto/create-empresas_mensaje.dto';
-import { UpdateEmpresasMensajeDto } from './dto/update-empresas_mensaje.dto';
 import { EmpresasMensajes } from '../entities/EmpresasMensajes';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import * as bcrypt from 'bcrypt';
 import { PaginationDto } from '../common/dtos/pagination.dto';
-import { RegistroMensajes } from '../entities/RegistroMensajes';
 
 @Injectable()
 export class EmpresasMensajesService {
