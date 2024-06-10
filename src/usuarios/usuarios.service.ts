@@ -84,7 +84,10 @@ export class UsuariosService {
   }
 
   async findOne(id: number) {
-    return this.usuariosRepository.findOneBy({ id });
+    return this.usuariosRepository.findOne({
+      where: { id },
+      relations: ['idTipo'],
+    });
   }
 
   async update(id: number, updateUsuarioDto: UpdateUsuarioDto) {

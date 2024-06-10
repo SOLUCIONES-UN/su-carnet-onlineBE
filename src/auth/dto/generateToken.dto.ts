@@ -6,4 +6,5 @@ export class GenerateToken {
     @IsNotEmpty()
     @IsEmail()
     email: string;
+  
   }
