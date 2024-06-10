@@ -1,20 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseIntPipe, HttpException, HttpStatus } from '@nestjs/common';
-import { TiposUsuarioService } from './tipos_usuario.service';
-import { CreateTiposUsuarioDto } from './dto/create-tipos_usuario.dto';
-import { UpdateTiposUsuarioDto } from './dto/update-tipos_usuario.dto';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, Query, ParseIntPipe } from '@nestjs/common';
+import { TipoRelacionEmpresasService } from './tipo_relacion_empresas.service';
+import { CreateTipoRelacionEmpresaDto } from './dto/create-tipo_relacion_empresa.dto';
+import { UpdateTipoRelacionEmpresaDto } from './dto/update-tipo_relacion_empresa.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
-@Controller('tipos-usuario')
-export class TiposUsuarioController {
-  constructor(private readonly tiposUsuarioService: TiposUsuarioService) { }
+@Controller('tipo-relacion-empresas')
+export class TipoRelacionEmpresasController {
+  constructor(private readonly tipoRelacionEmpresasService: TipoRelacionEmpresasService) {}
 
   @Post()
-  async create(@Body() createTiposUsuarioDto: CreateTiposUsuarioDto) {
-
+  async create(@Body() createTipoRelacionEmpresaDto: CreateTipoRelacionEmpresaDto) {
+    
     try {
 
-      const result = await this.tiposUsuarioService.create(createTiposUsuarioDto);
+      const result = await this.tipoRelacionEmpresasService.create(createTipoRelacionEmpresaDto);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
@@ -27,20 +27,7 @@ export class TiposUsuarioController {
 
     try {
 
-      const result = await this.tiposUsuarioService.findAll(paginationDto);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  @Get('getNivelesAcceso')
-  async getNivelesAcceso(@Query() paginationDto: PaginationDto) {
-
-    try {
-
-      const result = await this.tiposUsuarioService.getNivelesAcceso(paginationDto);
+      const result = await this.tipoRelacionEmpresasService.findAll(paginationDto);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
@@ -53,7 +40,7 @@ export class TiposUsuarioController {
 
     try {
 
-      const result = await this.tiposUsuarioService.findOne(+id);
+      const result = await this.tipoRelacionEmpresasService.findOne(+id);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
@@ -62,11 +49,11 @@ export class TiposUsuarioController {
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateTiposUsuarioDto: UpdateTiposUsuarioDto) {
+  async update(@Param('id') id: string, @Body() updateTipoRelacionEmpresaDto: UpdateTipoRelacionEmpresaDto) {
     
     try {
 
-      const result = await this.tiposUsuarioService.update(+id, updateTiposUsuarioDto);
+      const result = await this.tipoRelacionEmpresasService.update(+id, updateTipoRelacionEmpresaDto);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
@@ -74,12 +61,13 @@ export class TiposUsuarioController {
     }
   }
 
+  
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number) {
 
     try {
 
-      const result = await this.tiposUsuarioService.remove(+id);
+      const result = await this.tipoRelacionEmpresasService.remove(+id);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {

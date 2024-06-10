@@ -75,13 +75,13 @@ export class EmpresasInformacion {
 
   @OneToMany(
     () => OutsoursingInformacion,
-    (outsoursingInformacion) => outsoursingInformacion.idEmpresaHijo
+    (outsoursingInformacion) => outsoursingInformacion.idEmpresa
   )
   outsoursingInformacions: OutsoursingInformacion[];
 
   @OneToMany(
     () => OutsoursingInformacion,
-    (outsoursingInformacion) => outsoursingInformacion.idEmpresaPadre
+    (outsoursingInformacion) => outsoursingInformacion.idEmpresaRelacionada
   )
   outsoursingInformacions2: OutsoursingInformacion[];
 
