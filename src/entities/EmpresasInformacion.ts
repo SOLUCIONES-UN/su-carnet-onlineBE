@@ -13,6 +13,7 @@ import { EmpresasMensajes } from "./EmpresasMensajes";
 import { OutsoursingInformacion } from "./OutsoursingInformacion";
 import { RegistroAfiliaciones } from "./RegistroAfiliaciones";
 import { SucursalesInformacion } from "./SucursalesInformacion";
+import { TarjetaPresentacion } from "./TarjetaPresentacion";
 import { TipoServicios } from "./TipoServicios";
 
 @Index("empresas_informacion_pkey", ["id"], { unique: true })
@@ -96,6 +97,12 @@ export class EmpresasInformacion {
     (sucursalesInformacion) => sucursalesInformacion.idEmpresa
   )
   sucursalesInformacions: SucursalesInformacion[];
+
+  @OneToMany(
+    () => TarjetaPresentacion,
+    (tarjetaPresentacion) => tarjetaPresentacion.idEmpresa
+  )
+  tarjetaPresentacions: TarjetaPresentacion[];
 
   @OneToMany(() => TipoServicios, (tipoServicios) => tipoServicios.idEmpresa)
   tipoServicios: TipoServicios[];

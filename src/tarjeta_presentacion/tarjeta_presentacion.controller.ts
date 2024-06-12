@@ -1,26 +1,25 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, Query, ParseIntPipe } from '@nestjs/common';
-import { SucursalesInformacionService } from './sucursales_informacion.service';
-import { CreateSucursalesInformacionDto } from './dto/create-sucursales_informacion.dto';
-import { UpdateSucursalesInformacionDto } from './dto/update-sucursales_informacion.dto';
+import { TarjetaPresentacionService } from './tarjeta_presentacion.service';
+import { CreateTarjetaPresentacionDto } from './dto/create-tarjeta_presentacion.dto';
+import { UpdateTarjetaPresentacionDto } from './dto/update-tarjeta_presentacion.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 
-@Controller('sucursales-informacion')
-export class SucursalesInformacionController {
-  constructor(private readonly sucursalesInformacionService: SucursalesInformacionService) {}
+@Controller('tarjeta-presentacion')
+export class TarjetaPresentacionController {
+  constructor(private readonly tarjetaPresentacionService: TarjetaPresentacionService) {}
 
   @Post()
-  async create(@Body() createSucursalesInformacionDto: CreateSucursalesInformacionDto) {
+  async create(@Body() createTarjetaPresentacionDto: CreateTarjetaPresentacionDto) {
     
     try {
 
-      const result = await this.sucursalesInformacionService.create(createSucursalesInformacionDto);
+      const result = await this.tarjetaPresentacionService.create(createTarjetaPresentacionDto);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
       throw new HttpException(new GenericResponse('500', 'Error al agregar', error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
   }
 
   @Get()
@@ -28,21 +27,20 @@ export class SucursalesInformacionController {
 
     try {
 
-      const result = await this.sucursalesInformacionService.findAll(paginationDto);
+      const result = await this.tarjetaPresentacionService.findAll(paginationDto);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
       throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-  
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
 
     try {
 
-      const result = await this.sucursalesInformacionService.findOne(+id);
+      const result = await this.tarjetaPresentacionService.findOne(+id);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
@@ -50,19 +48,17 @@ export class SucursalesInformacionController {
     }
   }
 
-
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateSucursalesInformacionDto: UpdateSucursalesInformacionDto) {
+  async update(@Param('id') id: string, @Body() updateTarjetaPresentacionDto: UpdateTarjetaPresentacionDto) {
     
     try {
 
-      const result = await this.sucursalesInformacionService.update(+id, updateSucursalesInformacionDto);
+      const result = await this.tarjetaPresentacionService.update(+id, updateTarjetaPresentacionDto);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
       throw new HttpException(new GenericResponse('500', 'Error al editar', error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
   }
 
   @Delete(':id')
@@ -70,7 +66,7 @@ export class SucursalesInformacionController {
 
     try {
 
-      const result = await this.sucursalesInformacionService.remove(+id);
+      const result = await this.tarjetaPresentacionService.remove(+id);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
