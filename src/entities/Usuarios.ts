@@ -4,8 +4,10 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { TarjetaPresentacion } from "./TarjetaPresentacion";
 import { TipoUsuario } from "./TipoUsuario";
 
 @Index("usuarios_pkey", ["id"], { unique: true })
@@ -34,6 +36,19 @@ export class Usuarios {
 
   @Column("integer", { name: "estado", default: () => "1" })
   estado: number;
+
+  @Column("character varying", {
+    name: "foto_perfil",
+    nullable: true,
+    length: 250,
+  })
+  fotoPerfil: string | null;
+
+  @OneToMany(
+    () => TarjetaPresentacion,
+    (tarjetaPresentacion) => tarjetaPresentacion.idUsuario
+  )
+  tarjetaPresentacions: TarjetaPresentacion[];
 
   @ManyToOne(() => TipoUsuario, (tipoUsuario) => tipoUsuario.usuarios)
   @JoinColumn([{ name: "id_tipo", referencedColumnName: "id" }])

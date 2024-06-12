@@ -103,7 +103,7 @@ export class SucursalesInformacionService {
     
     try {
       
-      const sucursal = await this.findOne(id);
+      const sucursal = await this.sucursalesRepository.findOneBy({id});
 
       if(!sucursal){
         throw new NotFoundException(`sucursal con ID ${id} not encontrada`);

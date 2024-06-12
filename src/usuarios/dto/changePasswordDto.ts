@@ -6,11 +6,7 @@ export class changePasswordDto{
     @IsNotEmpty({ message: 'El campo email es requerido' })
     @IsEmail( {  }, { message: 'El email debe ser un correo valido' })
     email: string;
-
-    @IsString()
-    @IsNotEmpty({ message: 'El campo verificationCode es requerido' })
-    verificationCode: string;
-
+    
     @IsString()
     @IsNotEmpty({ message: 'El campo password es requerido' })
     @MaxLength(50)

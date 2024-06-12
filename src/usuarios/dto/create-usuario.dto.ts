@@ -20,6 +20,10 @@ export class CreateUsuarioDto {
     telefono: string;
 
     @IsString()
+    @IsNotEmpty({ message: 'El campo fotoPerfil es requerido' })
+    fotoPerfil: string;
+
+    @IsString()
     @IsNotEmpty({ message: 'El campo password es requerido' })
     @MaxLength(50)
     @Matches(

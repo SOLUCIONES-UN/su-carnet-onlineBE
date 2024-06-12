@@ -81,26 +81,12 @@ export class UsuariosController {
         return new GenericResponse('400', 'El usuario no existe o no esta verificado', null);
       }
 
-      // Verificar si el código de verificación es correcto
-      const existeOtp = await this.VerificacionUsuariosService.existsOtp(changePasswordDto.verificationCode);
-      if (!existeOtp) {
-        return new GenericResponse('400', 'El código de verificación no es correcto', null);
-      }
-
-      // Verificar si el código de verificación ha expirado
-      const codigoExpirado = await this.VerificacionUsuariosService.codigoExpirado(changePasswordDto.verificationCode);
-      if (codigoExpirado) {
-        return new GenericResponse('400', 'El código de verificación ha expirado, debe generar otro', null);
-      }
-
       // Cambiar la contraseña
       const result = await this.usuariosService.changePassword(changePasswordDto);
 
       if (!result) {
         return new GenericResponse('400', 'Error al cambiar la contraseña', null);
       }
-
-      await this.VerificacionUsuariosService.remove(changePasswordDto.verificationCode);
 
       return new GenericResponse('200', 'Éxito', 'Contraseña cambiada con éxito');
     } catch (error) {
