@@ -75,14 +75,15 @@ export class UsuariosController {
 
     try {
       // Verificar si el email existe
-      const user = await this.usuariosService.verifiUser(changePasswordDto.email);
+      const user = await this.usuariosService.verifiUser(changePasswordDto.user);
 
       if (!user) {
         return new GenericResponse('400', 'El usuario no existe o no esta verificado', null);
       }
 
       // Cambiar la contraseña
-      const result = await this.usuariosService.changePassword(changePasswordDto);
+      changePasswordDto.user = user.telefono;
+      const result = await this.usuariosService.changePassword(changePasswordDto, user);
 
       if (!result) {
         return new GenericResponse('400', 'Error al cambiar la contraseña', null);

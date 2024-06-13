@@ -9,6 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { TipoUsuario } from '../entities/TipoUsuario';
 import { changePasswordDto } from './dto/changePasswordDto';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
+import { promises } from 'dns';
 
 @Injectable()
 export class UsuariosService {
@@ -148,13 +149,36 @@ export class UsuariosService {
   }
 
 
-  async verifiUser(email:string){
+  async verifiUser(user:string): Promise<Usuarios>{
 
-    const user = await this.usuariosRepository.findOne({
-      where: { email: email, estado: 2 },
-    });
+    let usuario: Usuarios;
 
-    return user;
+    // Verificar si el campo user es un email o un número de teléfono
+    if (this.isEmail(user)) {
+      // Buscar usuario por email
+      usuario = await this.usuariosRepository.findOne({
+        where: { email: user, estado: 2 },
+      });
+    } else if (this.isPhoneNumber(user)) {
+      // Buscar usuario por número de teléfono
+      usuario = await this.usuariosRepository.findOne({
+        where: { telefono: user, estado: 2 },
+      });
+    } 
+
+    return usuario;
+  }
+
+  // Método para verificar si el user es un email válido
+  private isEmail(user: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(user);
+  }
+
+  // Método para verificar si el user es un número de teléfono válido
+  private isPhoneNumber(user: string): boolean {
+    const phoneRegex = /^[0-9]{10,15}$/; // Ajusta la expresión regular según el formato de número de teléfono que necesites
+    return phoneRegex.test(user);
   }
 
   async verfiPassword(currentPassword:string, user:Usuarios): Promise<boolean>{
@@ -168,13 +192,9 @@ export class UsuariosService {
     return true;
   }
 
-  async changePassword(changePasswordDto: changePasswordDto): Promise<boolean> {
+  async changePassword(changePasswordDto: changePasswordDto, usuario: Usuarios): Promise<boolean> {
 
     try {
-
-      const user = await this.usuariosRepository.findOne({
-        where: { email: changePasswordDto.email, estado: 2 },
-      });
   
       // Encriptar la nueva contraseña
       const salt = await bcrypt.genSalt();
@@ -185,11 +205,11 @@ export class UsuariosService {
       const passwordSaltBuffer = Buffer.from(salt);
   
       // Actualizar el usuario con la nueva contraseña y el salt
-      user.passwordhash = passwordHashBuffer;
-      user.passwordsalt = passwordSaltBuffer;
-      user.estado = 2; 
+      usuario.passwordhash = passwordHashBuffer;
+      usuario.passwordsalt = passwordSaltBuffer;
+      usuario.estado = 2; 
   
-      await this.usuariosRepository.save(user);
+      await this.usuariosRepository.save(usuario);
   
       return true;  
 
