@@ -7,6 +7,6 @@ export class verificPerson {
     sourceImagePath: string;
 
     @IsString()
-    @IsNotEmpty({ message: 'El campo targetImagePath es requerido' })
-    targetImagePath: string;
+    @IsNotEmpty({ message: 'El campo email_User es requerido' })
+    email_User: string;
 }

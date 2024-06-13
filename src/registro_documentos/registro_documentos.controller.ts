@@ -12,15 +12,14 @@ export class RegistroDocumentosController {
   //endpoint para verificacion de persona por reconocimeinto facil 
   @Post('verificPerson')
   async verificPerson(@Body() verificPerson: verificPerson) {
-
     try {
+      const { sourceImagePath, email_User } = verificPerson;
 
-      const { sourceImagePath, targetImagePath } = verificPerson;
+      let fotoPerfil = await this.registroDocumentosService.fotoPerfil(email_User);
 
-      const isMatch = await this.registroDocumentosService.compareFaces(sourceImagePath, targetImagePath);
+      const isMatch = await this.registroDocumentosService.compareFaces(sourceImagePath, fotoPerfil);
 
       return { match: isMatch };
-
     } catch (error) {
       throw new HttpException(new GenericResponse('500', 'Error al verificar', error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
