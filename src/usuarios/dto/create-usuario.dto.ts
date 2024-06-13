@@ -37,4 +37,8 @@ export class CreateUsuarioDto {
     @IsNotEmpty({ message: 'El campo idTipo_usuario es requerido' })
     idTipo: number;
 
+    @IsNumber()
+    @IsNotEmpty({ message: 'El campo idEmpresa es requerido' })
+    idEmpresa: number;
+
 }

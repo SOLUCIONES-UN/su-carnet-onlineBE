@@ -6,13 +6,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TipoUsuario } from '../entities/TipoUsuario';
 import { Otps } from '../entities/Otps';
 import { VerificacionUsuariosService } from '../verificacion_usuarios/verificacion_usuarios.service';
+import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 
 @Module({
 
   imports:[
-    TypeOrmModule.forFeature([Usuarios]),
-    TypeOrmModule.forFeature([TipoUsuario]),
-    TypeOrmModule.forFeature([Otps]),
+    TypeOrmModule.forFeature([Usuarios, EmpresasInformacion, TipoUsuario, Otps])
   ],
 
   controllers: [UsuariosController],

@@ -80,6 +80,15 @@ export class TarjetaPresentacionService {
     
     try {
       const { idEmpresa, idUsuario, ...infoData } = updateTarjetaPresentacionDto;
+
+      let empresa = null;
+
+      if (idEmpresa !== null && idEmpresa !== undefined) {
+        empresa = await this.empresaRepository.findOneBy({ id: idEmpresa });
+        if (!empresa) {
+          throw new NotFoundException(`Empresa con ID ${idEmpresa} no encontrada`);
+        }
+      }
   
       const tarjeta_presentacion = await this.TarjetaPresentacionRepository.findOneBy({ id });
 
@@ -87,7 +96,6 @@ export class TarjetaPresentacionService {
         throw new NotFoundException(`sucursal con ID ${id} no encontrada`);
       }
   
-      const empresa = await this.empresaRepository.findOneBy({ id: idEmpresa });
       const usuario = await this.UsuariosRepository.findOneBy({ id: idEmpresa });
 
       if (!empresa) {

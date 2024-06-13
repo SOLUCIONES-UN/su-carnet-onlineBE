@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { TarjetaPresentacion } from "./TarjetaPresentacion";
+import { EmpresasInformacion } from "./EmpresasInformacion";
 import { TipoUsuario } from "./TipoUsuario";
 
 @Index("usuarios_pkey", ["id"], { unique: true })
@@ -49,6 +50,13 @@ export class Usuarios {
     (tarjetaPresentacion) => tarjetaPresentacion.idUsuario
   )
   tarjetaPresentacions: TarjetaPresentacion[];
+
+  @ManyToOne(
+    () => EmpresasInformacion,
+    (empresasInformacion) => empresasInformacion.usuarios
+  )
+  @JoinColumn([{ name: "id_empresa", referencedColumnName: "id" }])
+  idEmpresa: EmpresasInformacion;
 
   @ManyToOne(() => TipoUsuario, (tipoUsuario) => tipoUsuario.usuarios)
   @JoinColumn([{ name: "id_tipo", referencedColumnName: "id" }])
