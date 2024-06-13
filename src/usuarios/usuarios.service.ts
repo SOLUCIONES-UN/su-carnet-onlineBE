@@ -8,6 +8,7 @@ import { In, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { TipoUsuario } from '../entities/TipoUsuario';
 import { changePasswordDto } from './dto/changePasswordDto';
+import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 
 @Injectable()
 export class UsuariosService {
@@ -21,13 +22,25 @@ export class UsuariosService {
     @InjectRepository(TipoUsuario)
     private tipos_usuariosRepository: Repository<TipoUsuario>,
 
+    @InjectRepository(EmpresasInformacion)
+    private EmpresasInformacionRepository: Repository<EmpresasInformacion>,
+
   ) { }
 
   async create(createUsuarioDto: CreateUsuarioDto) {
 
     try {
 
-      const { password, idTipo, ...userInfo } = createUsuarioDto;
+      const { password, idTipo, idEmpresa, ...userInfo } = createUsuarioDto;
+
+      let empresa = null;
+
+      if (idEmpresa !== null && idEmpresa !== undefined) {
+        empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idEmpresa });
+        if (!empresa) {
+          throw new NotFoundException(`Empresa con ID ${idEmpresa} no encontrada`);
+        }
+      }
 
       // Buscando la relación TipoUsuario 
       const tipoUsuario = await this.tipos_usuariosRepository.findOneBy({ id: idTipo });
@@ -50,7 +63,8 @@ export class UsuariosService {
         ...userInfo,
         passwordhash: passwordHashBuffer,
         passwordsalt: saltBuffer,
-        idTipo: tipoUsuario, // Asignar la relación
+        idTipo: tipoUsuario,
+        idEmpresa: empresa
       });
 
       await this.usuariosRepository.save(usuario);
@@ -78,7 +92,7 @@ export class UsuariosService {
       },
       skip: offset,
       take: limit,
-      relations: ['idTipo'],
+      relations: ['idTipo', 'idEmpresa'],
     });
     return users;
   }
@@ -98,6 +112,15 @@ export class UsuariosService {
       if (!usuario) {
         throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
       }
+
+      let empresa = null;
+
+      if (updateUsuarioDto.idEmpresa !== null && updateUsuarioDto.idEmpresa !== undefined) {
+        empresa = await this.EmpresasInformacionRepository.findOneBy({ id: updateUsuarioDto.idEmpresa });
+        if (!empresa) {
+          throw new NotFoundException(`Empresa con ID ${updateUsuarioDto.idEmpresa} no encontrada`);
+        }
+      }
  
       if (updateUsuarioDto.idTipo) {
         const tipoUsuario = await this.tipos_usuariosRepository.findOneBy({ id: updateUsuarioDto.idTipo });
@@ -114,6 +137,7 @@ export class UsuariosService {
         }
       }
 
+      usuario.idEmpresa = empresa;
       await this.usuariosRepository.save(usuario);
 
       return updateUsuarioDto;
