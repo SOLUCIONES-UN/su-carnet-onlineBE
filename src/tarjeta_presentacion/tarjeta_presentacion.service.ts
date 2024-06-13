@@ -26,32 +26,33 @@ export class TarjetaPresentacionService {
   ) { }
 
   async create(createTarjetaPresentacionDto: CreateTarjetaPresentacionDto) {
-    
     try {
-      
       const { idEmpresa, idUsuario, ...infoData } = createTarjetaPresentacionDto;
   
-      const empresa = await this.empresaRepository.findOneBy({ id: idEmpresa });
-      const usuario = await this.UsuariosRepository.findOneBy({ id: idUsuario });
-  
-      if (!empresa) {
-        throw new NotFoundException(`Empresa con ID ${idEmpresa} no encontrada`);
+      let empresa = null;
+
+      if (idEmpresa !== null && idEmpresa !== undefined) {
+        empresa = await this.empresaRepository.findOneBy({ id: idEmpresa });
+        if (!empresa) {
+          throw new NotFoundException(`Empresa con ID ${idEmpresa} no encontrada`);
+        }
       }
+  
+      const usuario = await this.UsuariosRepository.findOneBy({ id: idUsuario });
 
       if (!usuario) {
-        throw new NotFoundException(`Empresa con ID ${idUsuario} no encontrada`);
+        throw new NotFoundException(`Usuario con ID ${idUsuario} no encontrado`);
       }
   
       const tarjeta_presentacion = this.TarjetaPresentacionRepository.create({
         ...infoData,
-        idEmpresa: empresa,
+        idEmpresa: empresa, 
         idUsuario: usuario
       });
   
       await this.TarjetaPresentacionRepository.save(tarjeta_presentacion);
   
-      return tarjeta_presentacion; 
-
+      return tarjeta_presentacion;
     } catch (error) {
       this.handleDBException(error);
     }
@@ -99,7 +100,6 @@ export class TarjetaPresentacionService {
         idUsuario: usuario
       });
   
-      // Guardar los cambios en la base de datos
       await this.TarjetaPresentacionRepository.save(updateTarjetaPresentacion);
   
       return updateTarjetaPresentacion;

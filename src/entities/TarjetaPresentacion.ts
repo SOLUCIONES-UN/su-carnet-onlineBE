@@ -15,8 +15,12 @@ export class TarjetaPresentacion {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;
 
-  @Column("character varying", { name: "logo", length: 250 })
-  logo: string;
+  @Column("character varying", {
+    name: "img_fondo",
+    nullable: true,
+    length: 250,
+  })
+  imgFondo: string | null;
 
   @Column("character varying", {
     name: "linkedin",

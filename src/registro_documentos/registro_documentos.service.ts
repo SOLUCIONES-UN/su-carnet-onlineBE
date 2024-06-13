@@ -11,14 +11,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import { RekognitionClient, CompareFacesCommand } from "@aws-sdk/client-rekognition";
-import { TextractClient } from "@aws-sdk/client-textract";
+import { Usuarios } from '../entities/Usuarios';
 
 @Injectable()
 export class RegistroDocumentosService {
 
   private readonly logger = new Logger("RegistroDocumentosService");
   private rekognitionClient: RekognitionClient;
-  private textractClient: TextractClient;
 
   constructor(
     @InjectRepository(RegistroDocumentos)
@@ -28,7 +27,10 @@ export class RegistroDocumentosService {
     private RegistroInformacionRepository: Repository<RegistroInformacion>,
 
     @InjectRepository(TipoDocumentos)
-    private TipoDocumentosRepository: Repository<TipoDocumentos>
+    private TipoDocumentosRepository: Repository<TipoDocumentos>,
+
+    @InjectRepository(Usuarios)
+    private userRepository: Repository<Usuarios>
 
   ) {
     const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
@@ -42,13 +44,15 @@ export class RegistroDocumentosService {
         secretAccessKey,
       }
     });
-    this.textractClient = new TextractClient({
-      region,
-      credentials: {
-        accessKeyId,
-        secretAccessKey,
-      }
+  }
+
+  async fotoPerfil(email:string): Promise<string>{
+
+    const user = await this.userRepository.findOne({
+      where: { email: email, estado: 2 },
     });
+
+    return user.fotoPerfil;
   }
 
 
@@ -58,9 +62,9 @@ export class RegistroDocumentosService {
   }
 
   //Funcion para verificar persona por medio de reconocimiento facial 
-  async compareFaces(sourceImagePath: string, targetImagePath: string): Promise<boolean> {
+  async compareFaces(sourceImagePath: string, fotoPerfil: string): Promise<boolean> {
     const sourceImageBuffer = this.readImageFromFile(sourceImagePath);
-    const targetImageBuffer = this.readImageFromFile(targetImagePath);
+    const targetImageBuffer = this.readImageFromFile(fotoPerfil);
 
     const params = {
       SourceImage: { Bytes: sourceImageBuffer },
