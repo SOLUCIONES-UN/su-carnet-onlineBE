@@ -35,6 +35,19 @@ export class TarjetaPresentacionController {
     }
   }
 
+  @Get('findAllByUser/:id_usuario')
+  async findAllByUser(@Query() paginationDto: PaginationDto, @Param('id_usuario') id_usuario: number) {
+
+    try {
+
+      const result = await this.tarjetaPresentacionService.findAllByUsers(paginationDto, id_usuario);
+      return new GenericResponse('200', 'EXITO', result);
+
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
 

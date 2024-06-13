@@ -72,6 +72,22 @@ export class TarjetaPresentacionService {
     return tarjetas_presentacion;
   }
 
+  async findAllByUsers(PaginationDto: PaginationDto, idUsuario:number) {
+
+    const { limit = 10, offset = 0 } = PaginationDto;
+
+    const usuario = { id: idUsuario } as Usuarios;
+
+    const tarjetasPresentacion = await this.TarjetaPresentacionRepository.find({
+      where: { idUsuario: usuario },
+      skip: offset,
+      take: limit,
+      relations: ['idEmpresa', 'idUsuario'],
+    });
+    
+    return tarjetasPresentacion;
+  }
+
   async findOne(id: number) {
     return this.TarjetaPresentacionRepository.findOneBy({ id });
   }
