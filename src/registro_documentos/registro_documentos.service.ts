@@ -46,13 +46,35 @@ export class RegistroDocumentosService {
     });
   }
 
-  async fotoPerfil(email:string): Promise<string>{
+  async getUsuario(user:string): Promise<Usuarios>{
 
-    const user = await this.userRepository.findOne({
-      where: { email: email, estado: 2 },
-    });
+    let usuario: Usuarios;
 
-    return user.fotoPerfil;
+    if (this.isEmail(user)) {
+      // Buscar usuario por email
+      usuario = await this.userRepository.findOne({
+        where: { email: user, estado: 2 },
+      });
+    } else if (this.isPhoneNumber(user)) {
+      // Buscar usuario por número de teléfono
+      usuario = await this.userRepository.findOne({
+        where: { telefono: user, estado: 2 },
+      });
+    } 
+
+    return usuario;
+  }
+
+  // Método para verificar si el user es un email válido
+  private isEmail(user: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(user);
+  }
+
+  // Método para verificar si el user es un número de teléfono válido
+  private isPhoneNumber(user: string): boolean {
+    const phoneRegex = /^[0-9]{10,15}$/; // Ajusta la expresión regular según el formato de número de teléfono que necesites
+    return phoneRegex.test(user);
   }
 
 
@@ -62,8 +84,8 @@ export class RegistroDocumentosService {
   }
 
   //Funcion para verificar persona por medio de reconocimiento facial 
-  async compareFaces(sourceImagePath: string, fotoPerfil: string): Promise<boolean> {
-    const sourceImageBuffer = this.readImageFromFile(sourceImagePath);
+  async compareFaces(foto_dpi: string, fotoPerfil: string): Promise<boolean> {
+    const sourceImageBuffer = this.readImageFromFile(foto_dpi);
     const targetImageBuffer = this.readImageFromFile(fotoPerfil);
 
     const params = {
