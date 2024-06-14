@@ -85,7 +85,10 @@ export class RegistroDocumentosService {
 
   //Funcion para verificar persona por medio de reconocimiento facial 
   async compareFaces(foto_dpi: string, fotoPerfil: string): Promise<boolean> {
-    const sourceImageBuffer = this.readImageFromFile(foto_dpi);
+
+    const fotoDesencript = Buffer.from(foto_dpi, 'base64').toString('utf8');
+
+    const sourceImageBuffer = this.readImageFromFile(fotoDesencript);
     const targetImageBuffer = this.readImageFromFile(fotoPerfil);
 
     const params = {
