@@ -10,6 +10,7 @@ import { TipoUsuario } from '../entities/TipoUsuario';
 import { changePasswordDto } from './dto/changePasswordDto';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { promises } from 'dns';
+import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
 
 @Injectable()
 export class UsuariosService {
@@ -25,6 +26,9 @@ export class UsuariosService {
 
     @InjectRepository(EmpresasInformacion)
     private EmpresasInformacionRepository: Repository<EmpresasInformacion>,
+
+    @InjectRepository(UsuariosRelacionEmpresas)
+    private UsuariosRelacionEmpresasRepository: Repository<UsuariosRelacionEmpresas>,
 
   ) { }
 
@@ -65,12 +69,25 @@ export class UsuariosService {
         passwordhash: passwordHashBuffer,
         passwordsalt: saltBuffer,
         idTipo: tipoUsuario,
-        idEmpresa: empresa
       });
 
       await this.usuariosRepository.save(usuario);
 
-      return createUsuarioDto;
+      if (idEmpresa !== null && idEmpresa !== undefined) {
+        empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idEmpresa });
+        if (!empresa) {
+          throw new NotFoundException(`Empresa con ID ${idEmpresa} no encontrada`);
+        }
+
+        const UsuariosRelacionEmpresas = this.UsuariosRelacionEmpresasRepository.create({
+          idEmpresa: empresa,
+          idUsuario: usuario
+        });
+
+        await this.UsuariosRelacionEmpresasRepository.save(UsuariosRelacionEmpresas);
+
+      }
+      return usuario;
 
     } catch (error) {
       this.handleDBException(error);
@@ -93,7 +110,7 @@ export class UsuariosService {
       },
       skip: offset,
       take: limit,
-      relations: ['idTipo', 'idEmpresa'],
+      relations: ['idTipo'],
     });
     return users;
   }
@@ -122,7 +139,7 @@ export class UsuariosService {
           throw new NotFoundException(`Empresa con ID ${updateUsuarioDto.idEmpresa} no encontrada`);
         }
       }
- 
+
       if (updateUsuarioDto.idTipo) {
         const tipoUsuario = await this.tipos_usuariosRepository.findOneBy({ id: updateUsuarioDto.idTipo });
         if (!tipoUsuario) {
@@ -138,7 +155,6 @@ export class UsuariosService {
         }
       }
 
-      usuario.idEmpresa = empresa;
       await this.usuariosRepository.save(usuario);
 
       return updateUsuarioDto;
@@ -149,7 +165,7 @@ export class UsuariosService {
   }
 
 
-  async verifiUser(user:string): Promise<Usuarios>{
+  async verifiUser(user: string): Promise<Usuarios> {
 
     let usuario: Usuarios;
 
@@ -164,7 +180,7 @@ export class UsuariosService {
       usuario = await this.usuariosRepository.findOne({
         where: { telefono: user, estado: 2 },
       });
-    } 
+    }
 
     return usuario;
   }
@@ -181,7 +197,7 @@ export class UsuariosService {
     return phoneRegex.test(user);
   }
 
-  async verfiPassword(currentPassword:string, user:Usuarios): Promise<boolean>{
+  async verfiPassword(currentPassword: string, user: Usuarios): Promise<boolean> {
 
     // Verificar la contraseña actual
     const isMatch = await bcrypt.compare(currentPassword, user.passwordhash.toString());
@@ -195,30 +211,30 @@ export class UsuariosService {
   async changePassword(changePasswordDto: changePasswordDto, usuario: Usuarios): Promise<boolean> {
 
     try {
-  
+
       // Encriptar la nueva contraseña
       const salt = await bcrypt.genSalt();
       const hash = await bcrypt.hash(changePasswordDto.newPassword, salt);
-  
+
       // Convertir el hash y el salt en Buffer si es necesario
       const passwordHashBuffer = Buffer.from(hash);
       const passwordSaltBuffer = Buffer.from(salt);
-  
+
       // Actualizar el usuario con la nueva contraseña y el salt
       usuario.passwordhash = passwordHashBuffer;
       usuario.passwordsalt = passwordSaltBuffer;
-      usuario.estado = 2; 
-  
+      usuario.estado = 2;
+
       await this.usuariosRepository.save(usuario);
-  
-      return true;  
+
+      return true;
 
     } catch (error) {
       this.handleDBException(error);
       return false;
     }
   }
-  
+
 
   async remove(id: number) {
 
