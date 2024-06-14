@@ -13,13 +13,18 @@ export class RegistroDocumentosController {
   @Post('verificPerson')
   async verificPerson(@Body() verificPerson: verificPerson) {
     try {
-      const { sourceImagePath, email_User } = verificPerson;
+      const { foto_dpi, user } = verificPerson;
 
-      let fotoPerfil = await this.registroDocumentosService.fotoPerfil(email_User);
+      let usuario = await this.registroDocumentosService.getUsuario(user);
 
-      const isMatch = await this.registroDocumentosService.compareFaces(sourceImagePath, fotoPerfil);
+      if(!usuario)  return new GenericResponse('400', 'Usuario no existe', usuario);
 
-      return { match: isMatch };
+      const isMatch = await this.registroDocumentosService.compareFaces(foto_dpi, usuario.fotoPerfil);
+
+      if(isMatch == false) return new GenericResponse('406', 'No aceptable', isMatch);
+
+      return new GenericResponse('200', 'EXITO', isMatch);
+
     } catch (error) {
       throw new HttpException(new GenericResponse('500', 'Error al verificar', error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
