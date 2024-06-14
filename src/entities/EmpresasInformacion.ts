@@ -15,7 +15,7 @@ import { RegistroAfiliaciones } from "./RegistroAfiliaciones";
 import { SucursalesInformacion } from "./SucursalesInformacion";
 import { TarjetaPresentacion } from "./TarjetaPresentacion";
 import { TipoServicios } from "./TipoServicios";
-import { Usuarios } from "./Usuarios";
+import { UsuariosRelacionEmpresas } from "./UsuariosRelacionEmpresas";
 
 @Index("empresas_informacion_pkey", ["id"], { unique: true })
 @Entity("empresas_informacion", { schema: "public" })
@@ -108,6 +108,9 @@ export class EmpresasInformacion {
   @OneToMany(() => TipoServicios, (tipoServicios) => tipoServicios.idEmpresa)
   tipoServicios: TipoServicios[];
 
-  @OneToMany(() => Usuarios, (usuarios) => usuarios.idEmpresa)
-  usuarios: Usuarios[];
+  @OneToMany(
+    () => UsuariosRelacionEmpresas,
+    (usuariosRelacionEmpresas) => usuariosRelacionEmpresas.idEmpresa
+  )
+  usuariosRelacionEmpresas: UsuariosRelacionEmpresas[];
 }

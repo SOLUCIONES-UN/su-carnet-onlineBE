@@ -7,11 +7,12 @@ import { TipoUsuario } from '../entities/TipoUsuario';
 import { Otps } from '../entities/Otps';
 import { VerificacionUsuariosService } from '../verificacion_usuarios/verificacion_usuarios.service';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
+import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
 
 @Module({
 
   imports:[
-    TypeOrmModule.forFeature([Usuarios, EmpresasInformacion, TipoUsuario, Otps])
+    TypeOrmModule.forFeature([Usuarios, EmpresasInformacion, TipoUsuario, Otps, UsuariosRelacionEmpresas])
   ],
 
   controllers: [UsuariosController],
