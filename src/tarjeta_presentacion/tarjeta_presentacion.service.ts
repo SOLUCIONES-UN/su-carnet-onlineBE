@@ -100,7 +100,9 @@ export class TarjetaPresentacionService {
       let empresa = null;
 
       if (idEmpresa !== null && idEmpresa !== undefined) {
+        
         empresa = await this.empresaRepository.findOneBy({ id: idEmpresa });
+
         if (!empresa) {
           throw new NotFoundException(`Empresa con ID ${idEmpresa} no encontrada`);
         }
@@ -113,10 +115,6 @@ export class TarjetaPresentacionService {
       }
   
       const usuario = await this.UsuariosRepository.findOneBy({ id: idEmpresa });
-
-      if (!empresa) {
-        throw new NotFoundException(`empresa con ID ${idEmpresa} no encontrada`);
-      }
   
       const updateTarjetaPresentacion = this.TarjetaPresentacionRepository.merge(tarjeta_presentacion, {
         ...infoData,
