@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsNumber, IsString, Matches, MaxLength, NotContains } from "class-validator";
+import { ArrayNotEmpty, IsEmail, IsNotEmpty, IsNumber, IsString, Matches, MaxLength, NotContains } from "class-validator";
 
 export class CreateUsuarioDto {
 
@@ -20,7 +20,6 @@ export class CreateUsuarioDto {
     telefono: string;
 
     @IsString()
-    @IsNotEmpty({ message: 'El campo fotoPerfil es requerido' })
     fotoPerfil: string;
 
     @IsString()
@@ -37,8 +36,8 @@ export class CreateUsuarioDto {
     @IsNotEmpty({ message: 'El campo idTipo_usuario es requerido' })
     idTipo: number;
 
-    @IsNumber()
-    @IsNotEmpty({ message: 'El campo idEmpresa es requerido' })
-    idEmpresa: number;
+    
+    @IsNumber({}, { each: true, message: 'Cada elemento en idEmpresas debe ser un número' })
+    idEmpresas: number[];
 
 }
