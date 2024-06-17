@@ -1,4 +1,5 @@
 import {
+  Column,
   Entity,
   Index,
   JoinColumn,
@@ -13,6 +14,9 @@ import { Usuarios } from "./Usuarios";
 export class UsuariosRelacionEmpresas {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;
+
+  @Column("integer", { name: "estado", default: () => "1" })
+  estado: number;
 
   @ManyToOne(
     () => EmpresasInformacion,
