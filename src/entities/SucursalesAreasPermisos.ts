@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 import { SucursalesAreasLogs } from "./SucursalesAreasLogs";
 import { SucursalesAreasGruposInformacion } from "./SucursalesAreasGruposInformacion";
+import { OutsoursingAfiliaciones } from "./OutsoursingAfiliaciones";
 import { TipoPermisos } from "./TipoPermisos";
 import { RegistroInformacion } from "./RegistroInformacion";
 
@@ -58,6 +59,15 @@ export class SucursalesAreasPermisos {
   )
   @JoinColumn([{ name: "id_area_grupo", referencedColumnName: "id" }])
   idAreaGrupo: SucursalesAreasGruposInformacion;
+
+  @ManyToOne(
+    () => OutsoursingAfiliaciones,
+    (outsoursingAfiliaciones) => outsoursingAfiliaciones.sucursalesAreasPermisos
+  )
+  @JoinColumn([
+    { name: "id_outsoursing_afiliaciones", referencedColumnName: "id" },
+  ])
+  idOutsoursingAfiliaciones: OutsoursingAfiliaciones;
 
   @ManyToOne(
     () => TipoPermisos,

@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SucursalesAreasGruposInformacion } from '../entities/SucursalesAreasGruposInformacion';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { SucursalesInformacion } from '../entities/SucursalesInformacion';
 
 @Injectable()
 export class SucursalesAreasGruposHorariosService {
@@ -18,6 +19,9 @@ export class SucursalesAreasGruposHorariosService {
 
     @InjectRepository(SucursalesAreasGruposInformacion)
     private SucursalesAreasGruposInformacionRepository: Repository<SucursalesAreasGruposInformacion>,
+
+    @InjectRepository(SucursalesInformacion)
+    private SucursalesInformacionRepository: Repository<SucursalesInformacion>,
 
   ) { }
 
@@ -46,6 +50,12 @@ export class SucursalesAreasGruposHorariosService {
       this.handleDBException(error);
     }
   }
+
+  // async getHorariosSucursal(idSucursal: number){
+
+  //   const Sucursales_informacion
+
+  // }
 
   async findAll(PaginationDto: PaginationDto) {
 

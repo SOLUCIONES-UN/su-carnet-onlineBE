@@ -59,6 +59,13 @@ export class EmpresasInformacion {
   @Column("integer", { name: "estado", default: () => "1" })
   estado: number;
 
+  @Column("character varying", {
+    name: "sitio_web",
+    nullable: true,
+    length: 100,
+  })
+  sitioWeb: string | null;
+
   @OneToMany(
     () => EmpresasDocumentos,
     (empresasDocumentos) => empresasDocumentos.idEmpresa
