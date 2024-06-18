@@ -28,6 +28,10 @@ export class CreateSucursalesAreasPermisoDto {
     idPermiso: number;
 
     @IsNumber()
+    @IsNotEmpty({ message: 'El campo idOutsoursing es requerido' })
+    idOutsoursingAfiliaciones: number;
+
+    @IsNumber()
     @IsNotEmpty({ message: 'El campo idRegistro es requerido' })
     idRegistro: number;
 }

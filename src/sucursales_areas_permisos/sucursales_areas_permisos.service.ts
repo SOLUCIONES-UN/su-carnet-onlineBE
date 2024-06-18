@@ -8,6 +8,7 @@ import { SucursalesAreasGruposInformacion } from '../entities/SucursalesAreasGru
 import { TipoPermisos } from '../entities/TipoPermisos';
 import { RegistroInformacion } from '../entities/RegistroInformacion';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { OutsoursingAfiliaciones } from '../entities/OutsoursingAfiliaciones';
 
 @Injectable()
 export class SucursalesAreasPermisosService {
@@ -25,7 +26,10 @@ export class SucursalesAreasPermisosService {
     private TipoPermisosRepository: Repository<TipoPermisos>,
 
     @InjectRepository(RegistroInformacion)
-    private RegistroInformacionRepository: Repository<RegistroInformacion>
+    private RegistroInformacionRepository: Repository<RegistroInformacion>,
+
+    @InjectRepository(OutsoursingAfiliaciones)
+    private OutsoursingAfiliacionesRepository: Repository<OutsoursingAfiliaciones>
 
   ) { }
 
@@ -39,13 +43,19 @@ export class SucursalesAreasPermisosService {
 
     try {
 
-      const { idAreaGrupo, idPermiso, idRegistro, ...infoData } = createSucursalesAreasPermisoDto;
+      const { idAreaGrupo, idPermiso, idRegistro, idOutsoursingAfiliaciones, ...infoData } = createSucursalesAreasPermisoDto;
 
       const areaGrupo = await this.SucursalesAreasGruposInformacionRepository.findOneBy({ id: idAreaGrupo });
 
       const RegistroInformacion = await this.RegistroInformacionRepository.findOneBy({ id: idRegistro });
 
       const TipoPermisos = await this.TipoPermisosRepository.findOneBy({ id: idPermiso });
+
+      const OutsoursingAfiliaciones = await this.OutsoursingAfiliacionesRepository.findOneBy({id: idOutsoursingAfiliaciones});
+
+      if(!OutsoursingAfiliaciones){
+        throw new NotFoundException(`OutsoursingAfiliaciones con ID ${idOutsoursingAfiliaciones} no encontrada`);
+      }
 
       if (!areaGrupo) {
         throw new NotFoundException(`areaGrupo con ID ${idAreaGrupo} no encontrada`);
@@ -65,6 +75,7 @@ export class SucursalesAreasPermisosService {
         ...infoData,
         idAreaGrupo: areaGrupo,
         idRegistro: RegistroInformacion,
+        idOutsoursingAfiliaciones: OutsoursingAfiliaciones,
         idPermiso: TipoPermisos,
         fecha: fechaTransformada,
         estado: 'ACT'
@@ -86,7 +97,7 @@ export class SucursalesAreasPermisosService {
     const areaSucursalPermisos = await this.SucursalesAreasPermisosRepository.find({
       skip: offset,
       take: limit,
-      relations: ['idAreaGrupo', 'idRegistro', 'idPermiso'],
+      relations: ['idAreaGrupo', 'idOutsoursingAfiliaciones', 'idRegistro', 'idPermiso'],
     });
 
     return areaSucursalPermisos;
@@ -95,7 +106,7 @@ export class SucursalesAreasPermisosService {
   async update(id: number, updateSucursalesAreasPermisoDto: UpdateSucursalesAreasPermisoDto) {
 
     try {
-      const { idAreaGrupo, idPermiso, idRegistro, ...infoData } = updateSucursalesAreasPermisoDto;
+      const { idAreaGrupo, idPermiso, idRegistro, idOutsoursingAfiliaciones, ...infoData } = updateSucursalesAreasPermisoDto;
 
       const areaSucursalPermisos = await this.SucursalesAreasPermisosRepository.findOneBy({ id });
 
@@ -121,12 +132,19 @@ export class SucursalesAreasPermisosService {
         throw new NotFoundException(`TipoPermisos con ID ${idPermiso} no encontrada`);
       }
 
+      const OutsoursingAfiliaciones = await this.OutsoursingAfiliacionesRepository.findOneBy({id: idOutsoursingAfiliaciones});
+
+      if(!OutsoursingAfiliaciones){
+        throw new NotFoundException(`OutsoursingAfiliaciones con ID ${idOutsoursingAfiliaciones} no encontrada`);
+      }
+
       const fechaTransformada = this.transformDate(updateSucursalesAreasPermisoDto.fecha);
 
       const updateAreaSucursalPermisos = this.SucursalesAreasPermisosRepository.merge(areaSucursalPermisos, {
         ...infoData,
         idAreaGrupo: areaGrupo,
         idPermiso: TipoPermisos,
+        idOutsoursingAfiliaciones: OutsoursingAfiliaciones,
         idRegistro: RegistroInformacion,
         fecha: fechaTransformada
       });

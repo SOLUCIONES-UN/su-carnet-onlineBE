@@ -47,6 +47,10 @@ export class CreateEmpresasInformacionDto {
     @IsNotEmpty({ message: 'El campo miembro es requerido' })
     miembro: string;
 
+    @IsString()
+    @IsNotEmpty({ message: 'El campo sitioWeb es requerido' })
+    sitioWeb: string;
+
     @IsNumber()
     @IsNotEmpty({ message: 'El campo idVendedor es requerido' })
     idVendedor: number;

@@ -10,7 +10,6 @@ import { TipoUsuario } from '../entities/TipoUsuario';
 import { changePasswordDto } from './dto/changePasswordDto';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
-import { strict } from 'assert';
 
 @Injectable()
 export class UsuariosService {
