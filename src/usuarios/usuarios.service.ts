@@ -136,14 +136,14 @@ export class UsuariosService {
 
   async findAll(paginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = paginationDto; // Corregido offset inicial a 0
-  
+
     const users = await this.usuariosRepository.find({
       where: {
         estado: In([1, 2]),
       },
       skip: offset * limit,
       take: limit,
-      select: { 
+      select: {
         id: true,
         nombres: true,
         apellidos: true,
@@ -151,50 +151,92 @@ export class UsuariosService {
         telefono: true,
         fotoPerfil: true,
         estado: true
-        
+
       },
       relations: ['idTipo', 'usuariosRelacionEmpresas', 'usuariosRelacionEmpresas.idEmpresa'], // Incluye la relación con empresas
     });
-  
+
     return users;
   }
 
   async findOne(id: number) {
-
-    console.log("el id es "+ id)
     return this.usuariosRepository.findOne({
       where: { id },
-      relations: ['idTipo', 'usuariosRelacionEmpresas'],
+      select: {
+        id: true,
+        nombres: true,
+        apellidos: true,
+        email: true,
+        telefono: true,
+        fotoPerfil: true,
+        estado: true
+
+      },
+      relations: ['idTipo', 'usuariosRelacionEmpresas', 'usuariosRelacionEmpresas.idEmpresa'], 
     });
   }
 
   async update(id: number, updateUsuarioDto: UpdateUsuarioDto) {
 
     try {
+
       const usuario = await this.usuariosRepository.findOne({ where: { id } });
-  
+
       if (!usuario) {
         throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
       }
-  
-      // Cargar explícitamente la relación usuariosRelacionEmpresas
-      await this.usuariosRepository
-        .createQueryBuilder('usuario')
-        .leftJoinAndSelect('usuario.usuariosRelacionEmpresas', 'usuariosRelacionEmpresas')
-        .where('usuario.id = :id', { id })
-        .getOneOrFail();
-  
-      let empresas: EmpresasInformacion[] = [];
-  
-      // Validar empresas si existen en el DTO
+
       if (updateUsuarioDto.idEmpresas && updateUsuarioDto.idEmpresas.length > 0) {
-        empresas = await this.EmpresasInformacionRepository.findByIds(updateUsuarioDto.idEmpresas);
-  
-        if (empresas.length !== updateUsuarioDto.idEmpresas.length) {
-          throw new NotFoundException(`Una o más empresas no fueron encontradas`);
+
+        for (let i = 0; i < updateUsuarioDto.idEmpresas.length; i++) {
+
+          const idempresa = updateUsuarioDto.idEmpresas[i];
+          const empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idempresa });
+
+          const relacionesEncontradas = await this.UsuariosRelacionEmpresasRepository.find({
+            where: {
+              idUsuario: usuario,
+              idEmpresa: empresa,
+            },
+          });
+
+          let relacionEncontrada: UsuariosRelacionEmpresas | null = null;
+
+          if (relacionesEncontradas.length > 0) {
+
+            relacionEncontrada = relacionesEncontradas[0];
+            relacionEncontrada.estado = 1;
+            await this.UsuariosRelacionEmpresasRepository.save(relacionesEncontradas);
+
+          }
+          else if (relacionesEncontradas.length === 0) {
+
+            const relacionUsuarioEmpresa = this.UsuariosRelacionEmpresasRepository.create({
+              idEmpresa: empresa,
+              idUsuario: usuario
+            });
+            await this.UsuariosRelacionEmpresasRepository.save(relacionUsuarioEmpresa);
+          }
+
+        }
+
+      } else if (updateUsuarioDto.idEmpresas && updateUsuarioDto.idEmpresas.length === 0) {
+
+        const relacionesEncontradas = await this.UsuariosRelacionEmpresasRepository.find({
+          where: {
+            idUsuario: usuario
+          },
+        });
+
+        if (relacionesEncontradas.length > 0) {
+
+          relacionesEncontradas.forEach(async element => {
+            element.estado = 0;
+            await this.UsuariosRelacionEmpresasRepository.save(element);
+          });
         }
       }
-  
+
       if (updateUsuarioDto.idTipo !== undefined) {
         const tipoUsuario = await this.tipos_usuariosRepository.findOne({ where: { id: updateUsuarioDto.idTipo } });
         if (!tipoUsuario) {
@@ -202,58 +244,18 @@ export class UsuariosService {
         }
         usuario.idTipo = tipoUsuario;
       }
-  
+
       // Actualizar los demás campos, exceptuando `idTipo`, `password` y `idEmpresas`
       for (const key in updateUsuarioDto) {
         if (updateUsuarioDto.hasOwnProperty(key) && key !== 'idTipo' && key !== 'password' && key !== 'idEmpresas') {
           usuario[key] = updateUsuarioDto[key];
         }
       }
-  
+
       await this.usuariosRepository.save(usuario);
-  
-      // Si usuario.usuariosRelacionEmpresas es undefined, inicializar como un array vacío
-      if (!usuario.usuariosRelacionEmpresas) {
-        usuario.usuariosRelacionEmpresas = [];
-      }
-  
-      // Actualizar las relaciones entre usuario y empresas
-      if (updateUsuarioDto.idEmpresas === undefined || updateUsuarioDto.idEmpresas.length === 0) {
-        // Si idEmpresas no está definido o está vacío, dar de baja todas las relaciones existentes
-        for (const relacion of usuario.usuariosRelacionEmpresas) {
-          relacion.estado = 0; // Cambiar estado a 0 para dar de baja la relación
-        }
-      } else {
-        // Si idEmpresas contiene elementos, actualizar las relaciones existentes o crear nuevas
-        for (const empresa of empresas) {
-          let relacionExistente = usuario.usuariosRelacionEmpresas.find(rel => rel.idEmpresa.id === empresa.id);
-  
-          if (relacionExistente) {
-            if (relacionExistente.estado === 0) {
-              relacionExistente.estado = 1; // Activar relación existente si estaba dada de baja
-            }
-          } else {
-            const nuevaRelacion = this.UsuariosRelacionEmpresasRepository.create({
-              idUsuario: usuario,
-              idEmpresa: empresa,
-              estado: 1 // Estado activo
-            });
-            usuario.usuariosRelacionEmpresas.push(nuevaRelacion);
-          }
-        }
-  
-        // Desactivar relaciones que no están en el DTO
-        for (const relacion of usuario.usuariosRelacionEmpresas) {
-          if (!empresas.find(e => e.id === relacion.idEmpresa.id)) {
-            relacion.estado = 0;
-          }
-        }
-      }
-  
-      // Guardar todas las relaciones actualizadas
-      await this.UsuariosRelacionEmpresasRepository.save(usuario.usuariosRelacionEmpresas);
-  
+
       return updateUsuarioDto;
+
     } catch (error) {
       this.handleDBException(error);
     }
