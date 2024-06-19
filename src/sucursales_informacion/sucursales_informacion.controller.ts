@@ -35,6 +35,19 @@ export class SucursalesInformacionController {
       throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  @Get('sucursales/:idEmpresa')
+  async findAllByEmpresaId(@Param('idEmpresa') idEmpresa:string) {
+
+    try {
+
+      const result = await this.sucursalesInformacionService.findAllByEmpresaId(+idEmpresa);
+      return new GenericResponse('200', 'EXITO', result);
+
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
   
 
   @Get(':id')
