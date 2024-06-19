@@ -36,6 +36,19 @@ export class SucursalesAreasGruposInformacionController {
     }
   }
 
+  @Get('SucursalesAreasGrupos/:idSucursalArea')
+  async findAllByidSucursalArea(@Param('idSucursalArea') idSucursalArea:string) {
+
+    try {
+
+      const result = await this.sucursalesAreasGruposInformacionService.findAllByAreaInformacionId(+idSucursalArea);
+      return new GenericResponse('200', 'EXITO', result);
+
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
 
