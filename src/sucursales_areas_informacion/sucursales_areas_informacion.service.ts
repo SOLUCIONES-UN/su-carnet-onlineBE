@@ -63,6 +63,17 @@ export class SucursalesAreasInformacionService {
     return areaSucursales;
   }
 
+  async findAllBySucursalId(idSucursal:number) {
+
+    const sucursal = await this.sucursalesRepository.findOneBy({id: idSucursal})
+
+    const SucursalesAreasInformacion = await this.sucursalesAreasRepository.find({
+      where: { idSucursal: sucursal, estado: 1 },
+    });
+    
+    return SucursalesAreasInformacion;
+  }
+
   async findOne(id: number) {
     return this.sucursalesAreasRepository.findOneBy({ id });
   }
