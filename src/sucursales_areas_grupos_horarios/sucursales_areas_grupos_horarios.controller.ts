@@ -35,6 +35,20 @@ export class SucursalesAreasGruposHorariosController {
     }
   }
 
+
+  @Get('getHorariosByGrupo/:idGrupo')
+  async getHorariosByGrupo(@Param('idGrupo') idGrupo:string) {
+
+    try {
+
+      const result = await this.sucursalesAreasGruposHorariosService.getHorariosByGrupo(+idGrupo);
+      return new GenericResponse('200', 'EXITO', result);
+
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateSucursalesAreasGruposHorarioDto: UpdateSucursalesAreasGruposHorarioDto) {
     

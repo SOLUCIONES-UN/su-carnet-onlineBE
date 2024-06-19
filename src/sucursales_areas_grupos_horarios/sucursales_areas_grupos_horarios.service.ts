@@ -51,11 +51,17 @@ export class SucursalesAreasGruposHorariosService {
     }
   }
 
-  // async getHorariosSucursal(idSucursal: number){
+  async getHorariosByGrupo(idGrupo: number){
 
-  //   const Sucursales_informacion
+    const sucursalGrupoArea = await this.SucursalesAreasGruposInformacionRepository.findOneBy({id: idGrupo})
 
-  // }
+    const SucursalesAreasGrupos_horarios = await this.SucursalesAreasGruposHorariosRepository.find({
+      where: { idAreaGrupo: sucursalGrupoArea },
+    });
+
+    return SucursalesAreasGrupos_horarios;
+
+  }
 
   async findAll(PaginationDto: PaginationDto) {
 

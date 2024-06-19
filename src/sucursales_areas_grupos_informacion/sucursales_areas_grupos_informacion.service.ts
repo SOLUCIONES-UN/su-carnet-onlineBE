@@ -20,27 +20,27 @@ export class SucursalesAreasGruposInformacionService {
     private SucursalesAreasGruposRepository: Repository<SucursalesAreasGruposInformacion>,
 
   ) { }
-  
+
   async create(createSucursalesAreasGruposInformacionDto: CreateSucursalesAreasGruposInformacionDto) {
-    
+
     try {
-      
+
       const { idSucursalArea, ...infoData } = createSucursalesAreasGruposInformacionDto;
-  
+
       const area_sucursal = await this.sucursalesAreasRepository.findOneBy({ id: idSucursalArea });
-  
+
       if (!area_sucursal) {
         throw new NotFoundException(`area_sucursal con ID ${idSucursalArea} no encontrada`);
       }
-  
+
       const areaGrupoSucursal = this.SucursalesAreasGruposRepository.create({
         ...infoData,
         idSucursalArea: area_sucursal,
       });
-  
+
       await this.SucursalesAreasGruposRepository.save(areaGrupoSucursal);
-  
-      return areaGrupoSucursal; 
+
+      return areaGrupoSucursal;
 
     } catch (error) {
       this.handleDBException(error);
@@ -58,8 +58,19 @@ export class SucursalesAreasGruposInformacionService {
       take: limit,
       relations: ['idSucursalArea'],
     });
-    
+
     return areaaGruposSucursal;
+  }
+
+  async findAllByAreaInformacionId(idSucursalArea:number) {
+
+    const sucursalAreaInformacion = await this.sucursalesAreasRepository.findOneBy({id: idSucursalArea})
+
+    const SucursalesAreasGrupos = await this.SucursalesAreasGruposRepository.find({
+      where: { idSucursalArea: sucursalAreaInformacion, estado: 1 },
+    });
+
+    return SucursalesAreasGrupos;
   }
 
   async findOne(id: number) {
@@ -67,32 +78,32 @@ export class SucursalesAreasGruposInformacionService {
   }
 
   async update(id: number, updateSucursalesAreasGruposInformacionDto: UpdateSucursalesAreasGruposInformacionDto) {
-    
+
     try {
       const { idSucursalArea, ...infoData } = updateSucursalesAreasGruposInformacionDto;
-  
+
       const areaaGruposSucursal = await this.SucursalesAreasGruposRepository.findOneBy({ id });
 
       if (!areaaGruposSucursal) {
         throw new NotFoundException(`areaaGruposSucursal con ID ${id} no encontrada`);
       }
-  
+
       const areasucursal = await this.sucursalesAreasRepository.findOneBy({ id: idSucursalArea });
 
       if (!areasucursal) {
         throw new NotFoundException(`areasucursal con ID ${idSucursalArea} no encontrada`);
       }
-  
+
       const updateAreaGrupoSucursal = this.SucursalesAreasGruposRepository.merge(areaaGruposSucursal, {
         ...infoData,
         idSucursalArea: areasucursal
       });
-  
+
       // Guardar los cambios en la base de datos
       await this.SucursalesAreasGruposRepository.save(updateAreaGrupoSucursal);
-  
+
       return updateAreaGrupoSucursal;
-  
+
     } catch (error) {
       this.handleDBException(error);
     }
@@ -100,12 +111,12 @@ export class SucursalesAreasGruposInformacionService {
   }
 
   async remove(id: number) {
-    
-    try {
-      
-      const areaGruposSucursal = await this.SucursalesAreasGruposRepository.findOneBy({id});
 
-      if(!areaGruposSucursal){
+    try {
+
+      const areaGruposSucursal = await this.SucursalesAreasGruposRepository.findOneBy({ id });
+
+      if (!areaGruposSucursal) {
         throw new NotFoundException(`areaGruposSucursal con ID ${id} no encontrada`);
       }
 
@@ -123,5 +134,5 @@ export class SucursalesAreasGruposInformacionService {
     this.logger.error(`Error : ${error.message}`);
     throw new InternalServerErrorException('Error ');
   }
-  
+
 }
