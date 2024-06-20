@@ -167,6 +167,20 @@ export class RegistroDocumentosService {
   }
 
 
+  async findAllByRegistro(idRegistro: number) {
+
+    const registro_informacion = await this.RegistroInformacionRepository.findOneBy({id: idRegistro})
+
+    const RegistroDocumento = await this.RegistroDocumentosRepository.find({
+      where: {idRegistroInformacion: registro_informacion},
+      relations: ['idRegistroInformacion', "idTipoDocumento"],
+    });
+
+    return RegistroDocumento;
+  }
+
+
+
   async acepatarDocumento(id: number) {
 
     try {
