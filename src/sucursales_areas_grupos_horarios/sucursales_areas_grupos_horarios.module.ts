@@ -5,10 +5,11 @@ import { SucursalesAreasGruposInformacion } from '../entities/SucursalesAreasGru
 import { SucursalesAreasGruposHorarios } from '../entities/SucursalesAreasGruposHorarios';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SucursalesInformacion } from '../entities/SucursalesInformacion';
+import { SucursalesAreasPermisos } from '../entities/SucursalesAreasPermisos';
 
 @Module({
   imports:[
-    TypeOrmModule.forFeature([SucursalesAreasGruposHorarios, SucursalesAreasGruposInformacion, SucursalesInformacion]),
+    TypeOrmModule.forFeature([SucursalesAreasGruposHorarios, SucursalesAreasGruposInformacion, SucursalesInformacion, SucursalesAreasPermisos]),
   ],
 
   controllers: [SucursalesAreasGruposHorariosController],
