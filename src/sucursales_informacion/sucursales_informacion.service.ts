@@ -62,6 +62,16 @@ export class SucursalesInformacionService {
     return sucursales;
   }
 
+  async sucursalesConProgramacion(idEmpresa:number) {
+
+    const empresa = await this.empresaRepository.findOneBy({id: idEmpresa})
+
+    const sucursales = await this.sucursalesRepository.find({
+      where: { idEmpresa: empresa, estado: 1, tieneProgramacion: 'SI'},
+    });
+    return sucursales;
+  }
+
   async findAllByEmpresaId(idEmpresa:number) {
 
     const empresa = await this.empresaRepository.findOneBy({id: idEmpresa})

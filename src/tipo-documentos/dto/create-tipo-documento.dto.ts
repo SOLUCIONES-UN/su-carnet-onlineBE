@@ -13,4 +13,8 @@ export class CreateTipoDocumentoDto {
     @IsString()
     @IsNotEmpty({ message: 'El campo tieneVencimiento es requerido' })
     tieneVencimiento: string;
+
+    @IsString()
+    @IsNotEmpty({ message: 'El campo tipoDocumento es requerido' })
+    tipoDocumento: string;
 }
