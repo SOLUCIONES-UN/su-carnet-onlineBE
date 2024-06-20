@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { Repository } from 'typeorm';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { Usuarios } from '../entities/Usuarios';
 
 @Injectable()
 export class RegistroAfiliacionesService {
@@ -18,6 +19,9 @@ export class RegistroAfiliacionesService {
     @InjectRepository(EmpresasInformacion)
     private empresaRepository: Repository<EmpresasInformacion>,
 
+    @InjectRepository(Usuarios)
+    private UsuariosRepository: Repository<Usuarios>,
+
   ) { }
 
   // Función para transformar la fecha
@@ -30,7 +34,13 @@ export class RegistroAfiliacionesService {
 
     try {
 
-      const { idEmpresa, ...infoData } = createRegistroAfiliacioneDto;
+      const { idEmpresa, idUsuario, ...infoData } = createRegistroAfiliacioneDto;
+
+      const usuario = await this.UsuariosRepository.findOneBy({id:idUsuario});
+
+      if (!usuario) {
+        throw new NotFoundException(`usuario con ID ${idUsuario} no encontrado`);
+      }
 
       const empresaInformacion = await this.empresaRepository.findOneBy({ id: idEmpresa });
 
@@ -44,6 +54,7 @@ export class RegistroAfiliacionesService {
       const RegistroAfiliaciones = this.RegistroAfiliacionesRepository.create({
         ...infoData,
         idEmpresa: empresaInformacion,
+        idUsuario: usuario,
         fechaSolicitud: fechaSolicitudTransformada,
         fechaInicio: fechaInicioTransformada,
         estado: 'PEN'
@@ -65,6 +76,18 @@ export class RegistroAfiliacionesService {
     const RegistroAfiliaciones = await this.RegistroAfiliacionesRepository.find({
       skip: offset,
       take: limit,
+      relations: ['idEmpresa'],
+    });
+
+    return RegistroAfiliaciones;
+  }
+
+  async afiliacionByUsuario(idUsuario: number) {
+
+    const usuario = await this.UsuariosRepository.findOneBy({id: idUsuario});
+
+    const RegistroAfiliaciones = await this.RegistroAfiliacionesRepository.find({
+      where: {idUsuario: usuario},
       relations: ['idEmpresa'],
     });
 

@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { EmpresasInformacion } from "./EmpresasInformacion";
+import { Usuarios } from "./Usuarios";
 
 @Index("registro_afiliaciones_pkey", ["id"], { unique: true })
 @Entity("registro_afiliaciones", { schema: "public" })
@@ -29,4 +30,8 @@ export class RegistroAfiliaciones {
   )
   @JoinColumn([{ name: "id_empresa", referencedColumnName: "id" }])
   idEmpresa: EmpresasInformacion;
+
+  @ManyToOne(() => Usuarios, (usuarios) => usuarios.registroAfiliaciones)
+  @JoinColumn([{ name: "id_usuario", referencedColumnName: "id" }])
+  idUsuario: Usuarios;
 }

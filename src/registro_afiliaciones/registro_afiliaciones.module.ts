@@ -4,10 +4,11 @@ import { RegistroAfiliacionesController } from './registro_afiliaciones.controll
 import { RegistroAfiliaciones } from '../entities/RegistroAfiliaciones';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Usuarios } from '../entities/Usuarios';
 
 @Module({
   imports:[
-    TypeOrmModule.forFeature([EmpresasInformacion, RegistroAfiliaciones]),
+    TypeOrmModule.forFeature([EmpresasInformacion, RegistroAfiliaciones, Usuarios]),
   ],
 
   controllers: [RegistroAfiliacionesController],
