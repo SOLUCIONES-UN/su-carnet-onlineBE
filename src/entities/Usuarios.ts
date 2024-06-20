@@ -7,6 +7,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { RegistroAfiliaciones } from "./RegistroAfiliaciones";
 import { RegistroInformacion } from "./RegistroInformacion";
 import { TarjetaPresentacion } from "./TarjetaPresentacion";
 import { TipoUsuario } from "./TipoUsuario";
@@ -45,6 +46,12 @@ export class Usuarios {
     length: 250,
   })
   fotoPerfil: string | null;
+
+  @OneToMany(
+    () => RegistroAfiliaciones,
+    (registroAfiliaciones) => registroAfiliaciones.idUsuario
+  )
+  registroAfiliaciones: RegistroAfiliaciones[];
 
   @OneToMany(
     () => RegistroInformacion,

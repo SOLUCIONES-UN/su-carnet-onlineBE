@@ -35,6 +35,19 @@ export class RegistroAfiliacionesController {
     }
   }
 
+  @Get('afiliacionByUsuario/:idUsuario')
+  async afiliacionByUsuario(@Param('idUsuario') idUsuario: number) {
+
+    try {
+
+      const result = await this.registroAfiliacionesService.afiliacionByUsuario(+idUsuario);
+      return new GenericResponse('200', 'EXITO', result);
+
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number) {
 

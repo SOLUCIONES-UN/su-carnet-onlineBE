@@ -14,4 +14,8 @@ export class CreateRegistroAfiliacioneDto {
     @IsNumber()
     @IsNotEmpty({ message: 'El campo idEmpresa es requerido' })
     idEmpresa: number;
+
+    @IsNumber()
+    @IsNotEmpty({ message: 'El campo idUsuario es requerido' })
+    idUsuario: number;
 }
