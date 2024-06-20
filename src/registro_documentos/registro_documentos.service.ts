@@ -12,6 +12,7 @@ import * as path from 'path';
 
 import { RekognitionClient, CompareFacesCommand } from "@aws-sdk/client-rekognition";
 import { Usuarios } from '../entities/Usuarios';
+import { waitForDebugger } from 'inspector';
 
 @Injectable()
 export class RegistroDocumentosService {
@@ -167,9 +168,11 @@ export class RegistroDocumentosService {
   }
 
 
-  async findAllByRegistro(idRegistro: number) {
+  async findAllByRegistro(idUsuario: number) {
 
-    const registro_informacion = await this.RegistroInformacionRepository.findOneBy({id: idRegistro})
+    const usuario = await this.userRepository.findOneBy({id: idUsuario})
+
+    const registro_informacion = await this.RegistroInformacionRepository.findOneBy({idUsuario: usuario})
 
     const RegistroDocumento = await this.RegistroDocumentosRepository.find({
       where: {idRegistroInformacion: registro_informacion},
