@@ -57,6 +57,20 @@ export class RegistroDocumentosController {
   }
 
 
+  @Get('findAllByRegistro/:idRegistro')
+  async findAllByRegistro(@Param('idRegistro') idRegistro: number) {
+
+    try {
+
+      const result = await this.registroDocumentosService.findAllByRegistro(+idRegistro);
+      return new GenericResponse('200', 'EXITO', result);
+
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+
   @Patch(':id')
   async aceptarDocumento(@Param('id') id: string) {
 
