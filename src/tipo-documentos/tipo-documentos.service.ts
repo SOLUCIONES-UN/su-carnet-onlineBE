@@ -61,6 +61,7 @@ export class TipoDocumentosService {
       Object.assign(tipoDocumento, updateTipoDocumentoDto);
   
       // Guardar los cambios
+      tipoDocumento.estado = 1;
       await this.TipoDocumentosRepository.save(tipoDocumento);
   
       return tipoDocumento;

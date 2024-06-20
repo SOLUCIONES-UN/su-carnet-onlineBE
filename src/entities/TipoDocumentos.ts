@@ -35,6 +35,13 @@ export class TipoDocumentos {
   @Column("integer", { name: "estado", default: () => "1" })
   estado: number;
 
+  @Column("character varying", {
+    name: "tipo_documento",
+    nullable: true,
+    length: 10,
+  })
+  tipoDocumento: string | null;
+
   @OneToMany(
     () => EmpresasDocumentos,
     (empresasDocumentos) => empresasDocumentos.idTipoDocumento

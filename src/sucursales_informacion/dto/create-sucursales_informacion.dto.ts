@@ -22,6 +22,22 @@ export class CreateSucursalesInformacionDto {
     @IsNotEmpty({ message: 'El campo archivoImagen2 es requerido' })
     archivoImagen2: string;
 
+    @IsString()
+    @IsNotEmpty({ message: 'El campo horarioPropio es requerido' })
+    horarioPropio: string;
+
+    @IsString()
+    @IsNotEmpty({ message: 'El campo tieneProgramacion es requerido' })
+    tieneProgramacion: string;
+
+    @IsNumber()
+    @IsNotEmpty({ message: 'El campo minutosProgramacion es requerido' })
+    minutosProgramacion: number;
+
+    @IsNumber()
+    @IsNotEmpty({ message: 'El campo cantidadProgramacion es requerido' })
+    cantidadProgramacion: number;
+
     @IsNumber()
     @IsNotEmpty({ message: 'El campo idEmpresa es requerido' })
     idEmpresa: number;
