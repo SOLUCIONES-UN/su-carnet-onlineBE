@@ -57,12 +57,12 @@ export class RegistroDocumentosController {
   }
 
 
-  @Get('findAllByRegistro/:idRegistro')
-  async findAllByRegistro(@Param('idRegistro') idRegistro: number) {
+  @Get('documentoByUsuario/:idUsuario')
+  async findAllByRegistro(@Param('idUsuario') idUsuario: number) {
 
     try {
 
-      const result = await this.registroDocumentosService.findAllByRegistro(+idRegistro);
+      const result = await this.registroDocumentosService.findAllByRegistro(+idUsuario);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {

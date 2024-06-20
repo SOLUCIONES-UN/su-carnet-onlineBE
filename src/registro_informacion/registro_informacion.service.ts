@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import * as bcrypt from 'bcrypt';
+import { Usuarios } from '../entities/Usuarios';
 
 @Injectable()
 export class RegistroInformacionService {
@@ -20,6 +21,9 @@ export class RegistroInformacionService {
     @InjectRepository(TipoPaises)
     private TipoPaisesRepository: Repository<TipoPaises>,
 
+    @InjectRepository(Usuarios)
+    private UsuariosRepository: Repository<Usuarios>,
+
   ) { }
 
   // Función para transformar la fecha
@@ -30,9 +34,15 @@ export class RegistroInformacionService {
 
   async create(createRegistroInformacionDto: CreateRegistroInformacionDto) {
     try {
-      const { idPais, nombres, apellidos, documento, telefono, correo, fechaNacimiento, ...infoData } = createRegistroInformacionDto;
+      const { idPais, nombres, apellidos, documento, telefono, correo, fechaNacimiento, idUsuario, ...infoData } = createRegistroInformacionDto;
 
       const TipoPaises = await this.TipoPaisesRepository.findOneBy({ id: idPais });
+
+      const usuario = await this.UsuariosRepository.findOneBy({id: idUsuario})
+
+      if (!usuario) {
+        throw new NotFoundException(`usuario con ID ${idUsuario} no encontrado`);
+      }
 
       if (!TipoPaises) {
         throw new NotFoundException(`TipoPaises con ID ${idPais} no encontrada`);
@@ -57,6 +67,7 @@ export class RegistroInformacionService {
         telefono: telefonoEncrypted,
         correo: correoEncrypted,
         idPais: TipoPaises,
+        idUsuario: usuario,
         fechaNacimiento: fechaNacimientoTransformada,  
         estado: 'ACT'
       });
@@ -77,7 +88,7 @@ export class RegistroInformacionService {
     const RegistroInformacion = await this.RegistroInformacionRepository.find({
       skip: offset,
       take: limit,
-      relations: ['idPais'],
+      relations: ['idPais', 'idUsuario'],
     });
 
     return RegistroInformacion;
@@ -86,7 +97,7 @@ export class RegistroInformacionService {
   async update(id: number, updateRegistroInformacionDto: UpdateRegistroInformacionDto) {
 
     try {
-      const { idPais, nombres, apellidos, documento, telefono, correo, fechaNacimiento, ...infoData } = updateRegistroInformacionDto;
+      const { idPais, nombres, apellidos, documento, telefono, correo, fechaNacimiento, idUsuario, ...infoData } = updateRegistroInformacionDto;
 
       const registro_informacion = await this.RegistroInformacionRepository.findOneBy({ id });
 
@@ -100,10 +111,16 @@ export class RegistroInformacionService {
         throw new NotFoundException(`TipoPaises con ID ${idPais} no encontrada`);
       }
 
+      const usuario = await this.UsuariosRepository.findOneBy({id: idUsuario})
+
+      if (!usuario) {
+        throw new NotFoundException(`usuario con ID ${idUsuario} no encontrado`);
+      }
+
       const fechaNacimientoTransformada = this.transformDate(fechaNacimiento);
 
       const saltRounds = 10;
-      const documentoEncript = await bcrypt.hash(documento, saltRounds)
+      const documentoEncript = await bcrypt.hash(documento, saltRounds);
       const nombresEncrypted = await bcrypt.hash(nombres, saltRounds);
       const apellidosEncrypted = await bcrypt.hash(apellidos, saltRounds);
       const telefonoEncrypted = await bcrypt.hash(telefono, saltRounds);
@@ -118,6 +135,7 @@ export class RegistroInformacionService {
         correo: correoEncrypted,
         fechaNacimiento: fechaNacimientoTransformada,
         idPais: TipoPaises,
+        idUsuario: usuario
       });
 
       // Guardar los cambios en la base de datos
