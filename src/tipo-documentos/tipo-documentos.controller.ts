@@ -13,7 +13,13 @@ export class TipoDocumentosController {
   async create(@Body() createTipoDocumentoDto: CreateTipoDocumentoDto) {
     
     try {
+
+      const tipoDocumento = await this.tipoDocumentosService.existDocumentoInicial(createTipoDocumentoDto.descripcion);
       
+      if(tipoDocumento){
+
+        return new GenericResponse('403', 'El tipo documento ya existe"', tipoDocumento.descripcion);
+      }
       const result = await this.tipoDocumentosService.create(createTipoDocumentoDto);
       return new GenericResponse('200', 'EXITO', result);
 

@@ -70,20 +70,20 @@ export class RegistroDocumentosController {
     }
   }
 
-  @Patch('registrarDocumentoInicialFoto/:usuario/:fotoPerfil')
-  async cargarFotoPerfil(@Param('usuario') usuario: string, @Param('fotoPerfil') fotoInicial: string) {
+  @Patch('registrarDocumentoInicialFoto/:usuario/:fotoInicial')
+  async registrarDocumentoInicialFoto(@Param('usuario') usuario: string, @Param('fotoInicial') fotoInicial: string) {
 
     try {
 
       const result = await this.registroDocumentosService.registrarDocumentoInicialFoto(usuario, fotoInicial);
 
-      if (!result) {
+      if (result == false) {
         return new GenericResponse('400', 'Error al agergar foto de perfil', null);
       }
 
       return new GenericResponse('200', 'Éxito', 'foto perfil agregada con éxito');
     } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al cambiar la contraseña', error), HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(new GenericResponse('500', 'Error al cargar documento inicial', error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
