@@ -68,7 +68,7 @@ export class SucursalesAreasInformacionService {
     const sucursal = await this.sucursalesRepository.findOneBy({id: idSucursal})
 
     const SucursalesAreasInformacion = await this.sucursalesAreasRepository.find({
-      where: { idSucursal: sucursal, estado: 1 },
+      where: { idSucursal: sucursal, estado: 1, tieneProgramacion: '1' },
     });
     
     return SucursalesAreasInformacion;

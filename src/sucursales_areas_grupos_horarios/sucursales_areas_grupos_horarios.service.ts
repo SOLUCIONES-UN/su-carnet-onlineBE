@@ -6,9 +6,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { SucursalesAreasGruposInformacion } from '../entities/SucursalesAreasGruposInformacion';
 import { PaginationDto } from '../common/dtos/pagination.dto';
-import { SucursalesInformacion } from '../entities/SucursalesInformacion';
 import { SucursalesAreasPermisos } from '../entities/SucursalesAreasPermisos';
-import { Console, group } from 'console';
+import { SucursalesAreasGruposFechas } from '../entities/SucursalesAreasGruposFechas';
+import { horarioFechasDto } from './dto/horarioFechasDto';
+import { SucursalesInformacion } from '../entities/SucursalesInformacion';
+import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
 
 @Injectable()
 export class SucursalesAreasGruposHorariosService {
@@ -19,11 +21,20 @@ export class SucursalesAreasGruposHorariosService {
     @InjectRepository(SucursalesAreasGruposHorarios)
     private SucursalesAreasGruposHorariosRepository: Repository<SucursalesAreasGruposHorarios>,
 
+    @InjectRepository(SucursalesAreasGruposFechas)
+    private SucursalesAreasGruposFechasRepository: Repository<SucursalesAreasGruposFechas>,
+
     @InjectRepository(SucursalesAreasGruposInformacion)
     private SucursalesAreasGruposInformacionRepository: Repository<SucursalesAreasGruposInformacion>,
 
     @InjectRepository(SucursalesAreasPermisos)
     private SucursalesAreasPermisosRepository: Repository<SucursalesAreasPermisos>,
+
+    @InjectRepository(SucursalesInformacion)
+    private SucursalesInformacionRepository: Repository<SucursalesInformacion>,
+
+    @InjectRepository(SucursalesAreasInformacion)
+    private SucursalesAreasInformacionRepository: Repository<SucursalesAreasInformacion>,
 
   ) { }
 
@@ -53,58 +64,98 @@ export class SucursalesAreasGruposHorariosService {
     }
   }
 
-  async getHorariosByGrupo(idGrupo: number) {
-    // Paso 1: Obtener la información del grupo
-    const sucursalGrupoArea = await this.SucursalesAreasGruposInformacionRepository.findOneBy({ id: idGrupo });
+  async HorariosCitas(horarioFechas: horarioFechasDto) {
+
+    const sucursalGrupoArea = await this.SucursalesAreasGruposInformacionRepository.findOneBy({ id: horarioFechas.idGrupo });
 
     if (!sucursalGrupoArea) {
-        throw new Error('Grupo no encontrado');
+      throw new Error('Grupo no encontrado');
     }
 
-    // Paso 2: Obtener los horarios relacionados con ese grupo
-    const sucursalesAreasGruposHorarios = await this.SucursalesAreasGruposHorariosRepository.find({
-        where: { idAreaGrupo: sucursalGrupoArea },
-        relations: ['idAreaGrupo'],
-    });
+    const areaInformacion = await this.SucursalesAreasInformacionRepository.findOneBy({ id: horarioFechas.idArea });
 
-    // Paso 3: Inicializar el array de horariosCitas
+    if (!areaInformacion) {
+      throw new Error('Área información no encontrada');
+    }
+
     let horariosCitas = [];
 
-    // Paso 4: Usar map y Promise.all para manejar las promesas correctamente
-    await Promise.all(sucursalesAreasGruposHorarios.map(async horario => {
-        // Inicialmente, establecer el estado a 1
+    const gruposFechas = await this.SucursalesAreasGruposFechasRepository.find({
+      where: { idAreaGrupo: sucursalGrupoArea, fecha: horarioFechas.fecha }
+    });
+
+    if (gruposFechas.length > 0) {
+      await Promise.all(gruposFechas.map(async element => {
         let estado = 1;
 
-        // Verificar si existe un permiso coincidente
-        const sucursalesAreasPermisos = await this.SucursalesAreasPermisosRepository.findOne({
-            where: { 
-                idAreaGrupo: horario.idAreaGrupo, 
-                horaInicio: horario.horaInicio, 
-                horaFinal: horario.horaFinal 
-            },
-            relations: ['idAreaGrupo'],
+        // Contar la cantidad de permisos para esta área y horario
+        const permisosCount = await this.SucursalesAreasPermisosRepository.count({
+          where: {
+            idAreaGrupo: element.idAreaGrupo,
+            horaInicio: element.horaInicio,
+            horaFinal: element.horaFinal,
+            fecha: element.fecha
+          }
         });
 
-        // Si hay una coincidencia, cambiar el estado a 0
-        if (sucursalesAreasPermisos) {
-            estado = 0;
+        if (permisosCount >= areaInformacion.cantidadProgramacion) {
+          estado = 0;
+        } else {
+          estado = 1;
         }
 
-        // Agregar el horario al array de horariosCitas con el estado correspondiente
+        let dia = 1;
+
         horariosCitas.push({
-            id: horario.id,
-            diaSemana: horario.diaSemana,
-            horaInicio: horario.horaInicio,
-            horaFinal: horario.horaFinal,
-            estado: estado,
-            idAreaGrupo: sucursalGrupoArea
+          id: element.id,
+          diaSemana: dia,
+          fecha: element.fecha,
+          horaInicio: element.horaInicio,
+          horaFinal: element.horaFinal,
+          estado: estado,
+          idAreaGrupo: sucursalGrupoArea
         });
-    }));
+      }));
 
-    // Devolver los horarios con el estado adecuado
+    } else {
+
+      const sucursalesAreasGruposHorarios = await this.SucursalesAreasGruposHorariosRepository.find({
+        where: { idAreaGrupo: sucursalGrupoArea },
+        relations: ['idAreaGrupo'],
+      });
+
+      await Promise.all(sucursalesAreasGruposHorarios.map(async horario => {
+        let estado = 1;
+
+        // Contar la cantidad de permisos para esta área y horario
+        const permisosCount = await this.SucursalesAreasPermisosRepository.count({
+          where: {
+            idAreaGrupo: horario.idAreaGrupo,
+            horaInicio: horario.horaInicio,
+            horaFinal: horario.horaFinal
+          }
+        });
+
+        if (permisosCount >= areaInformacion.cantidadProgramacion) {
+          estado = 0;
+        } else {
+          estado = 1;
+        }
+
+        horariosCitas.push({
+          id: horario.id,
+          diaSemana: horario.diaSemana,
+          fecha: horarioFechas.fecha,
+          horaInicio: horario.horaInicio,
+          horaFinal: horario.horaFinal,
+          estado: estado,
+          idAreaGrupo: sucursalGrupoArea
+        });
+      }));
+    }
+
     return horariosCitas;
-}
-
+  }
 
 
   async findAll(PaginationDto: PaginationDto) {
