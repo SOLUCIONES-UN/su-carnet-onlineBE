@@ -4,6 +4,7 @@ import { CreateSucursalesAreasGruposHorarioDto } from './dto/create-sucursales_a
 import { UpdateSucursalesAreasGruposHorarioDto } from './dto/update-sucursales_areas_grupos_horario.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { horarioFechasDto } from './dto/horarioFechasDto';
 
 @Controller('sucursales-areas-grupos-horarios')
 export class SucursalesAreasGruposHorariosController {
@@ -36,12 +37,12 @@ export class SucursalesAreasGruposHorariosController {
   }
 
 
-  @Get('getHorariosByGrupo/:idGrupo')
-  async getHorariosByGrupo(@Param('idGrupo') idGrupo:string) {
+  @Post('HorariosCitas')
+  async getHorariosByGrupo(@Body() horarioFechas: horarioFechasDto) {
 
     try {
 
-      const result = await this.sucursalesAreasGruposHorariosService.getHorariosByGrupo(+idGrupo);
+      const result = await this.sucursalesAreasGruposHorariosService.HorariosCitas(horarioFechas);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {

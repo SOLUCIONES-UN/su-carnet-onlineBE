@@ -53,10 +53,6 @@ export class SucursalesAreasPermisosService {
 
       const OutsoursingAfiliaciones = await this.OutsoursingAfiliacionesRepository.findOneBy({id: idOutsoursingAfiliaciones});
 
-      if(!OutsoursingAfiliaciones){
-        throw new NotFoundException(`OutsoursingAfiliaciones con ID ${idOutsoursingAfiliaciones} no encontrada`);
-      }
-
       if (!areaGrupo) {
         throw new NotFoundException(`areaGrupo con ID ${idAreaGrupo} no encontrada`);
       }
@@ -69,15 +65,13 @@ export class SucursalesAreasPermisosService {
         throw new NotFoundException(`TipoPermisos con ID ${idPermiso} no encontrada`);
       }
 
-      const fechaTransformada = this.transformDate(createSucursalesAreasPermisoDto.fecha);
-
       const areaSucursalPermisos = this.SucursalesAreasPermisosRepository.create({
         ...infoData,
         idAreaGrupo: areaGrupo,
         idRegistro: RegistroInformacion,
         idOutsoursingAfiliaciones: OutsoursingAfiliaciones,
         idPermiso: TipoPermisos,
-        fecha: fechaTransformada,
+        fecha: createSucursalesAreasPermisoDto.fecha,
         estado: 'ACT'
       });
 

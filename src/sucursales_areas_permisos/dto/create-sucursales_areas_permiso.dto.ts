@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateSucursalesAreasPermisoDto {
 
@@ -27,8 +27,8 @@ export class CreateSucursalesAreasPermisoDto {
     @IsNotEmpty({ message: 'El campo idPermiso es requerido' })
     idPermiso: number;
 
+    @IsOptional()
     @IsNumber()
-    @IsNotEmpty({ message: 'El campo idOutsoursing es requerido' })
     idOutsoursingAfiliaciones: number;
 
     @IsNumber()

@@ -17,8 +17,8 @@ export class RegistroDocumentos {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;
 
-  @Column("date", { name: "fecha_vencimiento" })
-  fechaVencimiento: string;
+  @Column("date", { name: "fecha_vencimiento", nullable: true })
+  fechaVencimiento: string | null;
 
   @Column("character varying", { name: "archivo" })
   archivo: string;

@@ -47,26 +47,6 @@ export class SucursalesInformacion {
   @Column("integer", { name: "estado", default: () => "1" })
   estado: number;
 
-  @Column("character varying", {
-    name: "horario_propio",
-    nullable: true,
-    length: 4,
-  })
-  horarioPropio: string | null;
-
-  @Column("character varying", {
-    name: "tiene_programacion",
-    nullable: true,
-    length: 4,
-  })
-  tieneProgramacion: string | null;
-
-  @Column("integer", { name: "minutos_programacion", nullable: true })
-  minutosProgramacion: number | null;
-
-  @Column("integer", { name: "cantidad_programacion", nullable: true })
-  cantidadProgramacion: number | null;
-
   @OneToMany(
     () => SucursalesAreasInformacion,
     (sucursalesAreasInformacion) => sucursalesAreasInformacion.idSucursal
