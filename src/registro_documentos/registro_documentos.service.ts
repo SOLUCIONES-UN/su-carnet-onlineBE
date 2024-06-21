@@ -47,7 +47,7 @@ export class RegistroDocumentosService {
     });
   }
 
-  async getUsuario(user:string): Promise<Usuarios>{
+  async getUsuario(user: string): Promise<Usuarios> {
 
     let usuario: Usuarios;
 
@@ -61,7 +61,7 @@ export class RegistroDocumentosService {
       usuario = await this.userRepository.findOne({
         where: { telefono: user, estado: 2 },
       });
-    } 
+    }
 
     return usuario;
   }
@@ -129,7 +129,7 @@ export class RegistroDocumentosService {
 
       const saltRounds = 10;
 
-      const [ archivoEncript] = await Promise.all([
+      const [archivoEncript] = await Promise.all([
         bcrypt.hash(archivo, saltRounds),
       ]);
 
@@ -159,32 +159,84 @@ export class RegistroDocumentosService {
   async registrarDocumentoInicialFoto(user: string, fotoInicial: string) {
 
     try {
-
       let usuario: Usuarios;
 
+      // Determinar si es email o teléfono y buscar usuario
       if (this.isEmail(user)) {
-        // Buscar usuario por email
         usuario = await this.userRepository.findOne({
           where: { email: user, estado: 2 },
         });
       } else if (this.isPhoneNumber(user)) {
-        // Buscar usuario por número de teléfono
         usuario = await this.userRepository.findOne({
           where: { telefono: user, estado: 2 },
         });
       }
 
-      usuario.fotoPerfil = fotoInicial;
-      await this.userRepository.save(usuario);
+      if (!usuario) {
+        throw new NotFoundException(`Usuario con identificador ${user} no encontrado`);
+      }
+
+      const RegistroInformacion = await this.RegistroInformacionRepository.findOne({
+        where: { idUsuario: usuario },
+      });
+
+      if (!RegistroInformacion) {
+        throw new NotFoundException(`RegistroInformacion con usuario ${user} no encontrada`);
+      }
+
+      const RegistrosDocumentos = await this.RegistroDocumentosRepository.find({
+        where: { idRegistroInformacion: RegistroInformacion },
+      });
+
+      if (!RegistrosDocumentos) {
+        throw new NotFoundException(`RegistroDocumento con registroInformacion ${RegistroInformacion} no encontrada`);
+      }
+
+      const TiposDocumentos = await this.TipoDocumentosRepository.findOneBy({ descripcion: 'documento_inicial' });
+
+      if(!TiposDocumentos){
+
+        const createTipoDocumentos = this.TipoDocumentosRepository.create({
+
+          descripcion: 'documento_inicial',
+          necesitaValidacion: 'NO',
+          tieneVencimiento: 'NO',
+          tipoDocumento: 'JPG'
+
+        });
+        await this.TipoDocumentosRepository.save(createTipoDocumentos);
+      }
+
+      const TipoDocumento = await this.TipoDocumentosRepository.findOneBy({ descripcion: 'documento_inicial' });
+
+      let documentoExistente = RegistrosDocumentos.find(doc => doc.fotoInicial === 1);
+
+      if (documentoExistente) {
+
+        documentoExistente.estado = 'ACT',
+        documentoExistente.archivo = fotoInicial;
+        documentoExistente.idTipoDocumento = TipoDocumento,
+
+        await this.RegistroDocumentosRepository.save(documentoExistente);
+
+      } else {
+        // Si no existe, crear uno nuevo
+        const nuevoDocumento = this.RegistroDocumentosRepository.create({
+          idRegistroInformacion: RegistroInformacion,
+          archivo: fotoInicial,
+          fotoInicial: 1,
+          estado: "ACT",
+          idTipoDocumento: TipoDocumento
+        });
+        await this.RegistroDocumentosRepository.save(nuevoDocumento);
+      }
 
       return true;
-
+      
     } catch (error) {
-
       this.handleDBException(error);
       return false;
     }
-
   }
 
   async findAll(PaginationDto: PaginationDto) {
@@ -203,12 +255,12 @@ export class RegistroDocumentosService {
 
   async findAllByRegistro(idUsuario: number) {
 
-    const usuario = await this.userRepository.findOneBy({id: idUsuario})
+    const usuario = await this.userRepository.findOneBy({ id: idUsuario })
 
-    const registro_informacion = await this.RegistroInformacionRepository.findOneBy({idUsuario: usuario})
+    const registro_informacion = await this.RegistroInformacionRepository.findOneBy({ idUsuario: usuario })
 
     const RegistroDocumento = await this.RegistroDocumentosRepository.find({
-      where: {idRegistroInformacion: registro_informacion},
+      where: { idRegistroInformacion: registro_informacion },
       relations: ['idRegistroInformacion', "idTipoDocumento"],
     });
 

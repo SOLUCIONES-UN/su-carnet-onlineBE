@@ -49,6 +49,11 @@ export class TipoDocumentosService {
     return this.TipoDocumentosRepository.findOneBy({ id });
   }
 
+  async existDocumentoInicial(descripcion: string) {
+    return this.TipoDocumentosRepository.findOneBy({ descripcion });
+  }
+
+
   async update(id: number, updateTipoDocumentoDto: UpdateTipoDocumentoDto) {
     
     try {
