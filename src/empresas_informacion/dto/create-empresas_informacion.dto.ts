@@ -48,6 +48,10 @@ export class CreateEmpresasInformacionDto {
     miembro: string;
 
     @IsString()
+    @IsNotEmpty({ message: 'El campo logotipo es requerido' })
+    logotipo: string;
+
+    @IsString()
     @IsNotEmpty({ message: 'El campo sitioWeb es requerido' })
     sitioWeb: string;
 

@@ -66,6 +66,13 @@ export class EmpresasInformacion {
   })
   sitioWeb: string | null;
 
+  @Column("character varying", {
+    name: "logotipo",
+    nullable: true,
+    length: 250,
+  })
+  logotipo: string | null;
+
   @OneToMany(
     () => EmpresasDocumentos,
     (empresasDocumentos) => empresasDocumentos.idEmpresa

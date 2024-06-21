@@ -141,7 +141,8 @@ export class RegistroDocumentosService {
         idRegistroInformacion: registro_informacion,
         idTipoDocumento: TipoDocumentos,
         fechaVencimiento: fechaVencimientoTransformada,
-        estado: 'PEN'
+        estado: 'PEN',
+        fotoInicial: 0
       });
 
       await this.RegistroDocumentosRepository.save(RegistroDocumento);
@@ -150,6 +151,38 @@ export class RegistroDocumentosService {
 
     } catch (error) {
       this.handleDBException(error);
+    }
+
+  }
+
+
+  async registrarDocumentoInicialFoto(user: string, fotoInicial: string) {
+
+    try {
+
+      let usuario: Usuarios;
+
+      if (this.isEmail(user)) {
+        // Buscar usuario por email
+        usuario = await this.userRepository.findOne({
+          where: { email: user, estado: 2 },
+        });
+      } else if (this.isPhoneNumber(user)) {
+        // Buscar usuario por número de teléfono
+        usuario = await this.userRepository.findOne({
+          where: { telefono: user, estado: 2 },
+        });
+      }
+
+      usuario.fotoPerfil = fotoInicial;
+      await this.userRepository.save(usuario);
+
+      return true;
+
+    } catch (error) {
+
+      this.handleDBException(error);
+      return false;
     }
 
   }
