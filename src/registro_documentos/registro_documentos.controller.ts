@@ -81,7 +81,7 @@ export class RegistroDocumentosController {
         return new GenericResponse('400', 'Error al agergar foto de perfil', null);
       }
 
-      return new GenericResponse('200', 'Éxito', 'foto perfil agregada con éxito');
+      return new GenericResponse('200', 'Éxito', 'foto agregada con éxito para documento inicial');
     } catch (error) {
       throw new HttpException(new GenericResponse('500', 'Error al cargar documento inicial', error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
