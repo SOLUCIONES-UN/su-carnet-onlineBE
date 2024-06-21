@@ -26,6 +26,9 @@ export class RegistroDocumentos {
   @Column("character varying", { name: "estado", nullable: true, length: 4 })
   estado: string | null;
 
+  @Column("integer", { name: "foto_inicial", nullable: true })
+  fotoInicial: number | null;
+
   @OneToMany(
     () => OutsoursingDocumentos,
     (outsoursingDocumentos) => outsoursingDocumentos.idDocumento

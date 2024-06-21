@@ -91,36 +91,6 @@ export class UsuariosService {
     }
   }
 
-  async registrarFotoPerfil(user: string, fotoPerfil: string) {
-
-    try {
-
-      let usuario: Usuarios;
-
-      if (this.isEmail(user)) {
-        // Buscar usuario por email
-        usuario = await this.usuariosRepository.findOne({
-          where: { email: user, estado: 2 },
-        });
-      } else if (this.isPhoneNumber(user)) {
-        // Buscar usuario por número de teléfono
-        usuario = await this.usuariosRepository.findOne({
-          where: { telefono: user, estado: 2 },
-        });
-      }
-
-      usuario.fotoPerfil = fotoPerfil;
-      await this.usuariosRepository.save(usuario);
-
-      return true;
-
-    } catch (error) {
-
-      this.handleDBException(error);
-      return false;
-    }
-
-  }
 
 
   async existsEmail(email: string): Promise<boolean> {
