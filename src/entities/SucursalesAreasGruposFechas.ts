@@ -17,18 +17,10 @@ export class SucursalesAreasGruposFechas {
   @Column("date", { name: "fecha" })
   fecha: string;
 
-  @Column("character varying", {
-    name: "hora_inicio",
-    nullable: true,
-    length: 5,
-  })
+  @Column("time without time zone", { name: "hora_inicio", nullable: true })
   horaInicio: string | null;
 
-  @Column("character varying", {
-    name: "hora_final",
-    nullable: true,
-    length: 5,
-  })
+  @Column("time without time zone", { name: "hora_final", nullable: true })
   horaFinal: string | null;
 
   @Column("character varying", { name: "tipo", nullable: true, length: 2 })

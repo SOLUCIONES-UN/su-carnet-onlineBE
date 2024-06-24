@@ -11,6 +11,7 @@ import { SucursalesAreasGruposFechas } from '../entities/SucursalesAreasGruposFe
 import { horarioFechasDto } from './dto/horarioFechasDto';
 import { SucursalesInformacion } from '../entities/SucursalesInformacion';
 import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
+import { getDay, parseISO } from 'date-fns';
 
 @Injectable()
 export class SucursalesAreasGruposHorariosService {
@@ -65,7 +66,6 @@ export class SucursalesAreasGruposHorariosService {
   }
 
   async HorariosCitas(horarioFechas: horarioFechasDto) {
-
     const sucursalGrupoArea = await this.SucursalesAreasGruposInformacionRepository.findOneBy({ id: horarioFechas.idGrupo });
 
     if (!sucursalGrupoArea) {
@@ -78,80 +78,85 @@ export class SucursalesAreasGruposHorariosService {
       throw new Error('Área información no encontrada');
     }
 
+    const intervaloCitasMinutos = areaInformacion.minutosProgramacion; // Intervalo de tiempo para citas en minutos
     let horariosCitas = [];
 
     const gruposFechas = await this.SucursalesAreasGruposFechasRepository.find({
       where: { idAreaGrupo: sucursalGrupoArea, fecha: horarioFechas.fecha }
     });
 
-    if (gruposFechas.length > 0) {
-      await Promise.all(gruposFechas.map(async element => {
-        let estado = 1;
+    const calcularIntervalos = (horaInicio: string, horaFinal: string) => {
+      const intervalos = [];
+      const [inicioHoras, inicioMinutos] = horaInicio.split(':').map(Number);
+      const [finalHoras, finalMinutos] = horaFinal.split(':').map(Number);
 
-        // Contar la cantidad de permisos para esta área y horario
-        const permisosCount = await this.SucursalesAreasPermisosRepository.count({
-          where: {
-            idAreaGrupo: element.idAreaGrupo,
-            horaInicio: element.horaInicio,
-            horaFinal: element.horaFinal,
-            fecha: element.fecha
-          }
-        });
+      let inicio = new Date();
+      inicio.setHours(inicioHoras, inicioMinutos, 0, 0);
 
-        if (permisosCount >= areaInformacion.cantidadProgramacion) {
-          estado = 0;
-        } else {
-          estado = 1;
+      let fin = new Date();
+      fin.setHours(finalHoras, finalMinutos, 0, 0);
+
+      while (inicio < fin) {
+        const siguienteInicio = new Date(inicio.getTime() + intervaloCitasMinutos * 60000);
+        if (siguienteInicio <= fin) {
+          intervalos.push({
+            horaInicio: inicio.toTimeString().slice(0, 5),
+            horaFinal: siguienteInicio.toTimeString().slice(0, 5)
+          });
         }
+        inicio = siguienteInicio;
+      }
 
-        let dia = 1;
+      return intervalos;
+    };
 
-        horariosCitas.push({
-          id: element.id,
-          diaSemana: dia,
-          fecha: element.fecha,
-          horaInicio: element.horaInicio,
-          horaFinal: element.horaFinal,
-          estado: estado,
-          idAreaGrupo: sucursalGrupoArea
-        });
+    const agregarHorarios = async (horarios, fecha) => {
+      await Promise.all(horarios.map(async horario => {
+        const intervalos = calcularIntervalos(horario.horaInicio, horario.horaFinal);
+
+        for (const intervalo of intervalos) {
+          const permisosCount = await this.SucursalesAreasPermisosRepository.count({
+            where: {
+              idAreaGrupo: horario.idAreaGrupo,
+              horaInicio: intervalo.horaInicio,
+              horaFinal: intervalo.horaFinal,
+              fecha: fecha
+            }
+          });
+
+          for (let i = 0; i < areaInformacion.cantidadProgramacion; i++) {
+            let estado = 1;
+
+            if (permisosCount >= areaInformacion.cantidadProgramacion) {
+              estado = 0;
+            }
+
+            const date = parseISO(horarioFechas.fecha);
+            const diaSemana = getDay(date);
+
+            horariosCitas.push({
+              id: horario.id,
+              diaSemana: horario.diaSemana || diaSemana,
+              fecha: fecha,
+              horaInicio: intervalo.horaInicio,
+              horaFinal: intervalo.horaFinal,
+              estado: estado,
+              idAreaGrupo: sucursalGrupoArea
+            });
+          }
+        }
       }));
+    };
 
+    if (gruposFechas.length > 0) {
+      await agregarHorarios(gruposFechas, horarioFechas.fecha);
     } else {
-
       const sucursalesAreasGruposHorarios = await this.SucursalesAreasGruposHorariosRepository.find({
         where: { idAreaGrupo: sucursalGrupoArea },
         relations: ['idAreaGrupo'],
       });
 
-      await Promise.all(sucursalesAreasGruposHorarios.map(async horario => {
-        let estado = 1;
-
-        // Contar la cantidad de permisos para esta área y horario
-        const permisosCount = await this.SucursalesAreasPermisosRepository.count({
-          where: {
-            idAreaGrupo: horario.idAreaGrupo,
-            horaInicio: horario.horaInicio,
-            horaFinal: horario.horaFinal
-          }
-        });
-
-        if (permisosCount >= areaInformacion.cantidadProgramacion) {
-          estado = 0;
-        } else {
-          estado = 1;
-        }
-
-        horariosCitas.push({
-          id: horario.id,
-          diaSemana: horario.diaSemana,
-          fecha: horarioFechas.fecha,
-          horaInicio: horario.horaInicio,
-          horaFinal: horario.horaFinal,
-          estado: estado,
-          idAreaGrupo: sucursalGrupoArea
-        });
-      }));
+      await agregarHorarios(sucursalesAreasGruposHorarios, horarioFechas.fecha);
     }
 
     return horariosCitas;

@@ -17,19 +17,11 @@ export class SucursalesAreasGruposHorarios {
   @Column("integer", { name: "dia_semana" })
   diaSemana: number;
 
-  @Column("character varying", {
-    name: "hora_inicio",
-    nullable: true,
-    length: 5,
-  })
-  horaInicio: string | null;
+  @Column("time without time zone", { name: "hora_inicio" })
+  horaInicio: string;
 
-  @Column("character varying", {
-    name: "hora_final",
-    nullable: true,
-    length: 5,
-  })
-  horaFinal: string | null;
+  @Column("time without time zone", { name: "hora_final" })
+  horaFinal: string;
 
   @ManyToOne(
     () => SucursalesAreasGruposInformacion,

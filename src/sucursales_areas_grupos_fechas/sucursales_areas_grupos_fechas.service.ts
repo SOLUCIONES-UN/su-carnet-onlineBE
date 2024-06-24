@@ -44,8 +44,7 @@ export class SucursalesAreasGruposFechasService {
 
       const Grupos_fechas = this.SucursalesAreasGruposFechasRepository.create({
         ...infoData,
-        idAreaGrupo: SucursalesAreasGruposInformacion,
-        fecha: fechaTransformada
+        idAreaGrupo: SucursalesAreasGruposInformacion
       });
 
       await this.SucursalesAreasGruposFechasRepository.save(Grupos_fechas);
@@ -91,8 +90,7 @@ export class SucursalesAreasGruposFechasService {
 
       const update_sucursales_areas_grupos_fechas = this.SucursalesAreasGruposFechasRepository.merge(sucursales_areas_grupos_fechas, {
         ...infoData,
-        idAreaGrupo: SucursalesAreasGruposInformacion,
-        fecha: fechaTransformada
+        idAreaGrupo: SucursalesAreasGruposInformacion
       });
 
       // Guardar los cambios en la base de datos
