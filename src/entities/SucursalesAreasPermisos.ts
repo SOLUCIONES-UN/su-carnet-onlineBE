@@ -23,20 +23,6 @@ export class SucursalesAreasPermisos {
   fecha: string;
 
   @Column("character varying", {
-    name: "hora_inicio",
-    nullable: true,
-    length: 5,
-  })
-  horaInicio: string | null;
-
-  @Column("character varying", {
-    name: "hora_final",
-    nullable: true,
-    length: 5,
-  })
-  horaFinal: string | null;
-
-  @Column("character varying", {
     name: "genera_alerta",
     nullable: true,
     length: 2,
@@ -45,6 +31,12 @@ export class SucursalesAreasPermisos {
 
   @Column("character varying", { name: "estado", nullable: true, length: 3 })
   estado: string | null;
+
+  @Column("time without time zone", { name: "hora_inicio", nullable: true })
+  horaInicio: string | null;
+
+  @Column("time without time zone", { name: "hora_final", nullable: true })
+  horaFinal: string | null;
 
   @OneToMany(
     () => SucursalesAreasLogs,
