@@ -64,7 +64,18 @@ export class SucursalesAreasGruposHorariosService {
       this.handleDBException(error);
     }
   }
+
+
+  getDayOfWeek(dateString: string): number {
+    const date = parseISO(dateString);
+    const dayOfWeek = getDay(date); // Sunday: 0, Monday: 1, ..., Saturday: 6
+    return dayOfWeek;
+  }
+
   async HorariosCitas(horarioFechas: horarioFechasDto) {
+
+    const diaSemana = this.getDayOfWeek(horarioFechas.fecha);
+
     const sucursalGrupoArea = await this.SucursalesAreasGruposInformacionRepository.findOneBy({ id: horarioFechas.idGrupo });
 
     if (!sucursalGrupoArea) {
@@ -123,33 +134,28 @@ export class SucursalesAreasGruposHorariosService {
             }
           });
 
-          let estado = 1;
-
-          if (permisosCount >= areaInformacion.cantidadProgramacion) {
-            estado = 0;
-          }
-
-          const date = parseISO(horarioFechas.fecha);
-          const diaSemana = getDay(date);
-
           horariosCitas.push({
             id: horario.id,
             diaSemana: horario.diaSemana || diaSemana,
             fecha: fecha,
             horaInicio: intervalo.horaInicio,
             horaFinal: intervalo.horaFinal,
-            estado: estado,
-            idAreaGrupo: sucursalGrupoArea
+            disponibles: Math.max(0, areaInformacion.cantidadProgramacion - permisosCount),
+            estado: permisosCount >= areaInformacion.cantidadProgramacion ? 0 : 1,
+            idAreaGrupo: sucursalGrupoArea,
           });
         }
       }));
     };
 
     if (gruposFechas.length > 0) {
+
       await agregarHorarios(gruposFechas, horarioFechas.fecha);
+
     } else {
+      
       const sucursalesAreasGruposHorarios = await this.SucursalesAreasGruposHorariosRepository.find({
-        where: { idAreaGrupo: sucursalGrupoArea },
+        where: { idAreaGrupo: sucursalGrupoArea, diaSemana: diaSemana },
         relations: ['idAreaGrupo'],
       });
 
@@ -170,6 +176,7 @@ export class SucursalesAreasGruposHorariosService {
 
       if (permisoEncontrado) {
         cita.estado = 0;
+        cita.disponibles = 0;
       }
     });
 
