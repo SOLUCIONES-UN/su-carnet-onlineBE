@@ -64,7 +64,6 @@ export class SucursalesAreasGruposHorariosService {
       this.handleDBException(error);
     }
   }
-
   async HorariosCitas(horarioFechas: horarioFechasDto) {
     const sucursalGrupoArea = await this.SucursalesAreasGruposInformacionRepository.findOneBy({ id: horarioFechas.idGrupo });
 
@@ -124,26 +123,24 @@ export class SucursalesAreasGruposHorariosService {
             }
           });
 
-          for (let i = 0; i < areaInformacion.cantidadProgramacion; i++) {
-            let estado = 1;
+          let estado = 1;
 
-            if (permisosCount >= areaInformacion.cantidadProgramacion) {
-              estado = 0;
-            }
-
-            const date = parseISO(horarioFechas.fecha);
-            const diaSemana = getDay(date);
-
-            horariosCitas.push({
-              id: horario.id,
-              diaSemana: horario.diaSemana || diaSemana,
-              fecha: fecha,
-              horaInicio: intervalo.horaInicio,
-              horaFinal: intervalo.horaFinal,
-              estado: estado,
-              idAreaGrupo: sucursalGrupoArea
-            });
+          if (permisosCount >= areaInformacion.cantidadProgramacion) {
+            estado = 0;
           }
+
+          const date = parseISO(horarioFechas.fecha);
+          const diaSemana = getDay(date);
+
+          horariosCitas.push({
+            id: horario.id,
+            diaSemana: horario.diaSemana || diaSemana,
+            fecha: fecha,
+            horaInicio: intervalo.horaInicio,
+            horaFinal: intervalo.horaFinal,
+            estado: estado,
+            idAreaGrupo: sucursalGrupoArea
+          });
         }
       }));
     };
@@ -158,6 +155,23 @@ export class SucursalesAreasGruposHorariosService {
 
       await agregarHorarios(sucursalesAreasGruposHorarios, horarioFechas.fecha);
     }
+
+    // Verificar si los horarios en horariosCitas están ocupados
+    const permisos = await this.SucursalesAreasPermisosRepository.find({
+      where: { idAreaGrupo: sucursalGrupoArea, fecha: horarioFechas.fecha }
+    });
+
+    horariosCitas.forEach(cita => {
+      const permisoEncontrado = permisos.find(permiso =>
+        permiso.horaInicio === cita.horaInicio &&
+        permiso.horaFinal === cita.horaFinal &&
+        permiso.fecha === cita.fecha
+      );
+
+      if (permisoEncontrado) {
+        cita.estado = 0;
+      }
+    });
 
     return horariosCitas;
   }
