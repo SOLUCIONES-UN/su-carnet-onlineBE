@@ -1,4 +1,4 @@
-import { IsEmail, IsNegative, IsNotEmpty, IsNumber, IsString, isString } from "class-validator";
+import { IsEmail, IsNegative, IsNotEmpty, IsNumber, IsOptional, IsString, Matches, MaxLength, NotContains, isString } from "class-validator";
 
 export class CreateRegistroInformacionDto {
 
@@ -39,7 +39,18 @@ export class CreateRegistroInformacionDto {
     @IsNotEmpty({ message: 'El campo idPais es requerido' })
     idPais: number;
 
-    @IsNumber()
-    @IsNotEmpty({ message: 'El campo idUsuario es requerido' })
-    idUsuario: number;
+    @IsString()
+    @IsNotEmpty({ message: 'El campo password es requerido' })
+    @MaxLength(50)
+    @Matches(
+        /(?:(?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+        message: 'El password debe contener por lo menos una letra mayúscula, minúsculas y un número'
+    })
+    @NotContains(' ', { message: 'El password no puede contener espacios en blanco' })
+    password: string;
+
+    @IsOptional()
+    @IsNumber({}, { each: true, message: 'Cada elemento en idEmpresas debe ser un número' })
+    idEmpresas: number[];
+    
 }
