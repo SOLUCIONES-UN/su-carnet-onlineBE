@@ -32,17 +32,19 @@ export class RegistroInformacionService {
     return `${year}-${month}-${day}`;
   }
 
-  async create(createRegistroInformacionDto: CreateRegistroInformacionDto) {
+
+  async existRegistro(Dpi: string){
+
+    return await this.RegistroInformacionRepository.findOneBy({documento: Dpi});
+  }
+
+
+  async create(createRegistroInformacionDto: CreateRegistroInformacionDto, usuario: Usuarios) {
+    
     try {
-      const { idPais, nombres, apellidos, documento, telefono, correo, fechaNacimiento, idUsuario, ...infoData } = createRegistroInformacionDto;
+      const { idPais, nombres, apellidos, documento, telefono, correo, fechaNacimiento, ...infoData } = createRegistroInformacionDto;
 
       const TipoPaises = await this.TipoPaisesRepository.findOneBy({ id: idPais });
-
-      const usuario = await this.UsuariosRepository.findOneBy({id: idUsuario})
-
-      if (!usuario) {
-        throw new NotFoundException(`usuario con ID ${idUsuario} no encontrado`);
-      }
 
       if (!TipoPaises) {
         throw new NotFoundException(`TipoPaises con ID ${idPais} no encontrada`);
@@ -57,8 +59,6 @@ export class RegistroInformacionService {
         bcrypt.hash(correo, saltRounds)
       ]);
 
-      const fechaNacimientoTransformada = this.transformDate(fechaNacimiento);
-
       const RegistroInformacion = this.RegistroInformacionRepository.create({
         ...infoData,
         documento: documentoEncript,
@@ -68,7 +68,6 @@ export class RegistroInformacionService {
         correo: correoEncrypted,
         idPais: TipoPaises,
         idUsuario: usuario,
-        fechaNacimiento: fechaNacimientoTransformada,  
         estado: 'ACT'
       });
 
@@ -97,27 +96,25 @@ export class RegistroInformacionService {
   async update(id: number, updateRegistroInformacionDto: UpdateRegistroInformacionDto) {
 
     try {
-      const { idPais, nombres, apellidos, documento, telefono, correo, fechaNacimiento, idUsuario, ...infoData } = updateRegistroInformacionDto;
+      const { idPais, idUsuario, nombres, apellidos, documento, telefono, correo, fechaNacimiento, ...infoData } = updateRegistroInformacionDto;
 
       const registro_informacion = await this.RegistroInformacionRepository.findOneBy({ id });
 
       if (!registro_informacion) {
-        throw new NotFoundException(`registro_informacion con ID ${id} no encontrada`);
+        throw new NotFoundException(`registro_informacion con ID ${id} no encontrado`);
       }
 
       const TipoPaises = await this.TipoPaisesRepository.findOneBy({ id: idPais });
 
       if (!TipoPaises) {
-        throw new NotFoundException(`TipoPaises con ID ${idPais} no encontrada`);
+        throw new NotFoundException(`TipoPaises con ID ${idPais} no encontrado`);
       }
 
-      const usuario = await this.UsuariosRepository.findOneBy({id: idUsuario})
+      const usuario = await this.UsuariosRepository.findOneBy({id: idUsuario});
 
       if (!usuario) {
         throw new NotFoundException(`usuario con ID ${idUsuario} no encontrado`);
       }
-
-      const fechaNacimientoTransformada = this.transformDate(fechaNacimiento);
 
       const saltRounds = 10;
       const documentoEncript = await bcrypt.hash(documento, saltRounds);
@@ -133,7 +130,6 @@ export class RegistroInformacionService {
         apellidos: apellidosEncrypted,
         telefono: telefonoEncrypted,
         correo: correoEncrypted,
-        fechaNacimiento: fechaNacimientoTransformada,
         idPais: TipoPaises,
         idUsuario: usuario
       });

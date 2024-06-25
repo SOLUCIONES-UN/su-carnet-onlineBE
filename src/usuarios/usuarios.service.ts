@@ -31,9 +31,16 @@ export class UsuariosService {
 
   ) { }
 
+
+  async getTipoUsuario(){
+
+    return await this.tipos_usuariosRepository.findOne({ where: { descripcion: 'aplicacion' } });
+  }
+
   async create(createUsuarioDto: CreateUsuarioDto) {
 
     try {
+      
       const { password, idTipo, idEmpresas, ...userInfo } = createUsuarioDto;
       let empresas = [];
 
