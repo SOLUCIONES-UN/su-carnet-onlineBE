@@ -21,8 +21,8 @@ export class RegistroInformacion {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;
 
-  @Column("character varying", { name: "documento" })
-  documento: string;
+  @Column("character varying", { name: "documento", nullable: true })
+  documento: string | null;
 
   @Column("character varying", { name: "nombres" })
   nombres: string;
@@ -30,8 +30,8 @@ export class RegistroInformacion {
   @Column("character varying", { name: "apellidos" })
   apellidos: string;
 
-  @Column("date", { name: "fecha_nacimiento" })
-  fechaNacimiento: string;
+  @Column("date", { name: "fecha_nacimiento", nullable: true })
+  fechaNacimiento: string | null;
 
   @Column("character varying", { name: "telefono" })
   telefono: string;
