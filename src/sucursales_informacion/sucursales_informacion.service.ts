@@ -64,12 +64,30 @@ export class SucursalesInformacionService {
 
   async findAllByEmpresaId(idEmpresa:number) {
 
-    const empresa = await this.empresaRepository.findOneBy({id: idEmpresa})
-
+    const empresa = await this.empresaRepository.findOneBy({ id: idEmpresa });
+  
     const sucursales = await this.sucursalesRepository.find({
       where: { idEmpresa: empresa, estado: 1 },
+      relations: [
+        'sucursalesAreasInformacions',
+        'sucursalesAreasInformacions.sucursalesAreasGruposInformacions',
+      ],
     });
-    
+  
+    return sucursales;
+  }
+
+  async sucursalByEmpresaIdAndGrupo(idEmpresa: number) {
+    const empresa = await this.empresaRepository.findOneBy({ id: idEmpresa });
+  
+    const sucursales = await this.sucursalesRepository.find({
+      where: { idEmpresa: empresa, estado: 1 },
+      relations: [
+        'sucursalesAreasInformacions',
+        'sucursalesAreasInformacions.sucursalesAreasGruposInformacions',
+      ],
+    });
+  
     return sucursales;
   }
 

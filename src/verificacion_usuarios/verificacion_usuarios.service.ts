@@ -64,6 +64,25 @@ export class VerificacionUsuariosService {
     }
   }
 
+  async sendSms(to: string, message: string): Promise<void> {
+    const from = '502446873748'
+
+    if (!from) {
+      throw new Error('Twilio phone number is not set in environment variables');
+    }
+
+    try {
+      await this.client.messages.create({
+        body: message,
+        from,
+        to,
+      });
+      console.log('SMS sent successfully');
+    } catch (error) {
+      console.error('Error sending SMS:', error);
+    }
+  }
+
 
   async confirmarUsuario(email: string, otp: string): Promise<boolean> {
 
