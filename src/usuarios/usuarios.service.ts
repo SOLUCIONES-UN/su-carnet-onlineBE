@@ -10,6 +10,8 @@ import { TipoUsuario } from '../entities/TipoUsuario';
 import { changePasswordDto } from './dto/changePasswordDto';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
+import { RegistrarFotoPerfilDto } from './dto/registrarFotoPerfilDto';
+import { use } from 'passport';
 
 @Injectable()
 export class UsuariosService {
@@ -32,7 +34,7 @@ export class UsuariosService {
   ) { }
 
 
-  async getTipoUsuario(){
+  async getTipoUsuario() {
 
     return await this.tipos_usuariosRepository.findOne({ where: { descripcion: 'aplicacion' } });
   }
@@ -40,7 +42,7 @@ export class UsuariosService {
   async create(createUsuarioDto: CreateUsuarioDto) {
 
     try {
-      
+
       const { password, idTipo, idEmpresas, ...userInfo } = createUsuarioDto;
       let empresas = [];
 
@@ -99,6 +101,36 @@ export class UsuariosService {
   }
 
 
+  async updatePhotoPerfil(user:string, fotoPerfil:string) {
+
+    try {
+
+      let usuario: Usuarios;
+
+      if (this.isEmail(user)) {
+        usuario = await this.usuariosRepository.findOne({
+          where: { email: user },
+        });
+      } else if (this.isPhoneNumber(user)) {
+        usuario = await this.usuariosRepository.findOne({
+          where: { telefono: user },
+        });
+      }
+
+      if (!usuario) {
+        throw new NotFoundException(`Usuario con identificador ${user} no encontrado`);
+      }
+
+      usuario.fotoPerfil = fotoPerfil;
+      return await this.usuariosRepository.save(usuario);
+
+    } catch (error) {
+      this.handleDBException(error);
+      return false;
+    }
+
+  }
+
 
   async existsEmail(email: string): Promise<boolean> {
     const count = await this.usuariosRepository.count({ where: { email } });
@@ -148,7 +180,7 @@ export class UsuariosService {
         estado: true
 
       },
-      relations: ['idTipo', 'usuariosRelacionEmpresas', 'usuariosRelacionEmpresas.idEmpresa'], 
+      relations: ['idTipo', 'usuariosRelacionEmpresas', 'usuariosRelacionEmpresas.idEmpresa'],
     });
   }
 
