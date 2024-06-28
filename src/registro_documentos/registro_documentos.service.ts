@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { CreateRegistroDocumentoDto } from './dto/create-registro_documento.dto';
 import { RegistroDocumentos } from '../entities/RegistroDocumentos';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RegistroInformacion } from '../entities/RegistroInformacion';
 import { TipoDocumentos } from '../entities/TipoDocumentos';
@@ -259,12 +259,15 @@ export class RegistroDocumentosService {
 
     const registro_informacion = await this.RegistroInformacionRepository.findOneBy({ idUsuario: usuario })
 
-    const RegistroDocumento = await this.RegistroDocumentosRepository.find({
-      where: { idRegistroInformacion: registro_informacion, estado: "ACT" },
-      relations: ['idRegistroInformacion', "idTipoDocumento"],
+    const registroDocumento = await this.RegistroDocumentosRepository.find({
+      where: {
+        idRegistroInformacion: registro_informacion,
+        estado: In(['ACT', 'PEN']), 
+      },
+      relations: ['idRegistroInformacion', 'idTipoDocumento'],
     });
 
-    return RegistroDocumento;
+    return registroDocumento;
   }
 
 
