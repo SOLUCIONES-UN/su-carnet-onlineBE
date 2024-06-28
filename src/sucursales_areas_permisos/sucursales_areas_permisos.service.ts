@@ -9,6 +9,7 @@ import { TipoPermisos } from '../entities/TipoPermisos';
 import { RegistroInformacion } from '../entities/RegistroInformacion';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { OutsoursingAfiliaciones } from '../entities/OutsoursingAfiliaciones';
+import { Usuarios } from '../entities/Usuarios';
 
 @Injectable()
 export class SucursalesAreasPermisosService {
@@ -29,7 +30,10 @@ export class SucursalesAreasPermisosService {
     private RegistroInformacionRepository: Repository<RegistroInformacion>,
 
     @InjectRepository(OutsoursingAfiliaciones)
-    private OutsoursingAfiliacionesRepository: Repository<OutsoursingAfiliaciones>
+    private OutsoursingAfiliacionesRepository: Repository<OutsoursingAfiliaciones>,
+
+    @InjectRepository(Usuarios)
+    private UsuariosRepository: Repository<Usuarios>
 
   ) { }
 
@@ -47,7 +51,9 @@ export class SucursalesAreasPermisosService {
 
       const areaGrupo = await this.SucursalesAreasGruposInformacionRepository.findOneBy({ id: idAreaGrupo });
 
-      const RegistroInformacion = await this.RegistroInformacionRepository.findOneBy({ id: idRegistro });
+      const usuario = await this.UsuariosRepository.findOneBy({id: idRegistro});
+
+      const RegistroInformacion = await this.RegistroInformacionRepository.findOneBy({ idUsuario: usuario });
 
       const TipoPermisos = await this.TipoPermisosRepository.findOneBy({ id: idPermiso });
 
@@ -111,7 +117,9 @@ export class SucursalesAreasPermisosService {
 
       const areaGrupo = await this.SucursalesAreasGruposInformacionRepository.findOneBy({ id: idAreaGrupo });
 
-      const RegistroInformacion = await this.RegistroInformacionRepository.findOneBy({ id: idRegistro });
+      const usuario = await this.UsuariosRepository.findOneBy({id: idRegistro});
+
+      const RegistroInformacion = await this.RegistroInformacionRepository.findOneBy({ idUsuario: usuario });
 
       const TipoPermisos = await this.TipoPermisosRepository.findOneBy({ id: idPermiso });
 
