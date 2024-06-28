@@ -39,6 +39,8 @@ import { TipoRelacionEmpresasModule } from './tipo_relacion_empresas/tipo_relaci
 import { TarjetaPresentacionModule } from './tarjeta_presentacion/tarjeta_presentacion.module';
 import { TiposSucursalesModule } from './tipos_sucursales/tipos_sucursales.module';
 import { CaracteristicasSucursalesModule } from './caracteristicas_sucursales/caracteristicas_sucursales.module';
+import { RegistroMembresiaModule } from './registro_membresia/registro_membresia.module';
+import { RegistroPasaporteModule } from './registro_pasaporte/registro_pasaporte.module';
 
 @Module({
   imports: [
@@ -131,6 +133,10 @@ import { CaracteristicasSucursalesModule } from './caracteristicas_sucursales/ca
     TiposSucursalesModule,
 
     CaracteristicasSucursalesModule,
+
+    RegistroMembresiaModule,
+
+    RegistroPasaporteModule,
   ],
 })
 export class AppModule {}

@@ -260,7 +260,7 @@ export class RegistroDocumentosService {
     const registro_informacion = await this.RegistroInformacionRepository.findOneBy({ idUsuario: usuario })
 
     const RegistroDocumento = await this.RegistroDocumentosRepository.find({
-      where: { idRegistroInformacion: registro_informacion },
+      where: { idRegistroInformacion: registro_informacion, estado: "ACT" },
       relations: ['idRegistroInformacion', "idTipoDocumento"],
     });
 
