@@ -141,8 +141,6 @@ export class SucursalesAreasPermisosService {
         throw new NotFoundException(`OutsoursingAfiliaciones con ID ${idOutsoursingAfiliaciones} no encontrada`);
       }
 
-      const fechaTransformada = this.transformDate(updateSucursalesAreasPermisoDto.fecha);
-
       const updateAreaSucursalPermisos = this.SucursalesAreasPermisosRepository.merge(areaSucursalPermisos, {
         ...infoData,
         idAreaGrupo: areaGrupo,
