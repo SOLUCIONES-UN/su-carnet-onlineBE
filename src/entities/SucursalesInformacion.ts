@@ -48,20 +48,6 @@ export class SucursalesInformacion {
   @Column("integer", { name: "estado", default: () => "1" })
   estado: number;
 
-  @Column("character varying", {
-    name: "membrecia_imagen_fondo",
-    nullable: true,
-    length: 250,
-  })
-  membreciaImagenFondo: string | null;
-
-  @Column("character varying", {
-    name: "membrecia_usa_selfie",
-    nullable: true,
-    length: 250,
-  })
-  membreciaUsaSelfie: string | null;
-
   @OneToMany(
     () => SucursalesAreasInformacion,
     (sucursalesAreasInformacion) => sucursalesAreasInformacion.idSucursal
