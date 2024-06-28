@@ -1,4 +1,12 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  Index,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { RegistroMembresia } from "./RegistroMembresia";
+import { RegistroPasaporte } from "./RegistroPasaporte";
 
 @Index("caracteristicas_sucursales_pkey", ["id"], { unique: true })
 @Entity("caracteristicas_sucursales", { schema: "public" })
@@ -26,4 +34,16 @@ export class CaracteristicasSucursales {
 
   @Column("integer", { name: "estado", default: () => "1" })
   estado: number;
+
+  @OneToMany(
+    () => RegistroMembresia,
+    (registroMembresia) => registroMembresia.idCaracteristicasSucursales
+  )
+  registroMembresias: RegistroMembresia[];
+
+  @OneToMany(
+    () => RegistroPasaporte,
+    (registroPasaporte) => registroPasaporte.idCaracteristicasSucursales
+  )
+  registroPasaportes: RegistroPasaporte[];
 }

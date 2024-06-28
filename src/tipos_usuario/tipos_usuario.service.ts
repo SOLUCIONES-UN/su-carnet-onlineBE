@@ -78,6 +78,7 @@ export class TiposUsuarioService {
   }
 
   async update(id: number, updateTiposUsuarioDto: UpdateTiposUsuarioDto) {
+    
     try {
       const { nivel_id, ...infoData } = updateTiposUsuarioDto;
   
