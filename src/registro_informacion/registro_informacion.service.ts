@@ -80,6 +80,12 @@ export class RegistroInformacionService {
     }
   }
 
+  async findAllByUsuario(idUsuario: number){
+
+    const usuario = await this.UsuariosRepository.findOneBy({id: idUsuario});
+    return await this.RegistroInformacionRepository.findOneBy({idUsuario: usuario});
+  }
+
   async findAll(PaginationDto: PaginationDto) {
 
     const { limit = 10, offset = 0 } = PaginationDto;
