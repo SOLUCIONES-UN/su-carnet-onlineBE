@@ -35,13 +35,13 @@ export class TiposSucursalesService {
 
     const { limit = 10, offset = 0 } = PaginationDto;
 
-    const TipoDocumentos = await this.TipoSucursalesRepository.find({
+    const tipos_sucursales = await this.TipoSucursalesRepository.find({
       where: {estado: 1},
       skip: offset,
       take: limit,
     });
     
-    return TipoDocumentos;
+    return tipos_sucursales;
   }
 
   async findOne(id: number) {
