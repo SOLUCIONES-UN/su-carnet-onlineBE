@@ -6,7 +6,6 @@ import { PaginationDto } from '../common/dtos/pagination.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { changePasswordDto } from './dto/changePasswordDto';
 import { VerificacionUsuariosService } from '../verificacion_usuarios/verificacion_usuarios.service';
-import { RegistrarFotoPerfilDto } from './dto/registrarFotoPerfilDto';
 
 @Controller('usuarios')
 export class UsuariosController {

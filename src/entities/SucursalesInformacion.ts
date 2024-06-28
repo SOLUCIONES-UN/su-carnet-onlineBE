@@ -10,6 +10,7 @@ import {
 import { SucursalesAreasInformacion } from "./SucursalesAreasInformacion";
 import { SucursalesDocumentos } from "./SucursalesDocumentos";
 import { EmpresasInformacion } from "./EmpresasInformacion";
+import { TipoSucursales } from "./TipoSucursales";
 
 @Index("sucursales_informacion_pkey", ["id"], { unique: true })
 @Entity("sucursales_informacion", { schema: "public" })
@@ -47,6 +48,20 @@ export class SucursalesInformacion {
   @Column("integer", { name: "estado", default: () => "1" })
   estado: number;
 
+  @Column("character varying", {
+    name: "membrecia_imagen_fondo",
+    nullable: true,
+    length: 250,
+  })
+  membreciaImagenFondo: string | null;
+
+  @Column("character varying", {
+    name: "membrecia_usa_selfie",
+    nullable: true,
+    length: 250,
+  })
+  membreciaUsaSelfie: string | null;
+
   @OneToMany(
     () => SucursalesAreasInformacion,
     (sucursalesAreasInformacion) => sucursalesAreasInformacion.idSucursal
@@ -65,4 +80,11 @@ export class SucursalesInformacion {
   )
   @JoinColumn([{ name: "id_empresa", referencedColumnName: "id" }])
   idEmpresa: EmpresasInformacion;
+
+  @ManyToOne(
+    () => TipoSucursales,
+    (tipoSucursales) => tipoSucursales.sucursalesInformacions
+  )
+  @JoinColumn([{ name: "tipo_sucursal", referencedColumnName: "id" }])
+  tipoSucursal: TipoSucursales;
 }

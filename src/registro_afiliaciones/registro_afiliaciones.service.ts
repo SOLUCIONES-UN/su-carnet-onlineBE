@@ -3,7 +3,7 @@ import { CreateRegistroAfiliacioneDto } from './dto/create-registro_afiliacione.
 import { RegistroAfiliaciones } from '../entities/RegistroAfiliaciones';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
-import { Repository } from 'typeorm';
+import { NumericType, Repository } from 'typeorm';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { Usuarios } from '../entities/Usuarios';
 
@@ -67,6 +67,30 @@ export class RegistroAfiliacionesService {
     } catch (error) {
       this.handleDBException(error);
     }
+  }
+
+  async afiliacionVencida(idEmpresa: number): Promise<boolean> {
+
+    const empresa = await this.empresaRepository.findOneBy({ id: idEmpresa });
+  
+    if (!empresa) {
+      throw new NotFoundException(`empresaInformacion con ID ${idEmpresa} no encontrada`);
+    }
+  
+    const afiliacion = await this.RegistroAfiliacionesRepository.findOneBy({ idEmpresa: empresa });
+  
+    if (!afiliacion) {
+      throw new NotFoundException(`afiliacion con ID ${idEmpresa} no encontrada`);
+    }
+  
+    const fechaActual = new Date();
+    const fechaInicioAfiliacion = new Date(afiliacion.fechaInicio);
+  
+    if (fechaInicioAfiliacion > fechaActual) {
+      return false; 
+    }
+  
+    return true; 
   }
 
   async findAll(PaginationDto: PaginationDto) {
