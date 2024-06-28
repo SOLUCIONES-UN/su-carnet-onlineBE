@@ -1,33 +1,33 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, Query, ParseIntPipe } from '@nestjs/common';
-import { RegistroAfiliacionesService } from './registro_afiliaciones.service';
-import { CreateRegistroAfiliacioneDto } from './dto/create-registro_afiliacione.dto';
+import { TiposSucursalesService } from './tipos_sucursales.service';
+import { CreateTiposSucursaleDto } from './dto/create-tipos_sucursale.dto';
+import { UpdateTiposSucursaleDto } from './dto/update-tipos_sucursale.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 
-@Controller('registro-afiliaciones')
-export class RegistroAfiliacionesController {
-  constructor(private readonly registroAfiliacionesService: RegistroAfiliacionesService) {}
+@Controller('tipos-sucursales')
+export class TiposSucursalesController {
+  constructor(private readonly tiposSucursalesService: TiposSucursalesService) {}
 
   @Post()
-  async create(@Body() createRegistroAfiliacioneDto: CreateRegistroAfiliacioneDto) {
-   
+  async create(@Body() createTiposSucursaleDto: CreateTiposSucursaleDto) {
+    
     try {
-
-      const result = await this.registroAfiliacionesService.create(createRegistroAfiliacioneDto);
+      
+      const result = await this.tiposSucursalesService.create(createTiposSucursaleDto);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
       throw new HttpException(new GenericResponse('500', 'Error al agregar', error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
   }
 
   @Get()
   async findAll(@Query() paginationDto: PaginationDto) {
-
+    
     try {
 
-      const result = await this.registroAfiliacionesService.findAll(paginationDto);
+      const result = await this.tiposSucursalesService.findAll(paginationDto);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
@@ -35,12 +35,12 @@ export class RegistroAfiliacionesController {
     }
   }
 
-  @Get('afiliacionVencida/:idEmpresa')
-  async afiliacionVencida(@Param('idEmpresa') idEmpresa: number) {
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
 
     try {
 
-      const result = await this.registroAfiliacionesService.afiliacionVencida(idEmpresa);
+      const result = await this.tiposSucursalesService.findOne(+id);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
@@ -48,16 +48,16 @@ export class RegistroAfiliacionesController {
     }
   }
 
-  @Get('afiliacionByUsuario/:idUsuario')
-  async afiliacionByUsuario(@Param('idUsuario') idUsuario: number) {
-
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() updateTiposSucursaleDto: UpdateTiposSucursaleDto) {
+    
     try {
 
-      const result = await this.registroAfiliacionesService.afiliacionByUsuario(+idUsuario);
+      const result = await this.tiposSucursalesService.update(+id, updateTiposSucursaleDto);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(new GenericResponse('500', 'Error al editar', error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -66,12 +66,12 @@ export class RegistroAfiliacionesController {
 
     try {
 
-      const result = await this.registroAfiliacionesService.remove(+id);
+      const result = await this.tiposSucursalesService.remove(+id);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
       throw new HttpException(new GenericResponse('500', 'Error al eliminar', error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-  
+
 }

@@ -37,6 +37,7 @@ import { RegistroMensajesModule } from './registro_mensajes/registro_mensajes.mo
 import { EmpresasMensajesModule } from './empresas_mensajes/empresas_mensajes.module';
 import { TipoRelacionEmpresasModule } from './tipo_relacion_empresas/tipo_relacion_empresas.module';
 import { TarjetaPresentacionModule } from './tarjeta_presentacion/tarjeta_presentacion.module';
+import { TiposSucursalesModule } from './tipos_sucursales/tipos_sucursales.module';
 
 @Module({
   imports: [
@@ -125,6 +126,8 @@ import { TarjetaPresentacionModule } from './tarjeta_presentacion/tarjeta_presen
     TipoRelacionEmpresasModule,
 
     TarjetaPresentacionModule,
+
+    TiposSucursalesModule,
   ],
 })
 export class AppModule {}
