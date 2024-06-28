@@ -60,14 +60,13 @@ export class EmpresasInformacionService {
 
 
   async findAll(PaginationDto: PaginationDto) {
-
     const { limit = 10, offset = 0 } = PaginationDto;
 
     const empresas = await this.empresaRepository.find({
       where: { estado: 1 },
       skip: offset,
       take: limit,
-      relations: ['idVendedor'],
+      relations: ['empresasDocumentos.idTipoDocumento','idVendedor'],
     });
     
     return empresas;
