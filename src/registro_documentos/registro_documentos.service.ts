@@ -237,13 +237,13 @@ export class RegistroDocumentosService {
         throw new NotFoundException(`RegistroDocumento con registroInformacion ${RegistroInformacion} no encontrada`);
       }
 
-      const TiposDocumentos = await this.TipoDocumentosRepository.findOneBy({ descripcion: 'documento_inicial' });
+      const TiposDocumentos = await this.TipoDocumentosRepository.findOneBy({ descripcion: 'foto_reciente' });
 
       if(!TiposDocumentos){
 
         const createTipoDocumentos = this.TipoDocumentosRepository.create({
 
-          descripcion: 'documento_inicial',
+          descripcion: 'foto_reciente',
           necesitaValidacion: 'NO',
           tieneVencimiento: 'NO',
           tipoDocumento: 'JPG'
@@ -252,7 +252,7 @@ export class RegistroDocumentosService {
         await this.TipoDocumentosRepository.save(createTipoDocumentos);
       }
 
-      const TipoDocumento = await this.TipoDocumentosRepository.findOneBy({ descripcion: 'documento_inicial' });
+      const TipoDocumento = await this.TipoDocumentosRepository.findOneBy({ descripcion: 'foto_reciente' });
 
       let documentoExistente = RegistrosDocumentos.find(doc => doc.fotoInicial === 1);
 

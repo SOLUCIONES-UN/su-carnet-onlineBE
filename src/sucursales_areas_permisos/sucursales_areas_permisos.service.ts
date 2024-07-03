@@ -97,8 +97,7 @@ export class SucursalesAreasPermisosService {
     const areaSucursalPermisos = await this.SucursalesAreasPermisosRepository.find({
       skip: offset,
       take: limit,
-      relations: ['idAreaGrupo'],
-      // relations: ['idAreaGrupo', 'idOutsoursingAfiliaciones', 'idRegistro', 'idPermiso'],
+      relations: ['idAreaGrupo', 'idRegistro'],
     });
 
     return areaSucursalPermisos;
