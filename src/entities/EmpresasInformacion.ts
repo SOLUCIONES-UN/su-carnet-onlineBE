@@ -73,6 +73,9 @@ export class EmpresasInformacion {
   })
   logotipo: string | null;
 
+  @Column("text", { name: "terminos_condiciones", nullable: true })
+  terminosCondiciones: string | null;
+
   @OneToMany(
     () => EmpresasDocumentos,
     (empresasDocumentos) => empresasDocumentos.idEmpresa
