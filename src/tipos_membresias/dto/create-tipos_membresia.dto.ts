@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsString } from "class-validator";
 
-export class CreateTiposSucursaleDto {
-
+export class CreateTiposMembresiaDto {
+    
     @IsString()
     @IsNotEmpty({ message: 'El campo descripcion es requerido' })
     descripcion: string;

@@ -5,11 +5,11 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { SucursalesInformacion } from "./SucursalesInformacion";
+import { MembresiaInformacion } from "./MembresiaInformacion";
 
 @Index("tipo_sucursales_pkey", ["id"], { unique: true })
-@Entity("tipo_sucursales", { schema: "public" })
-export class TipoSucursales {
+@Entity("tipo_membresia", { schema: "public" })
+export class TipoMembresia {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;
 
@@ -20,8 +20,8 @@ export class TipoSucursales {
   estado: number;
 
   @OneToMany(
-    () => SucursalesInformacion,
-    (sucursalesInformacion) => sucursalesInformacion.tipoSucursal
+    () => MembresiaInformacion,
+    (membresiaInformacion) => membresiaInformacion.tipoMembresia
   )
-  sucursalesInformacions: SucursalesInformacion[];
+  membresiaInformacions: MembresiaInformacion[];
 }

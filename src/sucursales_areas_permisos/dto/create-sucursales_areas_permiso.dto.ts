@@ -24,7 +24,7 @@ export class CreateSucursalesAreasPermisoDto {
     idAreaGrupo: number;
 
     @IsNumber()
-    @IsNotEmpty({ message: 'El campo idPermiso es requerido' })
+    @IsOptional()
     idPermiso: number;
 
     @IsOptional()

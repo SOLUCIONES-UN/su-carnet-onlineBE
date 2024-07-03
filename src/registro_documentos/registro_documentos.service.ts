@@ -13,6 +13,7 @@ import * as path from 'path';
 import { RekognitionClient, CompareFacesCommand } from "@aws-sdk/client-rekognition";
 import { Usuarios } from '../entities/Usuarios';
 import { waitForDebugger } from 'inspector';
+import { UpdateRegistroDocumentoDto } from './dto/update-registro_documento.dto';
 
 @Injectable()
 export class RegistroDocumentosService {
@@ -133,14 +134,11 @@ export class RegistroDocumentosService {
         bcrypt.hash(archivo, saltRounds),
       ]);
 
-      const fechaVencimientoTransformada = this.transformDate(createRegistroDocumentoDto.fechaVencimiento);
-
       const RegistroDocumento = this.RegistroDocumentosRepository.create({
         ...infoData,
         archivo: archivoEncript,
         idRegistroInformacion: registro_informacion,
         idTipoDocumento: TipoDocumentos,
-        fechaVencimiento: fechaVencimientoTransformada,
         estado: 'PEN',
         fotoInicial: 0
       });
@@ -149,6 +147,53 @@ export class RegistroDocumentosService {
 
       return RegistroDocumento;
 
+    } catch (error) {
+      this.handleDBException(error);
+    }
+
+  }
+
+  async update(id: number, updateRegistroDocumentoDto: UpdateRegistroDocumentoDto) {
+    
+    try {
+      const { idRegistroInformacion, idTipoDocumento, archivo, ...infoData } = updateRegistroDocumentoDto;
+
+      const registro_informacion = await this.RegistroInformacionRepository.findOneBy({ id: idRegistroInformacion });
+
+      const TipoDocumentos = await this.TipoDocumentosRepository.findOneBy({ id: idTipoDocumento });
+
+      if (!registro_informacion) {
+        throw new NotFoundException(`registro_informacion con ID ${idRegistroInformacion} no encontrada`);
+      }
+
+      if (!TipoDocumentos) {
+        throw new NotFoundException(`TipoDocumentos con ID ${idRegistroInformacion} no encontrada`);
+      }
+
+      const registro_documento = await this.RegistroDocumentosRepository.findOneBy({id});
+
+      if (!registro_documento) {
+        throw new NotFoundException(`registro_documento con ID ${registro_documento} no encontrada`);
+      }
+  
+      const saltRounds = 10;
+
+      const [archivoEncript] = await Promise.all([
+        bcrypt.hash(archivo, saltRounds),
+      ]);
+
+      const updateRegistroDocumento = this.RegistroDocumentosRepository.merge(registro_documento, {
+        ...infoData,
+        archivo: archivoEncript,
+        idRegistroInformacion: registro_informacion,
+        idTipoDocumento: TipoDocumentos,
+      });
+  
+      // Guardar los cambios en la base de datos
+      await this.RegistroDocumentosRepository.save(updateRegistroDocumento);
+  
+      return updateRegistroDocumento;
+  
     } catch (error) {
       this.handleDBException(error);
     }

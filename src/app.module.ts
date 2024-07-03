@@ -37,10 +37,11 @@ import { RegistroMensajesModule } from './registro_mensajes/registro_mensajes.mo
 import { EmpresasMensajesModule } from './empresas_mensajes/empresas_mensajes.module';
 import { TipoRelacionEmpresasModule } from './tipo_relacion_empresas/tipo_relacion_empresas.module';
 import { TarjetaPresentacionModule } from './tarjeta_presentacion/tarjeta_presentacion.module';
-import { TiposSucursalesModule } from './tipos_sucursales/tipos_sucursales.module';
 import { CaracteristicasSucursalesModule } from './caracteristicas_sucursales/caracteristicas_sucursales.module';
 import { RegistroMembresiaModule } from './registro_membresia/registro_membresia.module';
 import { RegistroPasaporteModule } from './registro_pasaporte/registro_pasaporte.module';
+import { TiposMembresiasModule } from './tipos_membresias/tipos_membresias.module';
+import { MembresiaInformacionModule } from './membresia_informacion/membresia_informacion.module';
 
 @Module({
   imports: [
@@ -130,13 +131,15 @@ import { RegistroPasaporteModule } from './registro_pasaporte/registro_pasaporte
 
     TarjetaPresentacionModule,
 
-    TiposSucursalesModule,
-
     CaracteristicasSucursalesModule,
 
     RegistroMembresiaModule,
 
     RegistroPasaporteModule,
+
+    TiposMembresiasModule,
+
+    MembresiaInformacionModule,
   ],
 })
 export class AppModule {}

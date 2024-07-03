@@ -10,6 +10,7 @@ import {
 import { EmpresasDocumentos } from "./EmpresasDocumentos";
 import { Vendedores } from "./Vendedores";
 import { EmpresasMensajes } from "./EmpresasMensajes";
+import { MembresiaInformacion } from "./MembresiaInformacion";
 import { OutsoursingInformacion } from "./OutsoursingInformacion";
 import { RegistroAfiliaciones } from "./RegistroAfiliaciones";
 import { SucursalesInformacion } from "./SucursalesInformacion";
@@ -91,6 +92,12 @@ export class EmpresasInformacion {
     (empresasMensajes) => empresasMensajes.idEmpresa
   )
   empresasMensajes: EmpresasMensajes[];
+
+  @OneToMany(
+    () => MembresiaInformacion,
+    (membresiaInformacion) => membresiaInformacion.empresa
+  )
+  membresiaInformacions: MembresiaInformacion[];
 
   @OneToMany(
     () => OutsoursingInformacion,
