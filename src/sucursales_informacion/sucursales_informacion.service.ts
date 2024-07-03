@@ -6,7 +6,6 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { PaginationDto } from '../common/dtos/pagination.dto';
-import { TipoSucursales } from '../entities/TipoSucursales';
 
 @Injectable()
 export class SucursalesInformacionService {
@@ -20,33 +19,23 @@ export class SucursalesInformacionService {
     @InjectRepository(EmpresasInformacion)
     private empresaRepository: Repository<EmpresasInformacion>,
 
-    @InjectRepository(TipoSucursales)
-    private TipoSucursalesRepository: Repository<TipoSucursales>,
-
   ) { }
 
   async create(createSucursalesInformacionDto: CreateSucursalesInformacionDto) {
     
     try {
       
-      const { idEmpresa, tipoSucursal, ...infoData } = createSucursalesInformacionDto;
+      const { idEmpresa, ...infoData } = createSucursalesInformacionDto;
   
       const empresa = await this.empresaRepository.findOneBy({ id: idEmpresa });
   
       if (!empresa) {
         throw new NotFoundException(`Empresa con ID ${idEmpresa} no encontrada`);
       }
-
-      const tipos_Sucursal = await this.TipoSucursalesRepository.findOneBy({ id: tipoSucursal });
-  
-      if (!tipos_Sucursal) {
-        throw new NotFoundException(`tipos_Sucursal con ID ${tipoSucursal} no encontrada`);
-      }
   
       const sucursal = this.sucursalesRepository.create({
         ...infoData,
         idEmpresa: empresa,
-        tipoSucursal: tipos_Sucursal
       });
   
       await this.sucursalesRepository.save(sucursal);
@@ -110,7 +99,7 @@ export class SucursalesInformacionService {
   async update(id: number, updateSucursalesInformacionDto: UpdateSucursalesInformacionDto) {
     
     try {
-      const { idEmpresa, tipoSucursal, ...infoData } = updateSucursalesInformacionDto;
+      const { idEmpresa, ...infoData } = updateSucursalesInformacionDto;
   
       const sucursal = await this.sucursalesRepository.findOneBy({ id });
 
@@ -123,17 +112,9 @@ export class SucursalesInformacionService {
       if (!empresa) {
         throw new NotFoundException(`empresa con ID ${idEmpresa} no encontrada`);
       }
-
-      const tipos_Sucursal = await this.TipoSucursalesRepository.findOneBy({ id: tipoSucursal });
-  
-      if (!tipos_Sucursal) {
-        throw new NotFoundException(`tipos_Sucursal con ID ${tipoSucursal} no encontrada`);
-      }
-  
       const updateSucursal = this.sucursalesRepository.merge(sucursal, {
         ...infoData,
         idEmpresa: empresa,
-        tipoSucursal: tipos_Sucursal
       });
   
       // Guardar los cambios en la base de datos

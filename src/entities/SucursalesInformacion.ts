@@ -10,7 +10,6 @@ import {
 import { SucursalesAreasInformacion } from "./SucursalesAreasInformacion";
 import { SucursalesDocumentos } from "./SucursalesDocumentos";
 import { EmpresasInformacion } from "./EmpresasInformacion";
-import { TipoSucursales } from "./TipoSucursales";
 
 @Index("sucursales_informacion_pkey", ["id"], { unique: true })
 @Entity("sucursales_informacion", { schema: "public" })
@@ -66,11 +65,4 @@ export class SucursalesInformacion {
   )
   @JoinColumn([{ name: "id_empresa", referencedColumnName: "id" }])
   idEmpresa: EmpresasInformacion;
-
-  @ManyToOne(
-    () => TipoSucursales,
-    (tipoSucursales) => tipoSucursales.sucursalesInformacions
-  )
-  @JoinColumn([{ name: "tipo_sucursal", referencedColumnName: "id" }])
-  tipoSucursal: TipoSucursales;
 }
