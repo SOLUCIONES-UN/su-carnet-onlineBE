@@ -39,6 +39,7 @@ import { TipoRelacionEmpresasModule } from './tipo_relacion_empresas/tipo_relaci
 import { TarjetaPresentacionModule } from './tarjeta_presentacion/tarjeta_presentacion.module';
 import { TiposMembresiasModule } from './tipos_membresias/tipos_membresias.module';
 import { MembresiaInformacionModule } from './membresia_informacion/membresia_informacion.module';
+import { RegistroMembresiasModule } from './registro_membresias/registro_membresias.module';
 
 @Module({
   imports: [
@@ -131,6 +132,8 @@ import { MembresiaInformacionModule } from './membresia_informacion/membresia_in
     TiposMembresiasModule,
 
     MembresiaInformacionModule,
+
+    RegistroMembresiasModule,
   ],
 })
 export class AppModule {}
