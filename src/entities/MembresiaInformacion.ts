@@ -10,7 +10,6 @@ import {
 import { EmpresasInformacion } from "./EmpresasInformacion";
 import { TipoMembresia } from "./TipoMembresia";
 import { RegistroMembresia } from "./RegistroMembresia";
-import { RegistroPasaporte } from "./RegistroPasaporte";
 
 @Index("membresia_informacion_pkey", ["id"], { unique: true })
 @Entity("membresia_informacion", { schema: "public" })
@@ -58,13 +57,7 @@ export class MembresiaInformacion {
 
   @OneToMany(
     () => RegistroMembresia,
-    (registroMembresia) => registroMembresia.idCaracteristicasSucursales
+    (registroMembresia) => registroMembresia.membresiaInformacion
   )
   registroMembresias: RegistroMembresia[];
-
-  @OneToMany(
-    () => RegistroPasaporte,
-    (registroPasaporte) => registroPasaporte.idCaracteristicasSucursales
-  )
-  registroPasaportes: RegistroPasaporte[];
 }

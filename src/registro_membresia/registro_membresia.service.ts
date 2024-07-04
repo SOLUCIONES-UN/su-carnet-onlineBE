@@ -5,7 +5,9 @@ import { RegistroMembresia } from '../entities/RegistroMembresia';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PaginationDto } from '../common/dtos/pagination.dto';
-import { CaracteristicasSucursales } from '../entities/CaracteristicasSucursales';
+import { MembresiaInformacion } from '../entities/MembresiaInformacion';
+import { RegistroInformacion } from '../entities/RegistroInformacion';
+import { waitForDebugger } from 'inspector';
 
 @Injectable()
 export class RegistroMembresiaService {
@@ -17,8 +19,11 @@ export class RegistroMembresiaService {
     @InjectRepository(RegistroMembresia)
     private RegistroMembresiaRepository: Repository<RegistroMembresia>,
 
-    @InjectRepository(CaracteristicasSucursales)
-    private CaracteristicasSucursalesRepository: Repository<CaracteristicasSucursales>,
+    @InjectRepository(MembresiaInformacion)
+    private MembresiaInformacionRepository: Repository<MembresiaInformacion>,
+
+    @InjectRepository(RegistroInformacion)
+    private RegistroInformacionRepository: Repository<RegistroInformacion>,
   )
   { }
 
@@ -26,17 +31,24 @@ export class RegistroMembresiaService {
     
     try {
 
-      const {idCaracteristicasSucursales, ...infoData} = createRegistroMembresiaDto;
+      const {membresiaInformacion, registroInformacion, ...infoData} = createRegistroMembresiaDto;
 
-      const caracteristicasSucursales = await this.CaracteristicasSucursalesRepository.findOneBy({ id: idCaracteristicasSucursales });
+      const membresia_informacion = await this.MembresiaInformacionRepository.findOneBy({ id: membresiaInformacion });
   
-      if (!caracteristicasSucursales) {
-        throw new NotFoundException(`caracteristicasSucursales con ID ${idCaracteristicasSucursales} no encontrado`);
+      if (!membresia_informacion) {
+        throw new NotFoundException(`membresia_informacion con ID ${membresiaInformacion} no encontrado`);
+      }
+
+      const registro_informacion = await this.RegistroInformacionRepository.findOneBy({id: registroInformacion});
+
+      if (!registro_informacion) {
+        throw new NotFoundException(`registro_informacion con ID ${registro_informacion} no encontrado`);
       }
   
       const registro_membresia = this.RegistroMembresiaRepository.create({
         ...infoData,
-        idCaracteristicasSucursales: caracteristicasSucursales
+        membresiaInformacion: membresia_informacion,
+        registroInformacion: registro_informacion
       });
       
       await this.RegistroMembresiaRepository.save(registro_membresia);
@@ -70,23 +82,26 @@ export class RegistroMembresiaService {
     
     try {
 
-      const {idCaracteristicasSucursales, ...infoData} = updateRegistroMembresiaDto;
+      const {membresiaInformacion, registroInformacion, ...infoData} = updateRegistroMembresiaDto;
 
-      const caracteristicasSucursales = await this.CaracteristicasSucursalesRepository.findOneBy({ id: idCaracteristicasSucursales });
+      const membresia_informacion = await this.MembresiaInformacionRepository.findOneBy({ id: membresiaInformacion });
   
-      if (!caracteristicasSucursales) {
-        throw new NotFoundException(`caracteristicasSucursales con ID ${idCaracteristicasSucursales} no encontrado`);
+      if (!membresia_informacion) {
+        throw new NotFoundException(`membresia_informacion con ID ${membresiaInformacion} no encontrado`);
       }
-  
-      const registro_membresia = await this.RegistroMembresiaRepository.findOneBy({ id });
 
-      if (!registro_membresia) {
-        throw new NotFoundException(`registro_membresia con ID ${id} no encontrado`);
+      const registro_informacion = await this.RegistroInformacionRepository.findOneBy({id: registroInformacion});
+
+      if (!registro_informacion) {
+        throw new NotFoundException(`registro_informacion con ID ${registro_informacion} no encontrado`);
       }
+
+      const registro_membresia = await this.RegistroMembresiaRepository.findOneBy({id: id});
   
       const updated_registro_membresia = this.RegistroMembresiaRepository.merge(registro_membresia, {
         ...infoData,
-        idCaracteristicasSucursales: caracteristicasSucursales
+        membresiaInformacion: membresia_informacion,
+        registroInformacion: registro_informacion
       });
   
       await this.RegistroMembresiaRepository.save(updated_registro_membresia);
