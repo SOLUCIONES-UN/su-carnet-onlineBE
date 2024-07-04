@@ -3,16 +3,16 @@ import { CreateRegistroMembresiaDto } from './dto/create-registro_membresia.dto'
 import { UpdateRegistroMembresiaDto } from './dto/update-registro_membresia.dto';
 import { RegistroMembresia } from '../entities/RegistroMembresia';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { PaginationDto } from '../common/dtos/pagination.dto';
 import { MembresiaInformacion } from '../entities/MembresiaInformacion';
+import { Repository } from 'typeorm';
 import { RegistroInformacion } from '../entities/RegistroInformacion';
-import { waitForDebugger } from 'inspector';
+import { PaginationDto } from '../common/dtos/pagination.dto';
+import { Usuarios } from '../entities/Usuarios';
 
 @Injectable()
-export class RegistroMembresiaService {
+export class RegistroMembresiasService {
 
-  private readonly logger = new Logger("RegistroMembresiaService");
+  private readonly logger = new Logger("RegistroMembresiasService");
 
   constructor(
 
@@ -24,6 +24,9 @@ export class RegistroMembresiaService {
 
     @InjectRepository(RegistroInformacion)
     private RegistroInformacionRepository: Repository<RegistroInformacion>,
+
+    @InjectRepository(Usuarios)
+    private UsuariosRepository: Repository<Usuarios>,
   )
   { }
 
@@ -68,10 +71,24 @@ export class RegistroMembresiaService {
       where: {estado: 1},
       skip: offset,
       take: limit,
-      relations: ['idCaracteristicasSucursales'],
+      relations: ['membresiaInformacion', 'registroInformacion'],
     });
     
     return registro_membresia;
+  }
+
+  async membresiasUsuario(idUsuario: number){
+
+    const usuario = await this.UsuariosRepository.findOneBy({id:idUsuario});
+
+    const registroInformacion = await this.RegistroInformacionRepository.findOneBy({idUsuario: usuario});
+
+    const membresias = await this.RegistroMembresiaRepository.find({
+      where: {registroInformacion: registroInformacion, estado:1},
+      relations: ['membresiaInformacion', 'registroInformacion'],
+    })
+
+    return membresias;
   }
 
   async findOne(id: number) {
@@ -111,7 +128,6 @@ export class RegistroMembresiaService {
     } catch (error) {
       this.handleDBException(error);
     }
-
   }
 
   async remove(id: number) {
@@ -141,5 +157,4 @@ export class RegistroMembresiaService {
     this.logger.error(`Error : ${error.message}`);
     throw new InternalServerErrorException('Error ');
   }
-  
 }

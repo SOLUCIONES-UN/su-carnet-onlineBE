@@ -1,26 +1,25 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, Query, ParseIntPipe } from '@nestjs/common';
-import { RegistroMembresiaService } from './registro_membresia.service';
+import { RegistroMembresiasService } from './registro_membresias.service';
 import { CreateRegistroMembresiaDto } from './dto/create-registro_membresia.dto';
 import { UpdateRegistroMembresiaDto } from './dto/update-registro_membresia.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
-@Controller('registro-membresia')
-export class RegistroMembresiaController {
-  constructor(private readonly registroMembresiaService: RegistroMembresiaService) {}
+@Controller('registro-membresias')
+export class RegistroMembresiasController {
+  constructor(private readonly registroMembresiasService: RegistroMembresiasService) {}
 
   @Post()
   async create(@Body() createRegistroMembresiaDto: CreateRegistroMembresiaDto) {
     
     try {
 
-      const result = await this.registroMembresiaService.create(createRegistroMembresiaDto);
+      const result = await this.registroMembresiasService.create(createRegistroMembresiaDto);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
       throw new HttpException(new GenericResponse('500', 'Error al agregar', error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
-    
   }
 
   @Get()
@@ -28,7 +27,7 @@ export class RegistroMembresiaController {
 
     try {
 
-      const result = await this.registroMembresiaService.findAll(paginationDto);
+      const result = await this.registroMembresiasService.findAll(paginationDto);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
@@ -41,7 +40,7 @@ export class RegistroMembresiaController {
 
     try {
 
-      const result = await this.registroMembresiaService.findOne(+id);
+      const result = await this.registroMembresiasService.findOne(+id);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
@@ -49,13 +48,25 @@ export class RegistroMembresiaController {
     }
   }
 
+  @Get('membresiasUsuario/:idUsuario')
+  async membresiasUsuario(@Param('idUsuario') idUsuario: number) {
+
+    try {
+
+      const result = await this.registroMembresiasService.membresiasUsuario(idUsuario);
+      return new GenericResponse('200', 'EXITO', result);
+
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateRegistroMembresiaDto: UpdateRegistroMembresiaDto) {
     
     try {
 
-      const result = await this.registroMembresiaService.update(+id, updateRegistroMembresiaDto);
+      const result = await this.registroMembresiasService.update(+id, updateRegistroMembresiaDto);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
@@ -68,7 +79,7 @@ export class RegistroMembresiaController {
 
     try {
 
-      const result = await this.registroMembresiaService.remove(+id);
+      const result = await this.registroMembresiasService.remove(+id);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
