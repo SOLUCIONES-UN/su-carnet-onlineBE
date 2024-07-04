@@ -12,6 +12,7 @@ import { RegistroDispositivos } from "./RegistroDispositivos";
 import { RegistroDocumentos } from "./RegistroDocumentos";
 import { TipoPaises } from "./TipoPaises";
 import { Usuarios } from "./Usuarios";
+import { RegistroMembresia } from "./RegistroMembresia";
 import { RegistroMensajes } from "./RegistroMensajes";
 import { SucursalesAreasPermisos } from "./SucursalesAreasPermisos";
 
@@ -81,6 +82,12 @@ export class RegistroInformacion {
   @ManyToOne(() => Usuarios, (usuarios) => usuarios.registroInformacions)
   @JoinColumn([{ name: "id_usuario", referencedColumnName: "id" }])
   idUsuario: Usuarios;
+
+  @OneToMany(
+    () => RegistroMembresia,
+    (registroMembresia) => registroMembresia.registroInformacion
+  )
+  registroMembresias: RegistroMembresia[];
 
   @OneToMany(
     () => RegistroMensajes,
