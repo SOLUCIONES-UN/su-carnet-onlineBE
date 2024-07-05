@@ -68,6 +68,7 @@ export class SucursalesAreasGruposInformacionService {
 
     const SucursalesAreasGrupos = await this.SucursalesAreasGruposRepository.find({
       where: { idSucursalArea: sucursalAreaInformacion, estado: 1 },
+      relations: ['idSucursalArea'],
     });
 
     return SucursalesAreasGrupos;

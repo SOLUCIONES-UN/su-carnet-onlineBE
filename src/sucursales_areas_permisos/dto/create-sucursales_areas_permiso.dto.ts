@@ -33,5 +33,5 @@ export class CreateSucursalesAreasPermisoDto {
 
     @IsNumber()
     @IsNotEmpty({ message: 'El campo idRegistro es requerido' })
-    idRegistro: number;
+    idUsuario: number;
 }

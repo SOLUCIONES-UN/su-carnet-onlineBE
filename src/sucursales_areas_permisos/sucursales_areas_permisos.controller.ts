@@ -35,6 +35,19 @@ export class SucursalesAreasPermisosController {
     }
   }
 
+  @Get('getCitasUsuario/:idUsuario')
+  async getCitasUsuario(@Param('idUsuario') idUsuario: number) {
+
+    try {
+
+      const result = await this.sucursalesAreasPermisosService.citasUsuario(idUsuario);
+      return new GenericResponse('200', 'EXITO', result);
+
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateSucursalesAreasPermisoDto: UpdateSucursalesAreasPermisoDto) {
     
