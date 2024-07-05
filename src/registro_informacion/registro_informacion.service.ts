@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import * as bcrypt from 'bcrypt';
 import { Usuarios } from '../entities/Usuarios';
+import * as crypto from 'crypto';
 
 @Injectable()
 export class RegistroInformacionService {
@@ -33,15 +34,16 @@ export class RegistroInformacionService {
   }
 
 
-  async existRegistro(Dpi: string){
+  async existRegistro(Dpi: string) {
 
-    return await this.RegistroInformacionRepository.findOneBy({documento: Dpi});
+    return await this.RegistroInformacionRepository.findOneBy({ documento: Dpi });
   }
 
 
   async create(createRegistroInformacionDto: CreateRegistroInformacionDto, usuario: Usuarios) {
-    
+
     try {
+
       const { idPais, nombres, apellidos, documento, telefono, correo, fechaNacimiento, ...infoData } = createRegistroInformacionDto;
 
       const TipoPaises = await this.TipoPaisesRepository.findOneBy({ id: idPais });
@@ -50,18 +52,25 @@ export class RegistroInformacionService {
         throw new NotFoundException(`TipoPaises con ID ${idPais} no encontrada`);
       }
 
-      const saltRounds = 10;
-      const [documentoEncript, nombresEncrypted, apellidosEncrypted, telefonoEncrypted, correoEncrypted] = await Promise.all([
-        bcrypt.hash(documento, saltRounds),
-        bcrypt.hash(nombres, saltRounds),
-        bcrypt.hash(apellidos, saltRounds),
-        bcrypt.hash(telefono, saltRounds),
-        bcrypt.hash(correo, saltRounds)
-      ]);
+      const algorithm = 'aes-256-ctr';
+      const secretKey = process.env.SECRETKEY; 
+      const iv = crypto.randomBytes(16);
+
+      const encrypt = (text: string) => {
+        const cipher = crypto.createCipheriv(algorithm, Buffer.from(secretKey, 'hex'), iv);
+        const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
+        return iv.toString('hex') + ':' + encrypted.toString('hex');
+      };
+
+      const documentoEncrypted = encrypt(documento);
+      const nombresEncrypted = encrypt(nombres);
+      const apellidosEncrypted = encrypt(apellidos);
+      const telefonoEncrypted = encrypt(telefono);
+      const correoEncrypted = encrypt(correo);
 
       const RegistroInformacion = this.RegistroInformacionRepository.create({
         ...infoData,
-        documento: documentoEncript,
+        documento: documentoEncrypted,
         nombres: nombresEncrypted,
         apellidos: apellidosEncrypted,
         telefono: telefonoEncrypted,
@@ -80,10 +89,10 @@ export class RegistroInformacionService {
     }
   }
 
-  async findAllByUsuario(idUsuario: number){
+  async findAllByUsuario(idUsuario: number) {
 
-    const usuario = await this.UsuariosRepository.findOneBy({id: idUsuario});
-    return await this.RegistroInformacionRepository.findOneBy({idUsuario: usuario});
+    const usuario = await this.UsuariosRepository.findOneBy({ id: idUsuario });
+    return await this.RegistroInformacionRepository.findOneBy({ idUsuario: usuario });
   }
 
   async findAll(PaginationDto: PaginationDto) {
@@ -102,6 +111,7 @@ export class RegistroInformacionService {
   async update(id: number, updateRegistroInformacionDto: UpdateRegistroInformacionDto) {
 
     try {
+
       const { idPais, idUsuario, nombres, apellidos, documento, telefono, correo, fechaNacimiento, ...infoData } = updateRegistroInformacionDto;
 
       const registro_informacion = await this.RegistroInformacionRepository.findOneBy({ id });
@@ -116,22 +126,31 @@ export class RegistroInformacionService {
         throw new NotFoundException(`TipoPaises con ID ${idPais} no encontrado`);
       }
 
-      const usuario = await this.UsuariosRepository.findOneBy({id: idUsuario});
+      const usuario = await this.UsuariosRepository.findOneBy({ id: idUsuario });
 
       if (!usuario) {
         throw new NotFoundException(`usuario con ID ${idUsuario} no encontrado`);
       }
 
-      const saltRounds = 10;
-      const documentoEncript = await bcrypt.hash(documento, saltRounds);
-      const nombresEncrypted = await bcrypt.hash(nombres, saltRounds);
-      const apellidosEncrypted = await bcrypt.hash(apellidos, saltRounds);
-      const telefonoEncrypted = await bcrypt.hash(telefono, saltRounds);
-      const correoEncrypted = await bcrypt.hash(correo, saltRounds);
+      const algorithm = 'aes-256-ctr';
+      const secretKey = process.env.SECRETKEY; 
+      const iv = crypto.randomBytes(16);
+
+      const encrypt = (text: string) => {
+        const cipher = crypto.createCipheriv(algorithm, Buffer.from(secretKey, 'hex'), iv);
+        const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
+        return iv.toString('hex') + ':' + encrypted.toString('hex');
+      };
+
+      const documentoEncrypted = encrypt(documento);
+      const nombresEncrypted = encrypt(nombres);
+      const apellidosEncrypted = encrypt(apellidos);
+      const telefonoEncrypted = encrypt(telefono);
+      const correoEncrypted = encrypt(correo);
 
       const update_registro_informacion = this.RegistroInformacionRepository.merge(registro_informacion, {
         ...infoData,
-        documento: documentoEncript,
+        documento: documentoEncrypted,
         nombres: nombresEncrypted,
         apellidos: apellidosEncrypted,
         telefono: telefonoEncrypted,
