@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpS
 import { RegistroMembresiasService } from './registro_membresias.service';
 import { CreateRegistroMembresiaDto } from './dto/create-registro_membresia.dto';
 import { UpdateRegistroMembresiaDto } from './dto/update-registro_membresia.dto';
-import { PaginationDto } from '../common/dtos/pagination.dto';
+import { PaginationDto } from '../common/dtos/pagination.dto';1
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
 @Controller('registro-membresias')

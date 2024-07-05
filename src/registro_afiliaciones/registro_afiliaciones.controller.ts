@@ -13,6 +13,12 @@ export class RegistroAfiliacionesController {
    
     try {
 
+      const verificarRegistro = await this.registroAfiliacionesService.verificarAfiliacion(createRegistroAfiliacioneDto);
+
+      if(verificarRegistro){
+        return new GenericResponse('401', 'Ya estas afiliado a esta empresa', verificarRegistro);
+      }
+
       const result = await this.registroAfiliacionesService.create(createRegistroAfiliacioneDto);
       return new GenericResponse('200', 'EXITO', result);
 

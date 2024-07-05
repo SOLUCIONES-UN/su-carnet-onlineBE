@@ -85,7 +85,7 @@ export class RegistroMembresiasService {
 
     const membresias = await this.RegistroMembresiaRepository.find({
       where: {registroInformacion: registroInformacion, estado:1},
-      relations: ['membresiaInformacion', 'registroInformacion'],
+      relations: ['membresiaInformacion.tipoMembresia', 'membresiaInformacion.empresa', 'registroInformacion.idUsuario'],
     })
 
     return membresias;
