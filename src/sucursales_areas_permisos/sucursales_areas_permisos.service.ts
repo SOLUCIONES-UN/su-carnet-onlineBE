@@ -67,10 +67,6 @@ export class SucursalesAreasPermisosService {
         throw new NotFoundException(`RegistroInformacion con ID ${usuario.registroInformacions} no encontrada`);
       }
 
-      if (!TipoPermisos) {
-        throw new NotFoundException(`TipoPermisos con ID ${idPermiso} no encontrada`);
-      }
-
       const areaSucursalPermisos = this.SucursalesAreasPermisosRepository.create({
         ...infoData,
         idAreaGrupo: areaGrupo,
@@ -123,7 +119,7 @@ export class SucursalesAreasPermisosService {
 
     return await this.SucursalesAreasPermisosRepository.find({
       where: {idRegistro: registro_informacion},
-      relations: ['idAreaGrupo', 'idRegistro.idUsuario'],
+      relations: ['idAreaGrupo.idSucursalArea.idSucursal.idEmpresa', 'idRegistro.idUsuario'],
     })
   }
 
@@ -154,15 +150,7 @@ export class SucursalesAreasPermisosService {
         throw new NotFoundException(`RegistroInformacion con ID ${usuario.registroInformacions} no encontrada`);
       }
 
-      if (!TipoPermisos) {
-        throw new NotFoundException(`TipoPermisos con ID ${idPermiso} no encontrada`);
-      }
-
       const OutsoursingAfiliaciones = await this.OutsoursingAfiliacionesRepository.findOneBy({id: idOutsoursingAfiliaciones});
-
-      if(!OutsoursingAfiliaciones){
-        throw new NotFoundException(`OutsoursingAfiliaciones con ID ${idOutsoursingAfiliaciones} no encontrada`);
-      }
 
       const updateAreaSucursalPermisos = this.SucursalesAreasPermisosRepository.merge(areaSucursalPermisos, {
         ...infoData,
