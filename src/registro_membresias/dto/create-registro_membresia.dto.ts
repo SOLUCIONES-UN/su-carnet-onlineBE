@@ -10,6 +10,10 @@ export class CreateRegistroMembresiaDto {
     @IsNotEmpty({ message: 'El campo fechaVencimiento es requerido' })
     fechaVencimiento: string;
 
+    @IsString()
+    @IsNotEmpty({ message: 'El campo idExterno es requerido' })
+    idExterno: string;
+
     @IsNumber()
     @IsNotEmpty({ message: 'El campo membresiaInformacion es requerido' })
     membresiaInformacion: number;

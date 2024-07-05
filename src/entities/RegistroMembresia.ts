@@ -24,6 +24,13 @@ export class RegistroMembresia {
   @Column("integer", { name: "estado", default: () => "1" })
   estado: number;
 
+  @Column("character varying", {
+    name: "id_externo",
+    nullable: true,
+    length: 250,
+  })
+  idExterno: string | null;
+
   @ManyToOne(
     () => MembresiaInformacion,
     (membresiaInformacion) => membresiaInformacion.registroMembresias
