@@ -23,6 +23,10 @@ export class CreateSucursalesAreasPermisoDto {
     @IsNotEmpty({ message: 'El campo idAreaGrupo es requerido' })
     idAreaGrupo: number;
 
+    @IsString()
+    @IsOptional()
+    estado: string;
+
     @IsNumber()
     @IsOptional()
     idPermiso: number;
