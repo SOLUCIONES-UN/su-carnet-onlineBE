@@ -61,12 +61,15 @@ export class EmpresasInformacionService {
 
   async findAll(PaginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = PaginationDto;
-
+  
     const empresas = await this.empresaRepository.find({
       where: { estado: 1 },
       skip: offset,
       take: limit,
-      relations: ['empresasDocumentos.idTipoDocumento','idVendedor'],
+      relations: ['empresasDocumentos.idTipoDocumento', 'idVendedor'],
+      order: {
+        nombre: 'ASC', // Reemplaza 'nombre' con el campo que deseas ordenar alfabéticamente
+      },
     });
     
     return empresas;
