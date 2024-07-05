@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateRegistroDocumentoDto } from './dto/create-registro_documento.dto';
 import { RegistroDocumentos } from '../entities/RegistroDocumentos';
 import { In, Repository } from 'typeorm';
@@ -9,16 +15,19 @@ import * as bcrypt from 'bcrypt';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as crypto from 'crypto';
 
-import { RekognitionClient, CompareFacesCommand } from "@aws-sdk/client-rekognition";
+import {
+  RekognitionClient,
+  CompareFacesCommand,
+} from '@aws-sdk/client-rekognition';
 import { Usuarios } from '../entities/Usuarios';
 import { waitForDebugger } from 'inspector';
 import { UpdateRegistroDocumentoDto } from './dto/update-registro_documento.dto';
 
 @Injectable()
 export class RegistroDocumentosService {
-
-  private readonly logger = new Logger("RegistroDocumentosService");
+  private readonly logger = new Logger('RegistroDocumentosService');
   private rekognitionClient: RekognitionClient;
 
   constructor(
@@ -32,8 +41,7 @@ export class RegistroDocumentosService {
     private TipoDocumentosRepository: Repository<TipoDocumentos>,
 
     @InjectRepository(Usuarios)
-    private userRepository: Repository<Usuarios>
-
+    private userRepository: Repository<Usuarios>,
   ) {
     const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
     const secretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
@@ -44,12 +52,11 @@ export class RegistroDocumentosService {
       credentials: {
         accessKeyId,
         secretAccessKey,
-      }
+      },
     });
   }
 
   async getUsuario(user: string): Promise<Usuarios> {
-
     let usuario: Usuarios;
 
     if (this.isEmail(user)) {
@@ -79,15 +86,13 @@ export class RegistroDocumentosService {
     return phoneRegex.test(user);
   }
 
-
   private readImageFromFile(filePath: string): Buffer {
     const absolutePath = path.resolve(filePath);
     return fs.readFileSync(absolutePath);
   }
 
-  //Funcion para verificar persona por medio de reconocimiento facial 
+  //Funcion para verificar persona por medio de reconocimiento facial
   async compareFaces(foto_dpi: string, fotoPerfil: string): Promise<boolean> {
-
     const fotoDesencript = Buffer.from(foto_dpi, 'base64').toString('utf8');
 
     const sourceImageBuffer = this.readImageFromFile(fotoDesencript);
@@ -96,7 +101,7 @@ export class RegistroDocumentosService {
     const params = {
       SourceImage: { Bytes: sourceImageBuffer },
       TargetImage: { Bytes: targetImageBuffer },
-      SimilarityThreshold: 90
+      SimilarityThreshold: 90,
     };
 
     const command = new CompareFacesCommand(params);
@@ -104,105 +109,154 @@ export class RegistroDocumentosService {
     return response.FaceMatches.length > 0;
   }
 
-
   // Función para transformar la fecha
   transformDate(dateString: string): string {
-    const [day, month, year] = dateString.split("/");
+    const [day, month, year] = dateString.split('/');
     return `${year}-${month}-${day}`;
   }
 
   async create(createRegistroDocumentoDto: CreateRegistroDocumentoDto) {
-
     try {
-      const { idRegistroInformacion, idTipoDocumento, archivo, ...infoData } = createRegistroDocumentoDto;
+      const { idRegistroInformacion, idTipoDocumento, archivo, ...infoData } =
+        createRegistroDocumentoDto;
 
-      const registro_informacion = await this.RegistroInformacionRepository.findOneBy({ id: idRegistroInformacion });
-
-      const TipoDocumentos = await this.TipoDocumentosRepository.findOneBy({ id: idTipoDocumento });
+      const registro_informacion =
+        await this.RegistroInformacionRepository.findOneBy({
+          id: idRegistroInformacion,
+        });
 
       if (!registro_informacion) {
-        throw new NotFoundException(`registro_informacion con ID ${idRegistroInformacion} no encontrada`);
+        throw new NotFoundException(
+          `registro_informacion con ID ${idRegistroInformacion} no encontrada`,
+        );
       }
+
+      const TipoDocumentos = await this.TipoDocumentosRepository.findOneBy({
+        id: idTipoDocumento,
+      });
 
       if (!TipoDocumentos) {
-        throw new NotFoundException(`TipoDocumentos con ID ${idRegistroInformacion} no encontrada`);
+        throw new NotFoundException(
+          `TipoDocumentos con ID ${idTipoDocumento} no encontrada`,
+        );
       }
 
-      const saltRounds = 10;
+      const algorithm = 'aes-256-ctr';
+      const secretKey = process.env.SECRETKEY; // Asegúrate de definir esta variable de entorno
+      const iv = crypto.randomBytes(16);
 
-      const [archivoEncript] = await Promise.all([
-        bcrypt.hash(archivo, saltRounds),
-      ]);
+      const encrypt = (buffer: Buffer) => {
+        const cipher = crypto.createCipheriv(
+          algorithm,
+          Buffer.from(secretKey, 'hex'),
+          iv,
+        );
+        const encrypted = Buffer.concat([
+          cipher.update(buffer),
+          cipher.final(),
+        ]);
+        return iv.toString('hex') + ':' + encrypted.toString('hex');
+      };
+
+      const archivoBuffer = Buffer.from(archivo); // Convierte el archivo a un buffer para encriptarlo
+
+      const archivoEncriptado = encrypt(archivoBuffer);
 
       const RegistroDocumento = this.RegistroDocumentosRepository.create({
         ...infoData,
-        archivo: archivoEncript,
+        archivo: archivoEncriptado,
         idRegistroInformacion: registro_informacion,
         idTipoDocumento: TipoDocumentos,
         estado: 'PEN',
-        fotoInicial: 0
+        fotoInicial: 0,
       });
 
       await this.RegistroDocumentosRepository.save(RegistroDocumento);
 
       return RegistroDocumento;
-
     } catch (error) {
       this.handleDBException(error);
     }
-
   }
 
   async update(id: number, updateRegistroDocumentoDto: UpdateRegistroDocumentoDto) {
-    
+
     try {
-      const { idRegistroInformacion, idTipoDocumento, archivo, ...infoData } = updateRegistroDocumentoDto;
 
-      const registro_informacion = await this.RegistroInformacionRepository.findOneBy({ id: idRegistroInformacion });
+      const { idRegistroInformacion, idTipoDocumento, archivo, ...infoData } =
+        updateRegistroDocumentoDto;
 
-      const TipoDocumentos = await this.TipoDocumentosRepository.findOneBy({ id: idTipoDocumento });
+      const registro_informacion =
+        await this.RegistroInformacionRepository.findOneBy({
+          id: idRegistroInformacion,
+        });
 
       if (!registro_informacion) {
-        throw new NotFoundException(`registro_informacion con ID ${idRegistroInformacion} no encontrada`);
+        throw new NotFoundException(
+          `registro_informacion con ID ${idRegistroInformacion} no encontrada`,
+        );
       }
+
+      const TipoDocumentos = await this.TipoDocumentosRepository.findOneBy({
+        id: idTipoDocumento,
+      });
 
       if (!TipoDocumentos) {
-        throw new NotFoundException(`TipoDocumentos con ID ${idRegistroInformacion} no encontrada`);
+        throw new NotFoundException(
+          `TipoDocumentos con ID ${idTipoDocumento} no encontrada`,
+        );
       }
 
-      const registro_documento = await this.RegistroDocumentosRepository.findOneBy({id});
+      const registro_documento =
+        await this.RegistroDocumentosRepository.findOneBy({ id });
 
       if (!registro_documento) {
-        throw new NotFoundException(`registro_documento con ID ${registro_documento} no encontrada`);
+        throw new NotFoundException(
+          `registro_documento con ID ${id} no encontrada`,
+        );
       }
-  
-      const saltRounds = 10;
 
-      const [archivoEncript] = await Promise.all([
-        bcrypt.hash(archivo, saltRounds),
-      ]);
+      const algorithm = 'aes-256-ctr';
+      const secretKey = process.env.SECRETKEY; // Asegúrate de definir esta variable de entorno
+      const iv = crypto.randomBytes(16);
 
-      const updateRegistroDocumento = this.RegistroDocumentosRepository.merge(registro_documento, {
-        ...infoData,
-        archivo: archivoEncript,
-        idRegistroInformacion: registro_informacion,
-        idTipoDocumento: TipoDocumentos,
-      });
-  
+      const encrypt = (buffer: Buffer) => {
+        const cipher = crypto.createCipheriv(
+          algorithm,
+          Buffer.from(secretKey, 'hex'),
+          iv,
+        );
+        const encrypted = Buffer.concat([
+          cipher.update(buffer),
+          cipher.final(),
+        ]);
+        return iv.toString('hex') + ':' + encrypted.toString('hex');
+      };
+
+      const archivoBuffer = Buffer.from(archivo); // Convierte el archivo a un buffer para encriptarlo
+
+      const archivoEncriptado = encrypt(archivoBuffer);
+
+      const updateRegistroDocumento = this.RegistroDocumentosRepository.merge(
+        registro_documento,
+        {
+          ...infoData,
+          archivo: archivoEncriptado,
+          idRegistroInformacion: registro_informacion,
+          idTipoDocumento: TipoDocumentos,
+        },
+      );
+
       // Guardar los cambios en la base de datos
       await this.RegistroDocumentosRepository.save(updateRegistroDocumento);
-  
+
       return updateRegistroDocumento;
-  
     } catch (error) {
       this.handleDBException(error);
     }
-
   }
 
-
   async registrarDocumentoInicialFoto(user: string, fotoInicial: string) {
-
     try {
       let usuario: Usuarios;
 
@@ -218,15 +272,20 @@ export class RegistroDocumentosService {
       }
 
       if (!usuario) {
-        throw new NotFoundException(`Usuario con identificador ${user} no encontrado`);
+        throw new NotFoundException(
+          `Usuario con identificador ${user} no encontrado`,
+        );
       }
 
-      const RegistroInformacion = await this.RegistroInformacionRepository.findOne({
-        where: { idUsuario: usuario },
-      });
+      const RegistroInformacion =
+        await this.RegistroInformacionRepository.findOne({
+          where: { idUsuario: usuario },
+        });
 
       if (!RegistroInformacion) {
-        throw new NotFoundException(`RegistroInformacion con usuario ${user} no encontrada`);
+        throw new NotFoundException(
+          `RegistroInformacion con usuario ${user} no encontrada`,
+        );
       }
 
       const RegistrosDocumentos = await this.RegistroDocumentosRepository.find({
@@ -234,50 +293,51 @@ export class RegistroDocumentosService {
       });
 
       if (!RegistrosDocumentos) {
-        throw new NotFoundException(`RegistroDocumento con registroInformacion ${RegistroInformacion} no encontrada`);
+        throw new NotFoundException(
+          `RegistroDocumento con registroInformacion ${RegistroInformacion} no encontrada`,
+        );
       }
 
-      const TiposDocumentos = await this.TipoDocumentosRepository.findOneBy({ descripcion: 'foto_reciente' });
+      const TiposDocumentos = await this.TipoDocumentosRepository.findOneBy({
+        descripcion: 'foto_reciente',
+      });
 
-      if(!TiposDocumentos){
-
+      if (!TiposDocumentos) {
         const createTipoDocumentos = this.TipoDocumentosRepository.create({
-
           descripcion: 'foto_reciente',
           necesitaValidacion: 'NO',
           tieneVencimiento: 'NO',
-          tipoDocumento: 'JPG'
-
+          tipoDocumento: 'JPG',
         });
         await this.TipoDocumentosRepository.save(createTipoDocumentos);
       }
 
-      const TipoDocumento = await this.TipoDocumentosRepository.findOneBy({ descripcion: 'foto_reciente' });
+      const TipoDocumento = await this.TipoDocumentosRepository.findOneBy({
+        descripcion: 'foto_reciente',
+      });
 
-      let documentoExistente = RegistrosDocumentos.find(doc => doc.fotoInicial === 1);
+      let documentoExistente = RegistrosDocumentos.find(
+        (doc) => doc.fotoInicial === 1,
+      );
 
       if (documentoExistente) {
-
-        documentoExistente.estado = 'ACT',
-        documentoExistente.archivo = fotoInicial;
-        documentoExistente.idTipoDocumento = TipoDocumento,
-
-        await this.RegistroDocumentosRepository.save(documentoExistente);
-
+        (documentoExistente.estado = 'ACT'),
+          (documentoExistente.archivo = fotoInicial);
+        (documentoExistente.idTipoDocumento = TipoDocumento),
+          await this.RegistroDocumentosRepository.save(documentoExistente);
       } else {
         // Si no existe, crear uno nuevo
         const nuevoDocumento = this.RegistroDocumentosRepository.create({
           idRegistroInformacion: RegistroInformacion,
           archivo: fotoInicial,
           fotoInicial: 1,
-          estado: "ACT",
-          idTipoDocumento: TipoDocumento
+          estado: 'ACT',
+          idTipoDocumento: TipoDocumento,
         });
         await this.RegistroDocumentosRepository.save(nuevoDocumento);
       }
 
       return true;
-      
     } catch (error) {
       this.handleDBException(error);
       return false;
@@ -285,29 +345,29 @@ export class RegistroDocumentosService {
   }
 
   async findAll(PaginationDto: PaginationDto) {
-
     const { limit = 10, offset = 0 } = PaginationDto;
 
     const RegistroDocumento = await this.RegistroDocumentosRepository.find({
       skip: offset,
       take: limit,
-      relations: ['idRegistroInformacion', "idTipoDocumento"],
+      relations: ['idRegistroInformacion', 'idTipoDocumento'],
     });
 
     return RegistroDocumento;
   }
 
-
   async findAllByRegistro(idUsuario: number) {
+    const usuario = await this.userRepository.findOneBy({ id: idUsuario });
 
-    const usuario = await this.userRepository.findOneBy({ id: idUsuario })
-
-    const registro_informacion = await this.RegistroInformacionRepository.findOneBy({ idUsuario: usuario })
+    const registro_informacion =
+      await this.RegistroInformacionRepository.findOneBy({
+        idUsuario: usuario,
+      });
 
     const registroDocumento = await this.RegistroDocumentosRepository.find({
       where: {
         idRegistroInformacion: registro_informacion,
-        estado: In(['ACT', 'PEN']), 
+        estado: In(['ACT', 'PEN']),
       },
       relations: ['idRegistroInformacion', 'idTipoDocumento'],
     });
@@ -315,39 +375,37 @@ export class RegistroDocumentosService {
     return registroDocumento;
   }
 
-
-
   async acepatarDocumento(id: number) {
-
     try {
-
-      const RegistroDocumento = await this.RegistroDocumentosRepository.findOneBy({ id });
+      const RegistroDocumento =
+        await this.RegistroDocumentosRepository.findOneBy({ id });
 
       if (!RegistroDocumento) {
-        throw new NotFoundException(`RegistroDocumento con ID ${id} not encontrado`);
+        throw new NotFoundException(
+          `RegistroDocumento con ID ${id} not encontrado`,
+        );
       }
 
       RegistroDocumento.estado = 'ACEP';
       return await this.RegistroDocumentosRepository.save(RegistroDocumento);
-
     } catch (error) {
       this.handleDBException(error);
     }
   }
 
   async remove(id: number) {
-
     try {
-
-      const RegistroDocumento = await this.RegistroDocumentosRepository.findOneBy({ id });
+      const RegistroDocumento =
+        await this.RegistroDocumentosRepository.findOneBy({ id });
 
       if (!RegistroDocumento) {
-        throw new NotFoundException(`RegistroDocumento con ID ${id} not encontrado`);
+        throw new NotFoundException(
+          `RegistroDocumento con ID ${id} not encontrado`,
+        );
       }
 
       RegistroDocumento.estado = 'INA';
       return await this.RegistroDocumentosRepository.save(RegistroDocumento);
-
     } catch (error) {
       this.handleDBException(error);
     }

@@ -153,7 +153,7 @@ export class SucursalesAreasGruposHorariosService {
       await agregarHorarios(gruposFechas, horarioFechas.fecha);
 
     } else {
-      
+
       const sucursalesAreasGruposHorarios = await this.SucursalesAreasGruposHorariosRepository.find({
         where: { idAreaGrupo: sucursalGrupoArea, diaSemana: diaSemana },
         relations: ['idAreaGrupo'],
@@ -191,7 +191,7 @@ export class SucursalesAreasGruposHorariosService {
     const sucursalesAreasGruposHorarios = await this.SucursalesAreasGruposHorariosRepository.find({
       skip: offset,
       take: limit,
-      relations: ['idAreaGrupo'],
+      relations: ['idAreaGrupo.idSucursalArea'],
     });
 
     return sucursalesAreasGruposHorarios;
