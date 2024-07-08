@@ -142,7 +142,7 @@ export class RegistroDocumentosService {
       }
 
       const algorithm = 'aes-256-ctr';
-      const secretKey = process.env.SECRETKEY; // Asegúrate de definir esta variable de entorno
+      const secretKey = process.env.SECRETKEY; 
       const iv = crypto.randomBytes(16);
 
       const encrypt = (buffer: Buffer) => {
@@ -158,7 +158,7 @@ export class RegistroDocumentosService {
         return iv.toString('hex') + ':' + encrypted.toString('hex');
       };
 
-      const archivoBuffer = Buffer.from(archivo); // Convierte el archivo a un buffer para encriptarlo
+      const archivoBuffer = Buffer.from(archivo); 
 
       const archivoEncriptado = encrypt(archivoBuffer);
 
