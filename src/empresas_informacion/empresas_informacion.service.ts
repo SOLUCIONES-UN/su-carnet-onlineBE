@@ -55,6 +55,61 @@ export class EmpresasInformacionService {
   }
 
 
+
+  async consultarEmpresasActivas() {
+    return this.empresaRepository
+      .createQueryBuilder('empresa')
+      .leftJoinAndSelect('empresa.registroAfiliaciones', 'registroAfiliaciones')
+      .leftJoinAndSelect('empresa.empresasDocumentos', 'empresasDocumentos')
+      .leftJoinAndSelect('empresasDocumentos.idTipoDocumento', 'idTipoDocumento')
+      .leftJoinAndSelect('empresa.idVendedor', 'idVendedor')
+      .where('empresa.estado = :estado', { estado: 1 })
+      .getMany();
+  }
+
+  async agruparPorAfiliaciones(empresas: EmpresasInformacion[]) {
+    const empresasAgrupadas = empresas.map((empresa) => ({
+      ...empresa,
+      cantidadAfiliaciones: empresa.registroAfiliaciones.length,
+    }));
+
+    empresasAgrupadas.sort((a, b) => b.cantidadAfiliaciones - a.cantidadAfiliaciones);
+
+    return empresasAgrupadas;
+  }
+
+  // async comerciosFrecuentes() {
+  //   const empresasActivas = await this.consultarEmpresasActivas();
+  //   const empresasAgrupadas = await this.agruparPorAfiliaciones(empresasActivas);
+
+  //   return empresasAgrupadas;
+  // }
+
+  async comerciosFrecuentes() {
+
+    const empresas = await this.empresaRepository
+      .createQueryBuilder('empresa')
+      .leftJoin('empresa.registroAfiliaciones', 'registroAfiliaciones')
+      .where('empresa.estado = :estado', { estado: 1 })
+      .groupBy('empresa.id')
+      .orderBy('COUNT(registroAfiliaciones.id)', 'DESC')
+      .addOrderBy('empresa.nombre', 'ASC')
+      .select([
+        'empresa.id',
+        'empresa.nombre',
+        'empresa.disclaimer',
+        'empresa.sitioWeb',
+        'empresa.logotipo',
+        'empresa.terminosCondiciones',
+        'COUNT(registroAfiliaciones.id) AS cantidadAfiliaciones', // Contar afiliaciones
+      ])
+      .limit(5) 
+      .getRawMany();
+
+    return empresas;
+  }
+
+
   async findAll(PaginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = PaginationDto;
   
