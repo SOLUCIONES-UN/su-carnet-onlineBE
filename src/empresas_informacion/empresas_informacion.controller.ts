@@ -37,6 +37,20 @@ export class EmpresasInformacionController {
     }
   }
 
+  @Get('GetRecientes')
+  async GetRecientes() {
+
+    try {
+
+      const result = await this.empresasInformacionService.GetRecientes();
+      return new GenericResponse('200', 'EXITO', result);
+
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
 

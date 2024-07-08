@@ -3,7 +3,7 @@ import { CreateEmpresasInformacionDto } from './dto/create-empresas_informacion.
 import { UpdateEmpresasInformacionDto } from './dto/update-empresas_informacion.dto';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { Vendedores } from '../entities/Vendedores';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 
@@ -38,15 +38,11 @@ export class EmpresasInformacionService {
       if (!vendedor) {
         throw new NotFoundException(`Vendedor con ID ${idVendedor} no encontrado`);
       }
-  
-      const fechaInicioTransformada = this.transformDate(createEmpresasInformacionDto.fechaInicio);
-      const fechaVencimientoTransformada = this.transformDate(createEmpresasInformacionDto.fechaVencimiento);
 
       const empresa = this.empresaRepository.create({
         ...infoData,
         idVendedor: vendedor,
-        fechaInicio: fechaInicioTransformada,
-        fechaVencimiento: fechaVencimientoTransformada
+        fechaInicio: new Date().toISOString().split('T')[0]
       });
   
       await this.empresaRepository.save(empresa);
@@ -67,6 +63,28 @@ export class EmpresasInformacionService {
       skip: offset,
       take: limit,
       relations: ['empresasDocumentos.idTipoDocumento', 'idVendedor'],
+      order: {
+        nombre: 'ASC', // Reemplaza 'nombre' con el campo que deseas ordenar alfabéticamente
+      },
+    });
+    
+    return empresas;
+  }
+
+  
+  async GetRecientes() {
+  
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+  
+    // Convertir la fecha a un string en formato "YYYY-MM-DD"
+    const thirtyDaysAgoString = thirtyDaysAgo.toISOString().split('T')[0];
+  
+    const empresas = await this.empresaRepository.find({
+      where: { 
+        estado: 1,
+        fechaInicio: MoreThan(thirtyDaysAgoString)
+      },
       order: {
         nombre: 'ASC', // Reemplaza 'nombre' con el campo que deseas ordenar alfabéticamente
       },
@@ -102,15 +120,10 @@ export class EmpresasInformacionService {
       if (!vendedor) {
         throw new NotFoundException(`vendedor con ID ${idVendedor} no encontrado`);
       }
-  
-      const fechaInicioTransformada = this.transformDate(updateEmpresasInformacionDto.fechaInicio);
-      const fechaVencimientoTransformada = this.transformDate(updateEmpresasInformacionDto.fechaVencimiento);
 
       const updatedEmpresa = this.empresaRepository.merge(empresa, {
         ...infoData,
         idVendedor: vendedor,
-        fechaInicio: fechaInicioTransformada,
-        fechaVencimiento: fechaVencimientoTransformada
       });
   
       // Guardar los cambios en la base de datos
