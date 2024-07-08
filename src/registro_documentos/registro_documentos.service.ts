@@ -11,7 +11,6 @@ import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RegistroInformacion } from '../entities/RegistroInformacion';
 import { TipoDocumentos } from '../entities/TipoDocumentos';
-import * as bcrypt from 'bcrypt';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -109,12 +108,6 @@ export class RegistroDocumentosService {
     return response.FaceMatches.length > 0;
   }
 
-  // Función para transformar la fecha
-  transformDate(dateString: string): string {
-    const [day, month, year] = dateString.split('/');
-    return `${year}-${month}-${day}`;
-  }
-
   async create(createRegistroDocumentoDto: CreateRegistroDocumentoDto) {
     try {
       const { idRegistroInformacion, idTipoDocumento, archivo, ...infoData } =
@@ -141,32 +134,32 @@ export class RegistroDocumentosService {
         );
       }
 
-      const algorithm = 'aes-256-ctr';
-      const secretKey = process.env.SECRETKEY; 
-      const iv = crypto.randomBytes(16);
+      // const algorithm = 'aes-256-ctr';
+      // const secretKey = process.env.SECRETKEY; 
+      // const iv = crypto.randomBytes(16);
 
-      const encrypt = (buffer: Buffer) => {
-        const cipher = crypto.createCipheriv(
-          algorithm,
-          Buffer.from(secretKey, 'hex'),
-          iv,
-        );
-        const encrypted = Buffer.concat([
-          cipher.update(buffer),
-          cipher.final(),
-        ]);
-        return iv.toString('hex') + ':' + encrypted.toString('hex');
-      };
+      // const encrypt = (buffer: Buffer) => {
+      //   const cipher = crypto.createCipheriv(
+      //     algorithm,
+      //     Buffer.from(secretKey, 'hex'),
+      //     iv,
+      //   );
+      //   const encrypted = Buffer.concat([
+      //     cipher.update(buffer),
+      //     cipher.final(),
+      //   ]);
+      //   return iv.toString('hex') + ':' + encrypted.toString('hex');
+      // };
 
-      const archivoBuffer = Buffer.from(archivo); 
+      // const archivoBuffer = Buffer.from(archivo); 
 
-      const archivoEncriptado = encrypt(archivoBuffer);
+      // const archivoEncriptado = encrypt(archivoBuffer);
 
       const RegistroDocumento = this.RegistroDocumentosRepository.create({
         ...infoData,
-        archivo: archivoEncriptado,
         idRegistroInformacion: registro_informacion,
         idTipoDocumento: TipoDocumentos,
+        archivo: archivo,
         estado: 'PEN',
         fotoInicial: 0,
       });
@@ -216,32 +209,32 @@ export class RegistroDocumentosService {
         );
       }
 
-      const algorithm = 'aes-256-ctr';
-      const secretKey = process.env.SECRETKEY; // Asegúrate de definir esta variable de entorno
-      const iv = crypto.randomBytes(16);
+      // const algorithm = 'aes-256-ctr';
+      // const secretKey = process.env.SECRETKEY; // Asegúrate de definir esta variable de entorno
+      // const iv = crypto.randomBytes(16);
 
-      const encrypt = (buffer: Buffer) => {
-        const cipher = crypto.createCipheriv(
-          algorithm,
-          Buffer.from(secretKey, 'hex'),
-          iv,
-        );
-        const encrypted = Buffer.concat([
-          cipher.update(buffer),
-          cipher.final(),
-        ]);
-        return iv.toString('hex') + ':' + encrypted.toString('hex');
-      };
+      // const encrypt = (buffer: Buffer) => {
+      //   const cipher = crypto.createCipheriv(
+      //     algorithm,
+      //     Buffer.from(secretKey, 'hex'),
+      //     iv,
+      //   );
+      //   const encrypted = Buffer.concat([
+      //     cipher.update(buffer),
+      //     cipher.final(),
+      //   ]);
+      //   return iv.toString('hex') + ':' + encrypted.toString('hex');
+      // };
 
-      const archivoBuffer = Buffer.from(archivo); // Convierte el archivo a un buffer para encriptarlo
+      // const archivoBuffer = Buffer.from(archivo); // Convierte el archivo a un buffer para encriptarlo
 
-      const archivoEncriptado = encrypt(archivoBuffer);
+      // const archivoEncriptado = encrypt(archivoBuffer);
 
       const updateRegistroDocumento = this.RegistroDocumentosRepository.merge(
         registro_documento,
         {
           ...infoData,
-          archivo: archivoEncriptado,
+          archivo: archivo,
           idRegistroInformacion: registro_informacion,
           idTipoDocumento: TipoDocumentos,
         },
