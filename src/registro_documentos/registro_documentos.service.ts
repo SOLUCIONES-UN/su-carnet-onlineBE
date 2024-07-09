@@ -310,7 +310,7 @@ export class RegistroDocumentosService {
       });
 
       let documentoExistente = RegistrosDocumentos.find(
-        (doc) => doc.fotoInicial === 1,
+        (doc) => doc.fotoInicial === 1 && doc.idRegistroInformacion === RegistroInformacion,
       );
 
       if (documentoExistente) {
