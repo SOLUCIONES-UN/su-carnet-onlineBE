@@ -108,6 +108,7 @@ export class EmpresasInformacionService {
 
     const empresas = await this.empresaRepository.find({
       where: { estado: 1 },
+      relations: ['empresasDocumentos.idTipoDocumento', 'idVendedor'],
       order: {
         nombre: 'ASC',
       },
