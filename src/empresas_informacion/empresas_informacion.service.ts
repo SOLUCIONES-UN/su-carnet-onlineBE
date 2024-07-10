@@ -142,23 +142,17 @@ export class EmpresasInformacionService {
 
 
   async GetRecientes() {
-
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-    // Convertir la fecha a un string en formato "YYYY-MM-DD"
-    const thirtyDaysAgoString = thirtyDaysAgo.toISOString().split('T')[0];
-
     const empresas = await this.empresaRepository.find({
       where: {
         estado: 1,
-        fechaInicio: MoreThan(thirtyDaysAgoString)
       },
       order: {
-        nombre: 'ASC', // Reemplaza 'nombre' con el campo que deseas ordenar alfabéticamente
+        fechaInicio: 'DESC',
       },
+      take: 5, 
+      relations: ['empresasDocumentos.idTipoDocumento'],
     });
-
+  
     return empresas;
   }
 
