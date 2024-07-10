@@ -73,12 +73,12 @@ export class EmpresasInformacionService {
       .orderBy('COUNT(registroAfiliaciones.id)', 'DESC')
       .addOrderBy('empresa.nombre', 'ASC')
       .select([
-        'empresa.id',
-        'empresa.nombre',
-        'empresa.disclaimer',
-        'empresa.sitioWeb',
-        'empresa.logotipo',
-        'empresa.terminosCondiciones',
+        'empresa.id AS id',
+        'empresa.nombre AS nombre',
+        'empresa.disclaimer AS disclaimer',
+        'empresa.sitioWeb AS sitioWeb',
+        'empresa.logotipo AS logotipo',
+        'empresa.terminosCondiciones AS terminosCondiciones',
         'COUNT(registroAfiliaciones.id) AS cantidadAfiliaciones', // Contar afiliaciones
       ])
       .limit(5)
