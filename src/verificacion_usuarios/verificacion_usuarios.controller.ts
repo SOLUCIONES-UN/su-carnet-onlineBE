@@ -42,6 +42,21 @@ export class VerificacionUsuariosController {
     }
   }
 
+  @Post('enviarTexto/:telefono/:texto')
+  async enviarTexto(@Param('telefono') telefono: string, @Param('texto') texto: string){
+
+    try {
+      
+      const result = await this.verificacionUsuariosService.sendSms(telefono, texto);
+
+      return new GenericResponse('200', 'EXITO', result); 
+
+
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'ERROR INTERNO ', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @Post('confirmar-usuario')
   async confirmarUsuario(@Body() confirmarUsuario: confirmarUsuario) {
     
