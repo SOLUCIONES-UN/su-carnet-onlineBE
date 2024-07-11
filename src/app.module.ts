@@ -45,7 +45,10 @@ import { RegistroMembresiasModule } from './registro_membresias/registro_membres
   imports: [
 
     
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,

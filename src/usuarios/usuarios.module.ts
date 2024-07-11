@@ -8,11 +8,13 @@ import { Otps } from '../entities/Otps';
 import { VerificacionUsuariosService } from '../verificacion_usuarios/verificacion_usuarios.service';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
 
   imports:[
-    TypeOrmModule.forFeature([Usuarios, EmpresasInformacion, TipoUsuario, Otps, UsuariosRelacionEmpresas])
+    TypeOrmModule.forFeature([Usuarios, EmpresasInformacion, TipoUsuario, Otps, UsuariosRelacionEmpresas]),
+    ConfigModule
   ],
 
   controllers: [UsuariosController],

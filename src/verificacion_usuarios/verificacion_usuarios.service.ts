@@ -5,20 +5,59 @@ import { Not, Repository } from 'typeorm';
 import { Usuarios } from '../entities/Usuarios';
 import { HtmlEmail } from '../common/dtos/HtmlEmail.dto';
 import * as sgMail from '@sendgrid/mail'; 
+import { ConfigService } from '@nestjs/config';
+import { Twilio } from 'twilio/lib';
 
 @Injectable()
 export class VerificacionUsuariosService {
-  [x: string]: any;
+
+  private client: Twilio;
 
   private readonly logger = new Logger("VerificacionUsuariosService");
 
   constructor(
+
+    private configService: ConfigService,
+
     @InjectRepository(Otps)
     private verificacionUsuariosRepository: Repository<Otps>,
     @InjectRepository(Usuarios)
     private usuariosRepository: Repository<Usuarios>,
+
   ) {
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+    const accountSid = this.configService.get<string>('TWILIO_ACCOUNT_SID');
+    const authToken = this.configService.get<string>('TWILIO_AUTH_TOKEN');
+    this.client = new Twilio(accountSid, authToken);
+  }
+
+
+  async sendSms(telefono: string, message: string): Promise<boolean> {
+    const from = this.configService.get<string>('TWILIO_PHONE_NUMBER');
+
+    if (!from) {
+      throw new Error('Twilio phone number is not set in environment variables');
+    }
+
+    if (!telefono || !message) {
+      throw new Error('Recipient phone number and message are required');
+    }
+
+    try {
+      await this.client.messages.create({
+        body: message,
+        from: from,
+        to: telefono,
+      });
+      console.log('SMS sent successfully');
+
+      return true;
+    } catch (error) {
+      console.error('Error sending SMS:', error);
+
+      throw new Error('Failed to send SMS');
+    }
   }
 
 
@@ -61,25 +100,6 @@ export class VerificacionUsuariosService {
         console.error('Response body:', error.response.body);
       }
       return false;
-    }
-  }
-
-  async sendSms(to: string, message: string): Promise<void> {
-    const from = '502446873748'
-
-    if (!from) {
-      throw new Error('Twilio phone number is not set in environment variables');
-    }
-
-    try {
-      await this.client.messages.create({
-        body: message,
-        from,
-        to,
-      });
-      console.log('SMS sent successfully');
-    } catch (error) {
-      console.error('Error sending SMS:', error);
     }
   }
 
