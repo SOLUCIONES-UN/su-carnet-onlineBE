@@ -37,6 +37,20 @@ export class EmpresasInformacionController {
     }
   }
 
+
+  @Get('findAllUser/:idUsuario')
+  async findAllUser(@Param('idUsuario') idUsuario: number) {
+
+    try {
+
+      const result = await this.empresasInformacionService.findAllUser(idUsuario);
+      return new GenericResponse('200', 'EXITO', result);
+
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @Get('GetRecientes')
   async GetRecientes() {
 

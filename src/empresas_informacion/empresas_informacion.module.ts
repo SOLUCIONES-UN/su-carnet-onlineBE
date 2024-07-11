@@ -4,11 +4,13 @@ import { EmpresasInformacionController } from './empresas_informacion.controller
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Vendedores } from '../entities/Vendedores';
+import { Usuarios } from '../entities/Usuarios';
+import { RegistroAfiliaciones } from '../entities/RegistroAfiliaciones';
 
 @Module({
 
   imports:[
-    TypeOrmModule.forFeature([EmpresasInformacion, Vendedores]),
+    TypeOrmModule.forFeature([EmpresasInformacion, Vendedores, Usuarios, RegistroAfiliaciones]),
   ],
 
   controllers: [EmpresasInformacionController],
