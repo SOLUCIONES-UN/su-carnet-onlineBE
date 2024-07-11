@@ -109,6 +109,7 @@ export class RegistroDocumentosService {
   }
 
   async create(createRegistroDocumentoDto: CreateRegistroDocumentoDto) {
+
     try {
       const { idRegistroInformacion, idTipoDocumento, archivo, ...infoData } =
         createRegistroDocumentoDto;
@@ -134,33 +135,19 @@ export class RegistroDocumentosService {
         );
       }
 
-      // const algorithm = 'aes-256-ctr';
-      // const secretKey = process.env.SECRETKEY; 
-      // const iv = crypto.randomBytes(16);
+      let estado = "";
+      if(TipoDocumentos.necesitaValidacion == "SI"){
+        estado = 'PEN'
+      }
 
-      // const encrypt = (buffer: Buffer) => {
-      //   const cipher = crypto.createCipheriv(
-      //     algorithm,
-      //     Buffer.from(secretKey, 'hex'),
-      //     iv,
-      //   );
-      //   const encrypted = Buffer.concat([
-      //     cipher.update(buffer),
-      //     cipher.final(),
-      //   ]);
-      //   return iv.toString('hex') + ':' + encrypted.toString('hex');
-      // };
-
-      // const archivoBuffer = Buffer.from(archivo); 
-
-      // const archivoEncriptado = encrypt(archivoBuffer);
+      estado = 'ACT'
 
       const RegistroDocumento = this.RegistroDocumentosRepository.create({
         ...infoData,
         idRegistroInformacion: registro_informacion,
         idTipoDocumento: TipoDocumentos,
         archivo: archivo,
-        estado: 'PEN',
+        estado: estado,
         fotoInicial: 0,
       });
 
@@ -208,27 +195,6 @@ export class RegistroDocumentosService {
           `registro_documento con ID ${id} no encontrada`,
         );
       }
-
-      // const algorithm = 'aes-256-ctr';
-      // const secretKey = process.env.SECRETKEY; // Asegúrate de definir esta variable de entorno
-      // const iv = crypto.randomBytes(16);
-
-      // const encrypt = (buffer: Buffer) => {
-      //   const cipher = crypto.createCipheriv(
-      //     algorithm,
-      //     Buffer.from(secretKey, 'hex'),
-      //     iv,
-      //   );
-      //   const encrypted = Buffer.concat([
-      //     cipher.update(buffer),
-      //     cipher.final(),
-      //   ]);
-      //   return iv.toString('hex') + ':' + encrypted.toString('hex');
-      // };
-
-      // const archivoBuffer = Buffer.from(archivo); // Convierte el archivo a un buffer para encriptarlo
-
-      // const archivoEncriptado = encrypt(archivoBuffer);
 
       const updateRegistroDocumento = this.RegistroDocumentosRepository.merge(
         registro_documento,
@@ -281,8 +247,12 @@ export class RegistroDocumentosService {
         );
       }
 
+      const TiposDocumentos = await this.TipoDocumentosRepository.findOneBy({
+        descripcion: 'foto_reciente',
+      });
+
       const RegistrosDocumentos = await this.RegistroDocumentosRepository.find({
-        where: { idRegistroInformacion: RegistroInformacion },
+        where: { idRegistroInformacion: RegistroInformacion},
       });
 
       if (!RegistrosDocumentos) {
@@ -290,10 +260,6 @@ export class RegistroDocumentosService {
           `RegistroDocumento con registroInformacion ${RegistroInformacion} no encontrada`,
         );
       }
-
-      const TiposDocumentos = await this.TipoDocumentosRepository.findOneBy({
-        descripcion: 'foto_reciente',
-      });
 
       if (!TiposDocumentos) {
         const createTipoDocumentos = this.TipoDocumentosRepository.create({
@@ -310,7 +276,7 @@ export class RegistroDocumentosService {
       });
 
       let documentoExistente = RegistrosDocumentos.find(
-        (doc) => doc.fotoInicial === 1 && doc.idRegistroInformacion === RegistroInformacion,
+        (doc) => doc.fotoInicial === 1 && doc.idRegistroInformacion === RegistroInformacion && doc.idTipoDocumento === TiposDocumentos,
       );
 
       if (documentoExistente) {
