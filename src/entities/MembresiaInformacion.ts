@@ -17,7 +17,7 @@ export class MembresiaInformacion {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;
 
-  @Column("character varying", { name: "logo", length: 250 })
+  @Column("text", { name: "logo" })
   logo: string;
 
   @Column("character varying", { name: "color_fondo", length: 250 })
