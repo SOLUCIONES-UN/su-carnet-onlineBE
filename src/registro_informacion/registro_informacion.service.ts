@@ -52,29 +52,24 @@ export class RegistroInformacionService {
         throw new NotFoundException(`TipoPaises con ID ${idPais} no encontrada`);
       }
 
-      const algorithm = 'aes-256-ctr';
-      const secretKey = process.env.SECRETKEY; 
-      const iv = crypto.randomBytes(16);
+      // const algorithm = 'aes-256-ctr';
+      // const secretKey = process.env.SECRETKEY; 
+      // const iv = crypto.randomBytes(16);
 
-      const encrypt = (text: string) => {
-        const cipher = crypto.createCipheriv(algorithm, Buffer.from(secretKey, 'hex'), iv);
-        const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
-        return iv.toString('hex') + ':' + encrypted.toString('hex');
-      };
+      // const encrypt = (text: string) => {
+      //   const cipher = crypto.createCipheriv(algorithm, Buffer.from(secretKey, 'hex'), iv);
+      //   const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
+      //   return iv.toString('hex') + ':' + encrypted.toString('hex');
+      // };
 
-      const documentoEncrypted = encrypt(documento);
-      const nombresEncrypted = encrypt(nombres);
-      const apellidosEncrypted = encrypt(apellidos);
-      const telefonoEncrypted = encrypt(telefono);
-      const correoEncrypted = encrypt(correo);
+      // const documentoEncrypted = encrypt(documento);
+      // const nombresEncrypted = encrypt(nombres);
+      // const apellidosEncrypted = encrypt(apellidos);
+      // const telefonoEncrypted = encrypt(telefono);
+      // const correoEncrypted = encrypt(correo);
 
       const RegistroInformacion = this.RegistroInformacionRepository.create({
         ...infoData,
-        documento: documentoEncrypted,
-        nombres: nombresEncrypted,
-        apellidos: apellidosEncrypted,
-        telefono: telefonoEncrypted,
-        correo: correoEncrypted,
         idPais: TipoPaises,
         idUsuario: usuario,
         estado: 'ACT'
@@ -132,29 +127,24 @@ export class RegistroInformacionService {
         throw new NotFoundException(`usuario con ID ${idUsuario} no encontrado`);
       }
 
-      const algorithm = 'aes-256-ctr';
-      const secretKey = process.env.SECRETKEY; 
-      const iv = crypto.randomBytes(16);
+      // const algorithm = 'aes-256-ctr';
+      // const secretKey = process.env.SECRETKEY; 
+      // const iv = crypto.randomBytes(16);
 
-      const encrypt = (text: string) => {
-        const cipher = crypto.createCipheriv(algorithm, Buffer.from(secretKey, 'hex'), iv);
-        const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
-        return iv.toString('hex') + ':' + encrypted.toString('hex');
-      };
+      // const encrypt = (text: string) => {
+      //   const cipher = crypto.createCipheriv(algorithm, Buffer.from(secretKey, 'hex'), iv);
+      //   const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
+      //   return iv.toString('hex') + ':' + encrypted.toString('hex');
+      // };
 
-      const documentoEncrypted = encrypt(documento);
-      const nombresEncrypted = encrypt(nombres);
-      const apellidosEncrypted = encrypt(apellidos);
-      const telefonoEncrypted = encrypt(telefono);
-      const correoEncrypted = encrypt(correo);
+      // const documentoEncrypted = encrypt(documento);
+      // const nombresEncrypted = encrypt(nombres);
+      // const apellidosEncrypted = encrypt(apellidos);
+      // const telefonoEncrypted = encrypt(telefono);
+      // const correoEncrypted = encrypt(correo);
 
       const update_registro_informacion = this.RegistroInformacionRepository.merge(registro_informacion, {
         ...infoData,
-        documento: documentoEncrypted,
-        nombres: nombresEncrypted,
-        apellidos: apellidosEncrypted,
-        telefono: telefonoEncrypted,
-        correo: correoEncrypted,
         idPais: TipoPaises,
         idUsuario: usuario
       });
