@@ -304,7 +304,7 @@ export class RegistroDocumentosService {
   }
 
   async findAll(PaginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = PaginationDto;
+    const { limit = 100, offset = 0 } = PaginationDto;
 
     const RegistroDocumento = await this.RegistroDocumentosRepository.find({
       skip: offset,
@@ -326,7 +326,7 @@ export class RegistroDocumentosService {
     const registroDocumento = await this.RegistroDocumentosRepository.find({
       where: {
         idRegistroInformacion: registro_informacion,
-        estado: In(['ACT', 'PEN']),
+        estado: In(['ACT', 'PEN', 'ACEP']),
       },
       relations: ['idRegistroInformacion', 'idTipoDocumento'],
     });
