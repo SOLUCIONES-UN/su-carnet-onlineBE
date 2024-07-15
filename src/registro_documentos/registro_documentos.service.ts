@@ -109,7 +109,6 @@ export class RegistroDocumentosService {
   }
 
   async create(createRegistroDocumentoDto: CreateRegistroDocumentoDto) {
-
     try {
       const { idRegistroInformacion, idTipoDocumento, archivo, ...infoData } =
         createRegistroDocumentoDto;
@@ -135,12 +134,12 @@ export class RegistroDocumentosService {
         );
       }
 
-      let estado = "";
-      if(TipoDocumentos.necesitaValidacion == "SI"){
-        estado = 'PEN'
+      let estado = '';
+      if (TipoDocumentos.necesitaValidacion == 'SI') {
+        estado = 'PEN';
       }
 
-      estado = 'ACT'
+      estado = 'ACT';
 
       const RegistroDocumento = this.RegistroDocumentosRepository.create({
         ...infoData,
@@ -162,14 +161,9 @@ export class RegistroDocumentosService {
   async update(id: number, updateRegistroDocumentoDto: UpdateRegistroDocumentoDto) {
 
     try {
+      const { idRegistroInformacion, idTipoDocumento, archivo, ...infoData } = updateRegistroDocumentoDto;
 
-      const { idRegistroInformacion, idTipoDocumento, archivo, ...infoData } =
-        updateRegistroDocumentoDto;
-
-      const registro_informacion =
-        await this.RegistroInformacionRepository.findOneBy({
-          id: idRegistroInformacion,
-        });
+      const registro_informacion = await this.RegistroInformacionRepository.findOneBy({id: idRegistroInformacion});
 
       if (!registro_informacion) {
         throw new NotFoundException(
@@ -177,9 +171,7 @@ export class RegistroDocumentosService {
         );
       }
 
-      const TipoDocumentos = await this.TipoDocumentosRepository.findOneBy({
-        id: idTipoDocumento,
-      });
+      const TipoDocumentos = await this.TipoDocumentosRepository.findOneBy({id: idTipoDocumento});
 
       if (!TipoDocumentos) {
         throw new NotFoundException(
@@ -187,8 +179,7 @@ export class RegistroDocumentosService {
         );
       }
 
-      const registro_documento =
-        await this.RegistroDocumentosRepository.findOneBy({ id });
+      const registro_documento = await this.RegistroDocumentosRepository.findOneBy({ id });
 
       if (!registro_documento) {
         throw new NotFoundException(
@@ -196,13 +187,12 @@ export class RegistroDocumentosService {
         );
       }
 
-      const updateRegistroDocumento = this.RegistroDocumentosRepository.merge(
-        registro_documento,
+      const updateRegistroDocumento = this.RegistroDocumentosRepository.merge(registro_documento,
         {
           ...infoData,
-          archivo: archivo,
           idRegistroInformacion: registro_informacion,
           idTipoDocumento: TipoDocumentos,
+          archivo: archivo
         },
       );
 
@@ -252,7 +242,7 @@ export class RegistroDocumentosService {
       });
 
       const RegistrosDocumentos = await this.RegistroDocumentosRepository.find({
-        where: { idRegistroInformacion: RegistroInformacion},
+        where: { idRegistroInformacion: RegistroInformacion },
       });
 
       if (!RegistrosDocumentos) {
@@ -276,7 +266,10 @@ export class RegistroDocumentosService {
       });
 
       let documentoExistente = RegistrosDocumentos.find(
-        (doc) => doc.fotoInicial === 1 && doc.idRegistroInformacion === RegistroInformacion && doc.idTipoDocumento === TiposDocumentos,
+        (doc) =>
+          doc.fotoInicial === 1 &&
+          doc.idRegistroInformacion === RegistroInformacion &&
+          doc.idTipoDocumento === TiposDocumentos,
       );
 
       if (documentoExistente) {

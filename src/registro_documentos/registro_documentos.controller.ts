@@ -4,6 +4,7 @@ import { CreateRegistroDocumentoDto } from './dto/create-registro_documento.dto'
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { verificPerson } from './dto/verifica_persona.dto';
+import { UpdateRegistroDocumentoDto } from './dto/update-registro_documento.dto';
 
 @Controller('registro-documentos')
 export class RegistroDocumentosController {
@@ -87,6 +88,19 @@ export class RegistroDocumentosController {
     }
   }
 
+
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() updateRegistroDocumentoDto: UpdateRegistroDocumentoDto) {
+    
+    try {
+
+      const result = await this.registroDocumentosService.update(+id, updateRegistroDocumentoDto);
+      return new GenericResponse('200', 'EXITO', result);
+
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al editar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 
   @Patch(':id')
   async aceptarDocumento(@Param('id') id: string) {
