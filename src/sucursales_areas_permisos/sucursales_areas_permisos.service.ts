@@ -157,7 +157,8 @@ export class SucursalesAreasPermisosService {
         idAreaGrupo: areaGrupo,
         idPermiso: TipoPermisos,
         idOutsoursingAfiliaciones: OutsoursingAfiliaciones,
-        idRegistro: RegistroInformacion
+        idRegistro: RegistroInformacion,
+        estado: updateSucursalesAreasPermisoDto.estado
       });
 
       // Guardar los cambios en la base de datos
