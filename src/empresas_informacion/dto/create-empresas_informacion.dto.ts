@@ -11,6 +11,10 @@ export class CreateEmpresasInformacionDto {
     disclaimer: string;
 
     @IsString()
+    @IsNotEmpty({ message: 'El campo codigoEmpresa es requerido' })
+    codigoEmpresa: string;
+
+    @IsString()
     @IsNotEmpty({ message: 'El campo fechaVencimiento es requerido' })
     fechaVencimiento: string;
 

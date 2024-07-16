@@ -77,6 +77,13 @@ export class EmpresasInformacion {
   @Column("text", { name: "terminos_condiciones", nullable: true })
   terminosCondiciones: string | null;
 
+  @Column("character varying", {
+    name: "codigoEmpresa",
+    nullable: true,
+    length: 250,
+  })
+  codigoEmpresa: string | null;
+
   @OneToMany(
     () => EmpresasDocumentos,
     (empresasDocumentos) => empresasDocumentos.idEmpresa
