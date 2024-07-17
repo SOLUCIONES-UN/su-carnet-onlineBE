@@ -99,28 +99,43 @@ export class SucursalesAreasPermisosService {
     return areaSucursalPermisos;
   }
 
-  async citasUsuario(idUsuario: number){
-
+  async citasUsuario(idUsuario: number) {
     const usuario = await this.UsuariosRepository.findOne({
-      where: {id: idUsuario, estado: 2}
+      where: { id: idUsuario, estado: 2 }
     });
-
-    if(!usuario){
+  
+    if (!usuario) {
       throw new NotFoundException(`usuario con ID ${idUsuario} no encontrada`);
     }
-
+  
     const registro_informacion = await this.RegistroInformacionRepository.findOne({
-      where: {idUsuario: usuario, estado: 'ACT'}
+      where: { idUsuario: usuario, estado: 'ACT' }
     });
-
-    if(!registro_informacion){
+  
+    if (!registro_informacion) {
       throw new NotFoundException(`registro_informacion con usuario ${usuario} no encontrada`);
     }
-
-    return await this.SucursalesAreasPermisosRepository.find({
-      where: {idRegistro: registro_informacion},
+  
+    const sucursalesAreasPermisos = await this.SucursalesAreasPermisosRepository.find({
+      where: { idRegistro: registro_informacion },
       relations: ['idAreaGrupo.idSucursalArea.idSucursal.idEmpresa', 'idRegistro.idUsuario'],
-    })
+    });
+  
+    const resultadosConInstrucciones = sucursalesAreasPermisos.map(item => {
+      const informacion = item.idAreaGrupo.idSucursalArea.informacion;
+      const instruccionesGenerales = informacion ? informacion.split('-') : [];
+      
+      const instruccionesQr = item.idAreaGrupo.idSucursalArea.instruccionesQr;
+      const instruccionesQrArray = instruccionesQr ? instruccionesQr.split('-') : [];
+  
+      return {
+        ...item,
+        instruccionesGenerales,
+        instruccionesQr: instruccionesQrArray,
+      };
+    });
+  
+    return resultadosConInstrucciones;
   }
 
   async update(id: number, updateSucursalesAreasPermisoDto: UpdateSucursalesAreasPermisoDto) {

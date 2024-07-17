@@ -38,8 +38,16 @@ export class CreateSucursalesAreasInformacionDto {
     @IsNotEmpty({ message: 'El campo outsoursing es requerido' })
     outsoursing: string;
 
+    @IsString()
+    @IsNotEmpty({ message: 'El campo instruccionesQr es requerido' })
+    instruccionesQr: string;
+
     @IsNumber()
-    @IsNotEmpty({ message: 'El campo outsoursing es requerido' })
+    @IsNotEmpty({ message: 'El campo tiempoQr es requerido' })
+    tiempoQr: number;
+
+    @IsNumber()
+    @IsNotEmpty({ message: 'El campo idSucursal es requerido' })
     idSucursal: number;
 
 }
