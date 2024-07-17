@@ -47,6 +47,12 @@ export class SucursalesInformacion {
   @Column("integer", { name: "estado", default: () => "1" })
   estado: number;
 
+  @Column("character varying", { name: "latitud", nullable: true, length: 15 })
+  latitud: string | null;
+
+  @Column("character varying", { name: "longitud", nullable: true, length: 15 })
+  longitud: string | null;
+
   @OneToMany(
     () => SucursalesAreasInformacion,
     (sucursalesAreasInformacion) => sucursalesAreasInformacion.idSucursal
