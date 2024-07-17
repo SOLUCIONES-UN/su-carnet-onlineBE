@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateSucursalesInformacionDto {
 
@@ -9,6 +9,14 @@ export class CreateSucursalesInformacionDto {
     @IsString()
     @IsNotEmpty({ message: 'El campo direccion es requerido' })
     direccion: string;
+
+    @IsString()
+    @IsOptional()
+    latitud: string;
+
+    @IsString()
+    @IsOptional()
+    longitud: string;
 
     @IsString()
     @IsNotEmpty({ message: 'El campo informacionGeneral es requerido' })
