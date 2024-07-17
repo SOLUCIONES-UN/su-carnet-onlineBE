@@ -149,6 +149,7 @@ export class EmpresasInformacionService {
       },
       order: {
         fechaInicio: 'DESC',
+        nombre: 'ASC',
       },
       take: 5, 
       relations: ['empresasDocumentos.idTipoDocumento'],
