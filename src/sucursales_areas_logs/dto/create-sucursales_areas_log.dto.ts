@@ -1,12 +1,16 @@
-import { IsNotEmpty, IsNumber } from "class-validator";
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 
 export class CreateSucursalesAreasLogDto {
 
     @IsNumber()
-    @IsNotEmpty({ message: 'El campo idPuerta es requerido' })
+    @IsOptional()
     idPuerta: number;
 
     @IsNumber()
     @IsNotEmpty({ message: 'El campo idSucursalAreaPermiso es requerido' })
     idSucursalAreaPermiso: number;
+
+    @IsString()
+    @IsOptional()
+    estado: string;
 }

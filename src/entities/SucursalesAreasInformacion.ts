@@ -20,7 +20,7 @@ export class SucursalesAreasInformacion {
   @Column("character varying", { name: "descripcion", length: 250 })
   descripcion: string;
 
-  @Column("character varying", { name: "informacion", length: 250 })
+  @Column("text", { name: "informacion" })
   informacion: string;
 
   @Column("character varying", { name: "archivo_imagen1", length: 250 })
