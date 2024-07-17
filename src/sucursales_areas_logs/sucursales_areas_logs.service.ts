@@ -34,10 +34,6 @@ export class SucursalesAreasLogsService {
 
       const SucursalesAreasPermisos = await this.SucursalesAreasPermisosRepository.findOneBy({ id: idSucursalAreaPermiso });
 
-      if (!sucursalesAreasGruposPuertas) {
-        throw new NotFoundException(`sucursalesAreasGruposPuertas con ID ${idPuerta} no encontrada`);
-      }
-
       if (!SucursalesAreasPermisos) {
         throw new NotFoundException(`SucursalesAreasPermisos con ID ${idSucursalAreaPermiso} no encontrada`);
       }
@@ -47,7 +43,7 @@ export class SucursalesAreasLogsService {
         idPuerta: sucursalesAreasGruposPuertas,
         idSucursalAreaPermiso: SucursalesAreasPermisos,
         fechaHoraGeneracion: new Date(),
-        estado: 'ACT'
+        estado: 'PEN'
       });
 
       await this.SucursalesAreasLogsRepository.save(SucursalesAreasLogs);
@@ -57,6 +53,38 @@ export class SucursalesAreasLogsService {
     } catch (error) {
       this.handleDBException(error);
     }
+  }
+
+  async update(id: number, updateSucursalesAreasLogDto: UpdateSucursalesAreasLogDto){
+
+    try {
+
+      const logVisitas = await this.SucursalesAreasLogsRepository.findOneBy({ id });
+
+      if (!logVisitas) {
+        throw new NotFoundException(`logVisitas con ID ${id} no encontrado`);
+      }
+  
+      Object.assign(logVisitas, updateSucursalesAreasLogDto);
+  
+      // Guardar los cambios
+      await this.SucursalesAreasLogsRepository.save(logVisitas);
+  
+      return logVisitas;
+
+    } catch (error) {
+      this.handleDBException(error);
+    }
+  }
+
+  async enProceso(idCita: number){
+
+    const SucursalesAreasPermisos = await this.SucursalesAreasPermisosRepository.findOneBy({ id: idCita });
+
+    return await this.SucursalesAreasLogsRepository.find({
+      where: {idSucursalAreaPermiso: SucursalesAreasPermisos},
+      relations: ['idSucursalAreaPermiso'],
+    });
   }
 
   
