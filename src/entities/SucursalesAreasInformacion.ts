@@ -47,6 +47,12 @@ export class SucursalesAreasInformacion {
   @Column("integer", { name: "estado", default: () => "1" })
   estado: number;
 
+  @Column("text", { name: "instrucciones_qr", nullable: true })
+  instruccionesQr: string | null;
+
+  @Column("integer", { name: "tiempo_qr", nullable: true })
+  tiempoQr: number | null;
+
   @OneToMany(
     () => SucursalesAreasGruposInformacion,
     (sucursalesAreasGruposInformacion) =>
