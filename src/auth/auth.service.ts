@@ -16,6 +16,7 @@ import { GenerateToken } from './dto/generateToken.dto';
 import { use } from 'passport';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
+import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
 @Injectable()
 export class AuthService {
@@ -104,65 +105,78 @@ export class AuthService {
 
 
   //Metodo login para administracion
-  async loginAdministracion(LoginUserDto: LoginUserDto) {
-    const { user, password, companyCode } = LoginUserDto;
+  async loginAdministracion(LoginUserDto: LoginUserDto) : Promise<GenericResponse<any>> {
 
-    let usuario: Usuarios;
-    let empresa: EmpresasInformacion;
+    try {
 
-    if (companyCode) {
-      empresa = await this.empresasRepository.findOneBy({ codigoEmpresa: companyCode });
+      const { user, password, companyCode } = LoginUserDto;
 
-      if (!empresa) {
-        throw new UnauthorizedException(`La empresa con código ${companyCode} no encontrada`);
+      let usuario: Usuarios;
+      let empresa: EmpresasInformacion;
+
+      if (companyCode) {
+        empresa = await this.empresasRepository.findOneBy({ codigoEmpresa: companyCode });
+
+        if (!empresa) {
+          return new GenericResponse('400', `La empresa con código ${companyCode} no encontrada`, empresa);
+          // throw new UnauthorizedException(`La empresa con código ${companyCode} no encontrada`);
+        }
       }
-    }
 
-    if (this.isEmail(user)) {
-        usuario = await this.findUserByEmail(user);
-    } else if (this.isPhoneNumber(user)) {
-        usuario = await this.findUserByPhone(user);
-    }
-
-    if (!usuario) throw new UnauthorizedException('Credenciales inválidas');
-
-    if(companyCode === null || companyCode === ''){
-
-      const relacionEmpresa = await this.UsuariosRelacionEmpresasRepository.findOneBy({idUsuario:usuario});
-      
-      if(relacionEmpresa){
-        throw new UnauthorizedException('El usuario pertenece a una empresa debe ingresar el codigo de la empresa');
+      if (this.isEmail(user)) {
+          usuario = await this.findUserByEmail(user);
+      } else if (this.isPhoneNumber(user)) {
+          usuario = await this.findUserByPhone(user);
       }
+
+      if (!usuario)  return new GenericResponse('400', `Credenciales inválidas`, null);
+        // throw new UnauthorizedException('Credenciales inválidas');
+
+      if(companyCode === null || companyCode === ''){
+
+        const relacionEmpresa = await this.UsuariosRelacionEmpresasRepository.findOneBy({idUsuario:usuario});
+        
+        if(relacionEmpresa){
+          return new GenericResponse('401', `El usuario pertenece a una empresa debe ingresar el codigo de la empresa`, null);
+          // throw new UnauthorizedException('El usuario pertenece a una empresa debe ingresar el codigo de la empresa');
+        }
+      }
+
+      const hashToCompare = bcrypt.hashSync(password, usuario.passwordsalt.toString('utf-8'));
+
+      if (hashToCompare !== usuario.passwordhash.toString('utf-8')) {
+        // throw new UnauthorizedException('Credenciales inválidas');
+        return new GenericResponse('400', `Credenciales inválidas`, null);
+      }
+
+      delete usuario.passwordhash;
+      delete usuario.passwordsalt;
+
+      const responseData = {
+          usuario: {
+              email: usuario.email,
+              nombres: usuario.nombres,
+              apellidos: usuario.apellidos,
+              telefono: usuario.telefono,
+              id: usuario.id,
+              registroInformacions: usuario.registroInformacions,
+              tipoUsuario: usuario.idTipo,
+          },
+          empresa: empresa ? {
+              cnombre: empresa.nombre,
+              codigoEmpresa: empresa.codigoEmpresa,
+              disclaimer: empresa.disclaimer,
+              sitioWeb: empresa.sitioWeb,
+              logotipo: empresa.logotipo
+          } : null,
+          token: this.getJwtToken({ email: usuario.email }),
+      };
+
+      return new GenericResponse('201', `EXITO`, responseData);
+
+    } catch (error) {
+      return new GenericResponse('500', `error`, error);
     }
-
-    const hashToCompare = bcrypt.hashSync(password, usuario.passwordsalt.toString('utf-8'));
-
-    if (hashToCompare !== usuario.passwordhash.toString('utf-8')) {
-        throw new UnauthorizedException('Credenciales inválidas');
-    }
-
-    delete usuario.passwordhash;
-    delete usuario.passwordsalt;
-
-    return {
-        usuario: {
-            email: usuario.email,
-            nombres: usuario.nombres,
-            apellidos: usuario.apellidos,
-            telefono: usuario.telefono,
-            id: usuario.id,
-            registroInformacions: usuario.registroInformacions,
-            tipoUsuario: usuario.idTipo,
-        },
-        empresa: empresa ? {
-            cnombre: empresa.nombre,
-            codigoEmpresa: empresa.codigoEmpresa,
-            disclaimer: empresa.disclaimer,
-            sitioWeb: empresa.sitioWeb,
-            logotipo: empresa.logotipo
-        } : null,
-        token: this.getJwtToken({ email: usuario.email }),
-    };
 }
 
 private async findUserByEmail(email: string): Promise<Usuarios> {
