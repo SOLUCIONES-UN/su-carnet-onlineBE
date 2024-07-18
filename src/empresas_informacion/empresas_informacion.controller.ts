@@ -15,6 +15,12 @@ export class EmpresasInformacionController {
 
     try {
 
+      const empresa = await this.empresasInformacionService.empresaByCode(createEmpresasInformacionDto.codigoEmpresa);
+
+      if(empresa){
+        return new GenericResponse('401', 'El codigo de empresa ya existe debe ingresar el codigo correcto', null);
+      }
+
       const result = await this.empresasInformacionService.create(createEmpresasInformacionDto);
       return new GenericResponse('200', 'EXITO', result);
 

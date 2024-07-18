@@ -49,5 +49,11 @@ export class AuthController {
     return this.authService.login(loginUserDto);
   }
 
+  @Post('loginAdministracion')
+  loginUSerAdministracion( @Body() loginUserDto: LoginUserDto) {
+    
+    return this.authService.loginAdministracion(loginUserDto);
+  }
+
 
 }

@@ -88,6 +88,12 @@ export class EmpresasInformacionService {
   }
 
 
+  async empresaByCode(codigo: string){
+
+    return await this.empresaRepository.findOneBy({codigoEmpresa: codigo});
+  }
+
+
   async findAll(PaginationDto: PaginationDto) {
     const { limit = 10, offset = 0 } = PaginationDto;
 
