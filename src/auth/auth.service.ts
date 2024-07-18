@@ -105,16 +105,16 @@ export class AuthService {
 
   //Metodo login para administracion
   async loginAdministracion(LoginUserDto: LoginUserDto) {
-    const { user, password, codigoEmpresa } = LoginUserDto;
+    const { user, password, companyCode } = LoginUserDto;
 
     let usuario: Usuarios;
     let empresa: EmpresasInformacion;
 
-    if (codigoEmpresa) {
-        empresa = await this.empresasRepository.findOneBy({ codigoEmpresa });
+    if (companyCode) {
+        empresa = await this.empresasRepository.findOneBy({ codigoEmpresa: companyCode });
 
         if (!empresa) {
-            throw new UnauthorizedException(`La empresa con código ${codigoEmpresa} no encontrada`);
+            throw new UnauthorizedException(`La empresa con código ${companyCode} no encontrada`);
         }
     }
 
@@ -126,7 +126,7 @@ export class AuthService {
 
     if (!usuario) throw new UnauthorizedException('Credenciales inválidas');
 
-    if(codigoEmpresa === null || codigoEmpresa === ''){
+    if(companyCode === null || companyCode === ''){
 
       const relacionEmpresa = await this.UsuariosRelacionEmpresasRepository.findOneBy({idUsuario:usuario});
       
