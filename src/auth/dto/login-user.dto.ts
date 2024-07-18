@@ -13,5 +13,5 @@ export class LoginUserDto {
 
   @IsString()
   @IsOptional()
-  codigoEmpresa: string;
+  companyCode: string;
 }
