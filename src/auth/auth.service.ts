@@ -111,11 +111,11 @@ export class AuthService {
     let empresa: EmpresasInformacion;
 
     if (companyCode) {
-        empresa = await this.empresasRepository.findOneBy({ codigoEmpresa: companyCode });
+      empresa = await this.empresasRepository.findOneBy({ codigoEmpresa: companyCode });
 
-        if (!empresa) {
-            throw new UnauthorizedException(`La empresa con código ${companyCode} no encontrada`);
-        }
+      if (!empresa) {
+        throw new UnauthorizedException(`La empresa con código ${companyCode} no encontrada`);
+      }
     }
 
     if (this.isEmail(user)) {
