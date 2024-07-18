@@ -52,22 +52,6 @@ export class RegistroInformacionService {
         throw new NotFoundException(`TipoPaises con ID ${idPais} no encontrada`);
       }
 
-      // const algorithm = 'aes-256-ctr';
-      // const secretKey = process.env.SECRETKEY; 
-      // const iv = crypto.randomBytes(16);
-
-      // const encrypt = (text: string) => {
-      //   const cipher = crypto.createCipheriv(algorithm, Buffer.from(secretKey, 'hex'), iv);
-      //   const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
-      //   return iv.toString('hex') + ':' + encrypted.toString('hex');
-      // };
-
-      // const documentoEncrypted = encrypt(documento);
-      // const nombresEncrypted = encrypt(nombres);
-      // const apellidosEncrypted = encrypt(apellidos);
-      // const telefonoEncrypted = encrypt(telefono);
-      // const correoEncrypted = encrypt(correo);
-
       const RegistroInformacion = this.RegistroInformacionRepository.create({
         ...infoData,
         idPais: TipoPaises,

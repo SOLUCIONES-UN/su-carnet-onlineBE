@@ -14,6 +14,8 @@ import { JwtPayload } from './interface/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
 import { GenerateToken } from './dto/generateToken.dto';
 import { use } from 'passport';
+import { EmpresasInformacion } from '../entities/EmpresasInformacion';
+import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
 
 @Injectable()
 export class AuthService {
@@ -22,6 +24,12 @@ export class AuthService {
   constructor(
     @InjectRepository(Usuarios)
     private userRepository: Repository<Usuarios>,
+
+    @InjectRepository(EmpresasInformacion)
+    private empresasRepository: Repository<EmpresasInformacion>,
+
+    @InjectRepository(UsuariosRelacionEmpresas)
+    private UsuariosRelacionEmpresasRepository: Repository<UsuariosRelacionEmpresas>,
 
     private readonly jwtService: JwtService,
   ) {}
@@ -95,55 +103,95 @@ export class AuthService {
   }
 
 
-  // async loginAdministracion(LoginUserDto: LoginUserDto) {
+  //Metodo login para administracion
+  async loginAdministracion(LoginUserDto: LoginUserDto) {
+    const { user, password, codigoEmpresa } = LoginUserDto;
 
-  //   let usuario: Usuarios;
+    let usuario: Usuarios;
+    let empresa: EmpresasInformacion;
 
-  //     if (this.isEmail(user)) {
-  //       usuario = await this.usuariosRepository.findOne({
-  //         where: { email: user },
-  //       });
-  //     } else if (this.isPhoneNumber(user)) {
-  //       usuario = await this.usuariosRepository.findOne({
-  //         where: { telefono: user },
-  //       });
-  //     }
+    if (codigoEmpresa) {
+        empresa = await this.empresasRepository.findOneBy({ codigoEmpresa });
 
-  //   const { email, password } = LoginUserDto;
+        if (!empresa) {
+            throw new UnauthorizedException(`La empresa con código ${codigoEmpresa} no encontrada`);
+        }
+    }
 
-  //   //find user by email
-  //   const user = await this.userRepository.findOne({
-  //     where: { email },
-  //     select: {
-  //       email: true,
-  //       passwordhash: true,
-  //       passwordsalt: true,
-  //       nombres: true,
-  //       apellidos: true,
-  //       telefono: true,
-  //       id: true,
-  //     },
-  //     relations: ['registroInformacions'],
-  //   });
+    if (this.isEmail(user)) {
+        usuario = await this.findUserByEmail(user);
+    } else if (this.isPhoneNumber(user)) {
+        usuario = await this.findUserByPhone(user);
+    }
 
-  //   if (!user) throw new UnauthorizedException('Credenciales invalidas');
+    if (!usuario) throw new UnauthorizedException('Credenciales inválidas');
 
-  //   const hashToCompare = bcrypt.hashSync(
-  //     password,
-  //     user.passwordsalt.toString('utf-8'),
-  //   );
+    if(codigoEmpresa === null || codigoEmpresa === ''){
 
-  //   if (hashToCompare !== user.passwordhash.toString('utf-8'))
-  //     throw new UnauthorizedException('Credenciales invalidas');
+      const relacionEmpresa = await this.UsuariosRelacionEmpresasRepository.findOneBy({idUsuario:usuario});
+      
+      if(relacionEmpresa){
+        throw new UnauthorizedException('El usuario pertenece a una empresa debe ingresar el codigo de la empresa');
+      }
+    }
 
-  //   delete user.passwordhash;
-  //   delete user.passwordsalt;
+    const hashToCompare = bcrypt.hashSync(password, usuario.passwordsalt.toString('utf-8'));
 
-  //   return {
-  //     ...user,
-  //     token: this.getJwtToken({ email: user.email }),
-  //   };
-  // }
+    if (hashToCompare !== usuario.passwordhash.toString('utf-8')) {
+        throw new UnauthorizedException('Credenciales inválidas');
+    }
+
+    delete usuario.passwordhash;
+    delete usuario.passwordsalt;
+
+    return {
+        usuario: {
+            email: usuario.email,
+            nombres: usuario.nombres,
+            apellidos: usuario.apellidos,
+            telefono: usuario.telefono,
+            id: usuario.id,
+            registroInformacions: usuario.registroInformacions,
+            tipoUsuario: usuario.idTipo,
+        },
+        empresa: empresa ? {
+            cnombre: empresa.nombre,
+            codigoEmpresa: empresa.codigoEmpresa,
+            disclaimer: empresa.disclaimer,
+            sitioWeb: empresa.sitioWeb,
+            logotipo: empresa.logotipo
+        } : null,
+        token: this.getJwtToken({ email: usuario.email }),
+    };
+}
+
+private async findUserByEmail(email: string): Promise<Usuarios> {
+    return this.userRepository.findOne({
+        where: { email, estado: 2 },
+        select: this.getUserSelectFields(),
+        relations: ['registroInformacions', 'idTipo'],
+    });
+}
+
+private async findUserByPhone(phone: string): Promise<Usuarios> {
+    return this.userRepository.findOne({
+        where: { telefono: phone, estado: 2 },
+        select: this.getUserSelectFields(),
+        relations: ['registroInformacions', 'idTipo'],
+    });
+}
+
+private getUserSelectFields() {
+    return {
+        email: true,
+        passwordhash: true,
+        passwordsalt: true,
+        nombres: true,
+        apellidos: true,
+        telefono: true,
+        id: true,
+    };
+}
 
   async newToken(email: string, accesKey: string): Promise<string> {
     if (accesKey === process.env.JWT_SECRET) {

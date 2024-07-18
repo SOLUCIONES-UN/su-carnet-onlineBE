@@ -8,6 +8,8 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { EmpresasInformacion } from '../entities/EmpresasInformacion';
+import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
 
 @Module({
   controllers: [AuthController],
@@ -16,7 +18,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 
     ConfigModule,
 
-    TypeOrmModule.forFeature([ Usuarios, TipoUsuario ]),
+    TypeOrmModule.forFeature([ Usuarios, TipoUsuario, EmpresasInformacion, UsuariosRelacionEmpresas]),
 
     PassportModule.register({ defaultStrategy: 'jwt' }),
 
