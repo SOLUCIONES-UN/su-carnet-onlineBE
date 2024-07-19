@@ -149,6 +149,12 @@ export class AuthService {
           return new GenericResponse('401', `El usuario no pertenece a este nivel no es un administrador`, null);
         }
         
+      }else if(companyCode != null || companyCode != ''){
+        const relacionEmpresa = await this.UsuariosRelacionEmpresasRepository.findOneBy({idUsuario:usuario});
+
+        if(!relacionEmpresa){
+          return new GenericResponse('401', `El usuario no esta relacionado a ninguna empresa`, null);
+        }
       }
 
       const hashToCompare = bcrypt.hashSync(password, usuario.passwordsalt.toString('utf-8'));
