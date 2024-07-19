@@ -17,6 +17,7 @@ import { use } from 'passport';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
+import { TipoUsuario } from '../entities/TipoUsuario';
 
 @Injectable()
 export class AuthService {
@@ -31,6 +32,9 @@ export class AuthService {
 
     @InjectRepository(UsuariosRelacionEmpresas)
     private UsuariosRelacionEmpresasRepository: Repository<UsuariosRelacionEmpresas>,
+
+    @InjectRepository(TipoUsuario)
+    private TipoUsuarioRepository: Repository<TipoUsuario>,
 
     private readonly jwtService: JwtService,
   ) {}
@@ -124,13 +128,12 @@ export class AuthService {
       }
 
       if (this.isEmail(user)) {
-          usuario = await this.findUserByEmail(user);
+        usuario = await this.findUserByEmail(user);
       } else if (this.isPhoneNumber(user)) {
-          usuario = await this.findUserByPhone(user);
+        usuario = await this.findUserByPhone(user);
       }
 
-      if (!usuario)  return new GenericResponse('400', `Credenciales inválidas`, null);
-        // throw new UnauthorizedException('Credenciales inválidas');
+      if (!usuario)  return new GenericResponse('400', `El usuario no existe o puedes estar inactivo`, null);
 
       if(companyCode === null || companyCode === ''){
 
@@ -138,8 +141,14 @@ export class AuthService {
         
         if(relacionEmpresa){
           return new GenericResponse('401', `El usuario pertenece a una empresa debe ingresar el codigo de la empresa`, null);
-          // throw new UnauthorizedException('El usuario pertenece a una empresa debe ingresar el codigo de la empresa');
         }
+
+        const tipoUsuario = await this.TipoUsuarioRepository.findOne({where: {descripcion: 'administrador'}});
+
+        if(usuario.idTipo.id != tipoUsuario.id){
+          return new GenericResponse('401', `El usuario no pertenece a este nivel no es un administrador`, null);
+        }
+        
       }
 
       const hashToCompare = bcrypt.hashSync(password, usuario.passwordsalt.toString('utf-8'));
@@ -178,6 +187,7 @@ export class AuthService {
       return new GenericResponse('500', `error`, error);
     }
 }
+
 
 private async findUserByEmail(email: string): Promise<Usuarios> {
     return this.userRepository.findOne({
