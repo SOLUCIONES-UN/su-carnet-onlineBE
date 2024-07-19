@@ -39,13 +39,12 @@ export class UsuariosController {
 
   @Get()
   async findAll(@Query() paginationDto: PaginationDto) {
-
+    
     try {
-
       const result = await this.usuariosService.findAll(paginationDto);
       return new GenericResponse('200', 'EXITO', result);
-
     } catch (error) {
+      console.error('Error:', error); // Para depuración
       throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
