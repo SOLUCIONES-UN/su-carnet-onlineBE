@@ -143,7 +143,7 @@ export class UsuariosService {
   }
 
   async findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto; // Corregido offset inicial a 0
+    const { limit = 10, offset = 0 } = paginationDto;
 
     const users = await this.usuariosRepository.find({
       where: {
@@ -159,9 +159,8 @@ export class UsuariosService {
         telefono: true,
         fotoPerfil: true,
         estado: true
-
       },
-      relations: ['idTipo', 'usuariosRelacionEmpresas', 'usuariosRelacionEmpresas.idEmpresa'], // Incluye la relación con empresas
+      relations: ['idTipo', 'usuariosRelacionEmpresas', 'usuariosRelacionEmpresas.idEmpresa'],
     });
 
     return users;
