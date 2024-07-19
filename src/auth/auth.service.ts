@@ -133,7 +133,7 @@ export class AuthService {
         usuario = await this.findUserByPhone(user);
       }
 
-      if (!usuario)  return new GenericResponse('400', `El usuario no existe o puedes estar inactivo`, null);
+      if (!usuario)  return new GenericResponse('400', `El usuario no existe o puede estar inactivo`, null);
 
       if(companyCode === null || companyCode === ''){
 
