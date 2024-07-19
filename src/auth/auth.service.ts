@@ -40,60 +40,81 @@ export class AuthService {
   ) {}
 
   async login(LoginUserDto: LoginUserDto) {
-    const { user, password } = LoginUserDto;
 
-    let usuario: Usuarios;
+    try {
 
-    // Verificar si el campo user es un email o un número de teléfono
-    if (this.isEmail(user)) {
-      // Buscar usuario por email
-      usuario = await this.userRepository.findOne({
-        where: { email: user, estado: 2 },
-        select: {
-          email: true,
-          passwordhash: true,
-          passwordsalt: true,
-          nombres: true,
-          apellidos: true,
-          telefono: true,
-          id: true,
-        },
-        relations: ['registroInformacions'],
-      });
-    } else if (this.isPhoneNumber(user)) {
-      // Buscar usuario por número de teléfono
-      usuario = await this.userRepository.findOne({
-        where: { telefono: user, estado: 2 },
-        select: {
-          email: true,
-          passwordhash: true,
-          passwordsalt: true,
-          nombres: true,
-          apellidos: true,
-          telefono: true,
-          id: true,
-        },
-        relations: ['registroInformacions'],
-      });
+      const { user, password, companyCode } = LoginUserDto;
+
+      let usuario: Usuarios;
+      let empresa: EmpresasInformacion;
+
+      if (companyCode) {
+        empresa = await this.empresasRepository.findOneBy({ codigoEmpresa: companyCode });
+
+        if (!empresa) {
+          return new GenericResponse('400', `La empresa con código ${companyCode} no encontrada`, empresa);
+        }
+      }
+
+      if (this.isEmail(user)) {
+        usuario = await this.findUserByEmail(user);
+      } else if (this.isPhoneNumber(user)) {
+        usuario = await this.findUserByPhone(user);
+      }
+
+      if (!usuario)  return new GenericResponse('400', `El usuario no existe o puede estar inactivo`, null);
+
+      if(companyCode === null || companyCode === ''){
+
+        const relacionEmpresa = await this.UsuariosRelacionEmpresasRepository.findOneBy({idUsuario:usuario});
+        
+        if(relacionEmpresa){
+          return new GenericResponse('401', `El usuario pertenece a una empresa debe ingresar el codigo de la empresa`, null);
+        }
+        
+      }else if(companyCode != null || companyCode != ''){
+        const relacionEmpresa = await this.UsuariosRelacionEmpresasRepository.findOneBy({idUsuario:usuario});
+
+        if(!relacionEmpresa){
+          return new GenericResponse('401', `El usuario no esta relacionado a ninguna empresa`, null);
+        }
+      }
+
+      const hashToCompare = bcrypt.hashSync(password, usuario.passwordsalt.toString('utf-8'));
+
+      if (hashToCompare !== usuario.passwordhash.toString('utf-8')) {
+        // throw new UnauthorizedException('Credenciales inválidas');
+        return new GenericResponse('400', `Credenciales inválidas`, null);
+      }
+
+      delete usuario.passwordhash;
+      delete usuario.passwordsalt;
+
+      const responseData = {
+          usuario: {
+              email: usuario.email,
+              nombres: usuario.nombres,
+              apellidos: usuario.apellidos,
+              telefono: usuario.telefono,
+              id: usuario.id,
+              registroInformacions: usuario.registroInformacions,
+              tipoUsuario: usuario.idTipo,
+          },
+          empresa: empresa ? {
+              cnombre: empresa.nombre,
+              codigoEmpresa: empresa.codigoEmpresa,
+              disclaimer: empresa.disclaimer,
+              sitioWeb: empresa.sitioWeb,
+              logotipo: empresa.logotipo
+          } : null,
+          token: this.getJwtToken({ email: usuario.email }),
+      };
+
+      return new GenericResponse('201', `EXITO`, responseData);
+
+    } catch (error) {
+      return new GenericResponse('500', `error`, error);
     }
-
-    if (!usuario) throw new UnauthorizedException('Credenciales invalidas');
-
-    const hashToCompare = bcrypt.hashSync(
-      password,
-      usuario.passwordsalt.toString('utf-8'),
-    );
-
-    if (hashToCompare !== usuario.passwordhash.toString('utf-8'))
-      throw new UnauthorizedException('Credenciales invalidas');
-
-    delete usuario.passwordhash;
-    delete usuario.passwordsalt;
-
-    return {
-      ...usuario,
-      token: this.getJwtToken({ email: usuario.email }),
-    };
   }
 
   private isEmail(user: string): boolean {
@@ -123,7 +144,6 @@ export class AuthService {
 
         if (!empresa) {
           return new GenericResponse('400', `La empresa con código ${companyCode} no encontrada`, empresa);
-          // throw new UnauthorizedException(`La empresa con código ${companyCode} no encontrada`);
         }
       }
 
