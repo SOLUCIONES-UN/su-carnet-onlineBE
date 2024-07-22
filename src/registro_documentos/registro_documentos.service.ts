@@ -108,6 +108,22 @@ export class RegistroDocumentosService {
     return response.FaceMatches.length > 0;
   }
 
+  async existDocument(createRegistroDocumentoDto: CreateRegistroDocumentoDto){
+
+    try {
+
+      const registroInformacion = await this.RegistroInformacionRepository.findOneBy({id: createRegistroDocumentoDto.idRegistroInformacion});
+
+      const tipoDocumento = await this.TipoDocumentosRepository.findOneBy({id: createRegistroDocumentoDto.idTipoDocumento});
+      
+      return await this.RegistroDocumentosRepository.findOne({
+        where: {idRegistroInformacion: registroInformacion, idTipoDocumento: tipoDocumento}
+      });
+    } catch (error) {
+      this.handleDBException(error);
+    }
+  }
+
   async create(createRegistroDocumentoDto: CreateRegistroDocumentoDto) {
     try {
       const { idRegistroInformacion, idTipoDocumento, archivo, ...infoData } =
