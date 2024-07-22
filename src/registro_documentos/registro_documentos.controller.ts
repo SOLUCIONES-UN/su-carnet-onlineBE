@@ -36,6 +36,12 @@ export class RegistroDocumentosController {
 
     try {
 
+      const existDocument = await this.registroDocumentosService.existDocument(createRegistroDocumentoDto);
+
+      if(existDocument){
+        return new GenericResponse('401', 'Error al cargar el documento porque ya existe ', null);
+      }
+
       const result = await this.registroDocumentosService.create(createRegistroDocumentoDto);
       return new GenericResponse('200', 'EXITO', result);
 
