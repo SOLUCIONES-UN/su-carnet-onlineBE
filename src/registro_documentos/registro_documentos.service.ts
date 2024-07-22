@@ -222,7 +222,9 @@ export class RegistroDocumentosService {
   }
 
   async registrarDocumentoInicialFoto(user: string, fotoInicial: string) {
+
     try {
+
       let usuario: Usuarios;
 
       // Determinar si es email o teléfono y buscar usuario
@@ -241,6 +243,8 @@ export class RegistroDocumentosService {
           `Usuario con identificador ${user} no encontrado`,
         );
       }
+
+      const documentoFoto =  `${usuario.id}/${fotoInicial}`
 
       const RegistroInformacion =
         await this.RegistroInformacionRepository.findOne({
@@ -290,14 +294,14 @@ export class RegistroDocumentosService {
 
       if (documentoExistente) {
         (documentoExistente.estado = 'ACT'),
-          (documentoExistente.archivo = fotoInicial);
+          (documentoExistente.archivo = documentoFoto);
         (documentoExistente.idTipoDocumento = TipoDocumento),
           await this.RegistroDocumentosRepository.save(documentoExistente);
       } else {
         // Si no existe, crear uno nuevo
         const nuevoDocumento = this.RegistroDocumentosRepository.create({
           idRegistroInformacion: RegistroInformacion,
-          archivo: fotoInicial,
+          archivo: documentoFoto,
           fotoInicial: 1,
           estado: 'ACT',
           idTipoDocumento: TipoDocumento,
