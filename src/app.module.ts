@@ -40,6 +40,7 @@ import { TarjetaPresentacionModule } from './tarjeta_presentacion/tarjeta_presen
 import { TiposMembresiasModule } from './tipos_membresias/tipos_membresias.module';
 import { MembresiaInformacionModule } from './membresia_informacion/membresia_informacion.module';
 import { RegistroMembresiasModule } from './registro_membresias/registro_membresias.module';
+import { NotificacionesModule } from './notificaciones/notificaciones.module';
 
 @Module({
   imports: [
@@ -137,6 +138,8 @@ import { RegistroMembresiasModule } from './registro_membresias/registro_membres
     MembresiaInformacionModule,
 
     RegistroMembresiasModule,
+
+    NotificacionesModule,
   ],
 })
 export class AppModule {}
