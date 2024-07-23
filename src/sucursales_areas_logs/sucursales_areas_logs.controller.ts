@@ -3,10 +3,13 @@ import { SucursalesAreasLogsService } from './sucursales_areas_logs.service';
 import { CreateSucursalesAreasLogDto } from './dto/create-sucursales_areas_log.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { UpdateSucursalesAreasLogDto } from './dto/update-sucursales_areas_log.dto';
+import { NotificacionesService } from '../notificaciones/notificaciones.service';
 
 @Controller('sucursales-areas-logs')
 export class SucursalesAreasLogsController {
-  constructor(private readonly sucursalesAreasLogsService: SucursalesAreasLogsService) {}
+  constructor(private readonly sucursalesAreasLogsService: SucursalesAreasLogsService,
+    // private readonly notificacionesService: NotificacionesService
+  ) {}
 
   @Post('iniciarVisita')
   async create(@Body() createSucursalesAreasLogDto: CreateSucursalesAreasLogDto) {
@@ -28,6 +31,11 @@ export class SucursalesAreasLogsController {
     try {
 
       const result = await this.sucursalesAreasLogsService.update(+id, updateSucursalesAreasLogDto);
+
+      if(result.estado == "APL"){
+
+      }
+
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {

@@ -6,6 +6,10 @@ import { SucursalesAreasLogs } from '../entities/SucursalesAreasLogs';
 import { Repository } from 'typeorm';
 import { SucursalesAreasGruposPuertas } from '../entities/SucursalesAreasGruposPuertas';
 import { SucursalesAreasPermisos } from '../entities/SucursalesAreasPermisos';
+import { GenericResponse } from '../common/dtos/genericResponse.dto';
+import { SucursalesAreasGruposInformacion } from '../entities/SucursalesAreasGruposInformacion';
+import { log } from 'console';
+import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
 
 @Injectable()
 export class SucursalesAreasLogsService {
@@ -20,7 +24,13 @@ export class SucursalesAreasLogsService {
     private SucursalesAreasPermisosRepository: Repository<SucursalesAreasPermisos>,
 
     @InjectRepository(SucursalesAreasGruposPuertas)
-    private sucursalesAreasGruposPuertasRepository: Repository<SucursalesAreasGruposPuertas>
+    private sucursalesAreasGruposPuertasRepository: Repository<SucursalesAreasGruposPuertas>,
+
+    @InjectRepository(SucursalesAreasGruposInformacion)
+    private SucursalesAreasGruposInformacionRepository: Repository<SucursalesAreasGruposInformacion>,
+
+    @InjectRepository(SucursalesAreasInformacion)
+    private SucursalesAreasInformacionRepository: Repository<SucursalesAreasInformacion>,
 
   ) { }
 
@@ -52,6 +62,33 @@ export class SucursalesAreasLogsService {
 
     } catch (error) {
       this.handleDBException(error);
+    }
+  }
+
+  async verificarCita(idLogCita: number){
+
+    try {
+
+      const logCita = await this.SucursalesAreasLogsRepository.findOneBy({id: idLogCita});
+
+      if (!logCita) return new GenericResponse('400', `El logCita con Id ${idLogCita} no encontrado`, null);
+
+      const cita = await this.SucursalesAreasPermisosRepository.findOneBy(logCita.idSucursalAreaPermiso);
+
+      if(!cita) return new GenericResponse('400', `La cita con log ${logCita.idSucursalAreaPermiso} no encontrada`, null);
+
+      const areaGrupo = await this.SucursalesAreasGruposInformacionRepository.findOneBy(cita.idAreaGrupo);
+
+      if(!areaGrupo) return new GenericResponse('400', `areaGrupo ${cita.idAreaGrupo} no encontrado`, null);
+
+      const sucursales_areas_informacion = await this.SucursalesAreasInformacionRepository.findOneBy(areaGrupo.idSucursalArea);
+
+      if(!sucursales_areas_informacion) return new GenericResponse('400', `sucursales_areas_informacion ${areaGrupo.idSucursalArea} no encontrado`, null);
+
+      // if(sucursales_areas_informacion.tiempoQr )
+
+    } catch (error) {
+      
     }
   }
 
