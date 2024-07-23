@@ -5,10 +5,14 @@ import { SucursalesAreasGruposPuertas } from '../entities/SucursalesAreasGruposP
 import { SucursalesAreasLogs } from '../entities/SucursalesAreasLogs';
 import { SucursalesAreasPermisos } from '../entities/SucursalesAreasPermisos';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { FirebaseAdminModule } from '../firebase-admin/firebase-admin.module';
+import { SucursalesAreasGruposInformacion } from '../entities/SucursalesAreasGruposInformacion';
+import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
 
 @Module({
   imports:[
-    TypeOrmModule.forFeature([SucursalesAreasLogs, SucursalesAreasPermisos, SucursalesAreasGruposPuertas]),
+    // FirebaseAdminModule,
+    TypeOrmModule.forFeature([SucursalesAreasLogs, SucursalesAreasPermisos, SucursalesAreasGruposPuertas, SucursalesAreasGruposInformacion, SucursalesAreasInformacion]),
   ],
 
   controllers: [SucursalesAreasLogsController],

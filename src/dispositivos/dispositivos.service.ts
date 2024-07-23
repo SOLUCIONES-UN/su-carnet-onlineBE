@@ -5,7 +5,6 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Usuarios } from '../entities/Usuarios';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
-import { waitForDebugger } from 'inspector';
 
 @Injectable()
 export class DispositivosService {

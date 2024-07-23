@@ -121,7 +121,10 @@ export class UsuariosService {
         throw new NotFoundException(`Usuario con identificador ${user} no encontrado`);
       }
 
-      usuario.fotoPerfil = fotoPerfil;
+      const newFoto = usuario.id+"/"+ fotoPerfil;
+
+      usuario.fotoPerfil = newFoto;
+
       return await this.usuariosRepository.save(usuario);
 
     } catch (error) {
