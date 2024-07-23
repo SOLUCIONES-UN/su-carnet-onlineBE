@@ -10,6 +10,8 @@ import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { SucursalesAreasGruposInformacion } from '../entities/SucursalesAreasGruposInformacion';
 import { log } from 'console';
 import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
+import { Usuarios } from '../entities/Usuarios';
+import { RegistroInformacion } from '../entities/RegistroInformacion';
 
 @Injectable()
 export class SucursalesAreasLogsService {
@@ -31,6 +33,12 @@ export class SucursalesAreasLogsService {
 
     @InjectRepository(SucursalesAreasInformacion)
     private SucursalesAreasInformacionRepository: Repository<SucursalesAreasInformacion>,
+
+    @InjectRepository(Usuarios)
+    private UsuariosRepository: Repository<Usuarios>,
+
+    @InjectRepository(RegistroInformacion)
+    private RegistroInformacionRepository: Repository<RegistroInformacion>,
 
   ) { }
 
@@ -65,7 +73,7 @@ export class SucursalesAreasLogsService {
     }
   }
 
-  async verificarCita(idLogCita: number){
+  async verificarCita(idLogCita: number, idUsuario:number){
 
     try {
 
@@ -73,7 +81,13 @@ export class SucursalesAreasLogsService {
 
       if (!logCita) return new GenericResponse('400', `El logCita con Id ${idLogCita} no encontrado`, null);
 
-      const cita = await this.SucursalesAreasPermisosRepository.findOneBy(logCita.idSucursalAreaPermiso);
+      const usuario = await this.UsuariosRepository.findOneBy({id: idUsuario});
+
+      const RegistroInformacion = await this.RegistroInformacionRepository.findOneBy({ idUsuario: usuario });
+
+      const cita = await this.SucursalesAreasPermisosRepository.findOne({
+        where: {idRegistro: RegistroInformacion, sucursalesAreasLogs: logCita}
+      });
 
       if(!cita) return new GenericResponse('400', `La cita con log ${logCita.idSucursalAreaPermiso} no encontrada`, null);
 
