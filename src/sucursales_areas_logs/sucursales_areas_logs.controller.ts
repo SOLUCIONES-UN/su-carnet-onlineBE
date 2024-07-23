@@ -4,11 +4,12 @@ import { CreateSucursalesAreasLogDto } from './dto/create-sucursales_areas_log.d
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { UpdateSucursalesAreasLogDto } from './dto/update-sucursales_areas_log.dto';
 import { NotificacionesService } from '../notificaciones/notificaciones.service';
+import { CreateNotificacioneDto } from '../notificaciones/dto/create-notificacione.dto';
 
 @Controller('sucursales-areas-logs')
 export class SucursalesAreasLogsController {
   constructor(private readonly sucursalesAreasLogsService: SucursalesAreasLogsService,
-    // private readonly notificacionesService: NotificacionesService
+    private readonly notificacionesService: NotificacionesService
   ) {}
 
   @Post('iniciarVisita')
@@ -34,6 +35,10 @@ export class SucursalesAreasLogsController {
 
       if(result.estado == "APL"){
 
+        createNotificacioneDto: CreateNotificacioneDto;
+
+        
+        // this.notificacionesService.sendNotification();
       }
 
       return new GenericResponse('200', 'EXITO', result);
@@ -57,9 +62,9 @@ export class SucursalesAreasLogsController {
     }
   }
 
-  @Get('verificarCita/:idLogCita')
-  async verificarCita(@Param('idLogCita') idLogCita: number) {
-    return await this.sucursalesAreasLogsService.verificarCita(idLogCita);
+  @Get('verificarCita/:idLogCita/:idUsuario')
+  async verificarCita(@Param('idLogCita') idLogCita: number, idUsuario: number) {
+    return await this.sucursalesAreasLogsService.verificarCita(idLogCita, idUsuario);
   }
 
 }
