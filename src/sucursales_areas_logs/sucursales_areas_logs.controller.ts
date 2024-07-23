@@ -57,4 +57,9 @@ export class SucursalesAreasLogsController {
     }
   }
 
+  @Get('verificarCita/:idLogCita')
+  async verificarCita(@Param('idLogCita') idLogCita: number) {
+    return await this.sucursalesAreasLogsService.verificarCita(idLogCita);
+  }
+
 }
