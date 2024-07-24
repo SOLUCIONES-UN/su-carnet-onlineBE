@@ -28,25 +28,51 @@ export class SucursalesAreasLogsController {
 
   @Patch(':id')
   async update(@Param('id') id: number, @Body() updateSucursalesAreasLogDto: UpdateSucursalesAreasLogDto) {
-    
     try {
-
       const result = await this.sucursalesAreasLogsService.update(+id, updateSucursalesAreasLogDto);
 
-      if(result.estado == "APL"){
+      console.log(result.idSucursalAreaPermiso.idRegistro)
+  
+      const tokenObtenido = await this.sucursalesAreasLogsService.obtenerToken(result.idSucursalAreaPermiso.idRegistro);
 
-        createNotificacioneDto: CreateNotificacioneDto;
+      console.log(tokenObtenido)
+  
+      // if (result.estado === "APL") {
+      //   const createNotificacioneDto: CreateNotificacioneDto = {
+      //     token: tokenObtenido.tokendispositivo,
+      //     payload: {
+      //       notification: {
+      //         title: 'Confirmacion de Cita',
+      //         body: 'Acceso confirmado puede continuar ' 
+      //       },
+      //       data: {
+      //         customDataKey: 'customDataValue'
+      //       }
+      //     }
+      //   };
+  
+      //   await this.notificacionesService.sendNotification(createNotificacioneDto);
 
-        
-        // this.notificacionesService.sendNotification();
-      }
-
+      // } else if (result.estado === "RECH") {
+      //   const createNotificacioneDto: CreateNotificacioneDto = {
+      //     token: tokenObtenido.tokendispositivo,
+      //     payload: {
+      //       notification: {
+      //         title: 'Confirmacion de Cita',
+      //         body: 'Acceso denegado cita rechazada ' 
+      //       },
+      //       data: {
+      //         customDataKey: 'customDataValue'
+      //       }
+      //     }
+      //   };
+      //   await this.notificacionesService.sendNotification(createNotificacioneDto);
+      // }
+  
       return new GenericResponse('200', 'EXITO', result);
-
     } catch (error) {
       throw new HttpException(new GenericResponse('500', 'Error al editar', error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
   }
 
   @Get('enProceso/:idCita')

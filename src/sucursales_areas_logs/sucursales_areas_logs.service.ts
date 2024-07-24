@@ -12,6 +12,7 @@ import { log } from 'console';
 import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
 import { Usuarios } from '../entities/Usuarios';
 import { RegistroInformacion } from '../entities/RegistroInformacion';
+import { Dispositivos } from '../entities/Dispositivos';
 
 @Injectable()
 export class SucursalesAreasLogsService {
@@ -39,6 +40,9 @@ export class SucursalesAreasLogsService {
 
     @InjectRepository(RegistroInformacion)
     private RegistroInformacionRepository: Repository<RegistroInformacion>,
+
+    @InjectRepository(Dispositivos)
+    private DispositivosRepository: Repository<Dispositivos>,
 
   ) { }
 
@@ -134,6 +138,17 @@ export class SucursalesAreasLogsService {
       return new GenericResponse('500', `Error interno al verificar cita `, error);
     }
     
+  }
+
+  async obtenerToken(registroInformacion:RegistroInformacion){
+
+    const usuario = await this.UsuariosRepository.findOneBy(registroInformacion.idUsuario);
+
+    if(!usuario){
+      throw new NotFoundException(`usuario con IdRegistro ${registroInformacion.idUsuario} no encontrado`);
+    }
+
+    return await this.DispositivosRepository.findOneBy({idusuario: usuario});
   }
 
   async update(id: number, updateSucursalesAreasLogDto: UpdateSucursalesAreasLogDto){
