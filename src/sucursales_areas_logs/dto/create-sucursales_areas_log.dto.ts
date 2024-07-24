@@ -10,6 +10,10 @@ export class CreateSucursalesAreasLogDto {
     @IsNotEmpty({ message: 'El campo idSucursalAreaPermiso es requerido' })
     idSucursalAreaPermiso: number;
 
+    @IsNumber()
+    @IsOptional()
+    idUsuario: number;
+
     @IsString()
     @IsOptional()
     estado: string;

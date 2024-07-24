@@ -140,15 +140,17 @@ export class SucursalesAreasLogsService {
     
   }
 
-  async obtenerToken(registroInformacion:RegistroInformacion){
+  async obtenerToken(idUsuario:number){
 
-    const usuario = await this.UsuariosRepository.findOneBy(registroInformacion.idUsuario);
+    const usuario = await this.UsuariosRepository.findOneBy({id:idUsuario});
+
+    console.log(usuario);
 
     if(!usuario){
-      throw new NotFoundException(`usuario con IdRegistro ${registroInformacion.idUsuario} no encontrado`);
+      throw new NotFoundException(`usuario con IdRegistro ${idUsuario} no encontrado`);
     }
 
-    return await this.DispositivosRepository.findOneBy({idusuario: usuario});
+    return await this.DispositivosRepository.findOneBy({idusuario:usuario});
   }
 
   async update(id: number, updateSucursalesAreasLogDto: UpdateSucursalesAreasLogDto){

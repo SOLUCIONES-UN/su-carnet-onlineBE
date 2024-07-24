@@ -30,44 +30,40 @@ export class SucursalesAreasLogsController {
   async update(@Param('id') id: number, @Body() updateSucursalesAreasLogDto: UpdateSucursalesAreasLogDto) {
     try {
       const result = await this.sucursalesAreasLogsService.update(+id, updateSucursalesAreasLogDto);
-
-      console.log(result.idSucursalAreaPermiso.idRegistro)
   
-      const tokenObtenido = await this.sucursalesAreasLogsService.obtenerToken(result.idSucursalAreaPermiso.idRegistro);
-
-      console.log(tokenObtenido)
+      const tokenObtenido = await this.sucursalesAreasLogsService.obtenerToken(updateSucursalesAreasLogDto.idUsuario);
   
-      // if (result.estado === "APL") {
-      //   const createNotificacioneDto: CreateNotificacioneDto = {
-      //     token: tokenObtenido.tokendispositivo,
-      //     payload: {
-      //       notification: {
-      //         title: 'Confirmacion de Cita',
-      //         body: 'Acceso confirmado puede continuar ' 
-      //       },
-      //       data: {
-      //         customDataKey: 'customDataValue'
-      //       }
-      //     }
-      //   };
+      if (result.estado === "APL") {
+        const createNotificacioneDto: CreateNotificacioneDto = {
+          token: tokenObtenido.tokendispositivo,
+          payload: {
+            notification: {
+              title: 'Confirmacion de Cita',
+              body: 'Acceso confirmado puede continuar ' 
+            },
+            data: {
+              customDataKey: 'customDataValue'
+            }
+          }
+        };
   
-      //   await this.notificacionesService.sendNotification(createNotificacioneDto);
+        await this.notificacionesService.sendNotification(createNotificacioneDto);
 
-      // } else if (result.estado === "RECH") {
-      //   const createNotificacioneDto: CreateNotificacioneDto = {
-      //     token: tokenObtenido.tokendispositivo,
-      //     payload: {
-      //       notification: {
-      //         title: 'Confirmacion de Cita',
-      //         body: 'Acceso denegado cita rechazada ' 
-      //       },
-      //       data: {
-      //         customDataKey: 'customDataValue'
-      //       }
-      //     }
-      //   };
-      //   await this.notificacionesService.sendNotification(createNotificacioneDto);
-      // }
+      } else if (result.estado === "RECH") {
+        const createNotificacioneDto: CreateNotificacioneDto = {
+          token: tokenObtenido.tokendispositivo,
+          payload: {
+            notification: {
+              title: 'Confirmacion de Cita',
+              body: 'Acceso denegado cita rechazada ' 
+            },
+            data: {
+              customDataKey: 'customDataValue'
+            }
+          }
+        };
+        await this.notificacionesService.sendNotification(createNotificacioneDto);
+      }
   
       return new GenericResponse('200', 'EXITO', result);
     } catch (error) {
