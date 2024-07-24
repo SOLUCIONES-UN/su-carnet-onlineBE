@@ -11,12 +11,13 @@ import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformaci
 import { NotificacionesService } from '../notificaciones/notificaciones.service';
 import { Usuarios } from '../entities/Usuarios';
 import { RegistroInformacion } from '../entities/RegistroInformacion';
+import { Dispositivos } from '../entities/Dispositivos';
 
 @Module({
   imports:[
     FirebaseAdminModule,
     TypeOrmModule.forFeature([SucursalesAreasLogs, SucursalesAreasPermisos, SucursalesAreasGruposPuertas, 
-    SucursalesAreasGruposInformacion, SucursalesAreasInformacion, Usuarios, RegistroInformacion]),
+    SucursalesAreasGruposInformacion, SucursalesAreasInformacion, Usuarios, RegistroInformacion, Dispositivos]),
   ],
 
   controllers: [SucursalesAreasLogsController],
