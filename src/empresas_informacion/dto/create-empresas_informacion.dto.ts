@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsNumber, IsString, isNumber } from "class-validator";
+import { IsEmail, IsNotEmpty, IsNumber, IsOptional, IsString, isNumber } from "class-validator";
 
 export class CreateEmpresasInformacionDto {
 
@@ -60,7 +60,7 @@ export class CreateEmpresasInformacionDto {
     terminosCondiciones: string;
 
     @IsNumber()
-    @IsNotEmpty({ message: 'El campo idVendedor es requerido' })
+    @IsOptional()
     idVendedor: number;
     
 }
