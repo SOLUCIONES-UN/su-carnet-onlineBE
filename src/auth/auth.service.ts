@@ -101,6 +101,7 @@ export class AuthService {
               tipoUsuario: usuario.idTipo,
           },
           empresa: empresa ? {
+              id: empresa.id,
               cnombre: empresa.nombre,
               codigoEmpresa: empresa.codigoEmpresa,
               disclaimer: empresa.disclaimer,
@@ -198,7 +199,8 @@ export class AuthService {
               tipoUsuario: usuario.idTipo,
           },
           empresa: empresa ? {
-              cnombre: empresa.nombre,
+              id: empresa.id,
+              nombre: empresa.nombre,
               codigoEmpresa: empresa.codigoEmpresa,
               disclaimer: empresa.disclaimer,
               sitioWeb: empresa.sitioWeb,
