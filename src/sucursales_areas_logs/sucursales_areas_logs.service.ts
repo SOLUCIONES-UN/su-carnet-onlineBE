@@ -90,7 +90,8 @@ export class SucursalesAreasLogsService {
       const RegistroInformacion = await this.RegistroInformacionRepository.findOneBy({ idUsuario: usuario });
 
       const cita = await this.SucursalesAreasPermisosRepository.findOne({
-        where: {idRegistro: RegistroInformacion, sucursalesAreasLogs: logCita}
+        where: {idRegistro: RegistroInformacion, sucursalesAreasLogs: logCita},
+        relations: ['idAreaGrupo.idSucursalArea.idSucursal.idEmpresa', 'idRegistro.idUsuario'],
       });
 
       if(!cita) return new GenericResponse('400', `La cita con log ${logCita.idSucursalAreaPermiso} no encontrada`, null);
