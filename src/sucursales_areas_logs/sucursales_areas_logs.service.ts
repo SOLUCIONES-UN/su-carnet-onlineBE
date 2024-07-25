@@ -91,7 +91,7 @@ export class SucursalesAreasLogsService {
 
       const cita = await this.SucursalesAreasPermisosRepository.findOne({
         where: {idRegistro: RegistroInformacion, sucursalesAreasLogs: logCita},
-        relations: ['idAreaGrupo.idSucursalArea.idSucursal.idEmpresa', 'idRegistro.idUsuario'],
+        relations: ['idAreaGrupo.idSucursalArea.idSucursal.idEmpresa'],
       });
 
       if(!cita) return new GenericResponse('400', `La cita con log ${logCita.idSucursalAreaPermiso} no encontrada`, null);
@@ -144,8 +144,6 @@ export class SucursalesAreasLogsService {
   async obtenerToken(idUsuario:number){
 
     const usuario = await this.UsuariosRepository.findOneBy({id:idUsuario});
-
-    console.log(usuario);
 
     if(!usuario){
       throw new NotFoundException(`usuario con IdRegistro ${idUsuario} no encontrado`);
