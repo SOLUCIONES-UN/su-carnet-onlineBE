@@ -179,7 +179,7 @@ export class SucursalesAreasLogsService {
     const SucursalesAreasPermisos = await this.SucursalesAreasPermisosRepository.findOneBy({ id: idCita });
 
     return await this.SucursalesAreasLogsRepository.findOne({
-      where: {idSucursalAreaPermiso: SucursalesAreasPermisos},
+      where: {idSucursalAreaPermiso: SucursalesAreasPermisos, estado: "PEN"},
       relations: ['idSucursalAreaPermiso'],
     });
   }
