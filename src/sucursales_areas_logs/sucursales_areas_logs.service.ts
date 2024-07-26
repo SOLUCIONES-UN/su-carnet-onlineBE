@@ -129,7 +129,7 @@ export class SucursalesAreasLogsService {
       }
     } else if (now < citaFecha) {
       // La cita es en el futuro
-      return new GenericResponse('200', `La cita es la fecha ${cita.fecha}`, cita);
+      return new GenericResponse('200', `La cita es para la fecha ${cita.fecha}`, cita);
     } else {
       // La cita ya ha pasado
       return new GenericResponse('200', `La cita ya ha pasado estaba para la fecha ${cita.fecha}`, cita);
