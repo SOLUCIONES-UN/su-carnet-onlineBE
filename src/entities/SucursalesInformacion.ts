@@ -10,6 +10,7 @@ import {
 import { SucursalesAreasInformacion } from "./SucursalesAreasInformacion";
 import { SucursalesDocumentos } from "./SucursalesDocumentos";
 import { EmpresasInformacion } from "./EmpresasInformacion";
+import { UsuariosRelacionEmpresas } from "./UsuariosRelacionEmpresas";
 
 @Index("sucursales_informacion_pkey", ["id"], { unique: true })
 @Entity("sucursales_informacion", { schema: "public" })
@@ -71,4 +72,10 @@ export class SucursalesInformacion {
   )
   @JoinColumn([{ name: "id_empresa", referencedColumnName: "id" }])
   idEmpresa: EmpresasInformacion;
+
+  @OneToMany(
+    () => UsuariosRelacionEmpresas,
+    (usuariosRelacionEmpresas) => usuariosRelacionEmpresas.idSucursal
+  )
+  usuariosRelacionEmpresas: UsuariosRelacionEmpresas[];
 }

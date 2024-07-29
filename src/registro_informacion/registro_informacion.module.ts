@@ -9,10 +9,12 @@ import { UsuariosService } from '../usuarios/usuarios.service';
 import { TipoUsuario } from '../entities/TipoUsuario';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
+import { SucursalesInformacion } from '../entities/SucursalesInformacion';
+import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
 
 @Module({
   imports:[
-    TypeOrmModule.forFeature([RegistroInformacion, TipoPaises, Usuarios, TipoUsuario, EmpresasInformacion, UsuariosRelacionEmpresas]),
+    TypeOrmModule.forFeature([RegistroInformacion, TipoPaises, Usuarios, TipoUsuario, EmpresasInformacion, UsuariosRelacionEmpresas, SucursalesInformacion, SucursalesAreasInformacion]),
   ],
   controllers: [RegistroInformacionController],
   providers: [RegistroInformacionService, UsuariosService],

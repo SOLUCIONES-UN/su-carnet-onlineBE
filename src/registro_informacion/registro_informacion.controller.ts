@@ -46,6 +46,8 @@ export class RegistroInformacionController {
         telefono: createRegistroInformacionDto.telefono,
         password: createRegistroInformacionDto.password,
         idEmpresas: createRegistroInformacionDto.idEmpresas,
+        idSucursal: [],
+        idAreaSucursal: [],
         idTipo: tipoUsuario.id,
         fotoPerfil: ''
       };
