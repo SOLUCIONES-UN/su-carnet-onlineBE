@@ -16,29 +16,33 @@ export class RegistroInformacionController {
 
   @Post()
   async create(@Body() createRegistroInformacionDto: CreateRegistroInformacionDto) {
-    
     try {
-
       const registroInformacion = await this.registroInformacionService.existRegistro(createRegistroInformacionDto.documento);
-
-      if(registroInformacion){
-        return new GenericResponse('401', 'Esta persona con DPI ', registroInformacion.documento+ ' ya se ha registrado anteriormente ');
+  
+      if (registroInformacion) {
+        return new GenericResponse('401', 'Esta persona con DPI ', registroInformacion.documento + ' ya se ha registrado anteriormente ');
       }
-
+  
       const existeEmail = await this.usuariosService.existsEmail(createRegistroInformacionDto.correo);
-
+  
       if (existeEmail) {
-        return new GenericResponse('401', 'El correo ingresado ya esta siendo utilizado ', null);
+        return new GenericResponse('401', 'El correo ingresado ya está siendo utilizado', null);
       }
-
+  
       const existeTelefono = await this.usuariosService.existsPhoneNumber(createRegistroInformacionDto.telefono);
-
+  
       if (existeTelefono) {
-        return new GenericResponse('401', 'El telefono ingresado ya esta siendo utilizado ', null);
+        return new GenericResponse('401', 'El teléfono ingresado ya está siendo utilizado', null);
       }
-
-      const tipoUsuario = await this.usuariosService.getTipoUsuario();
-
+  
+      let tipoUsuario;
+  
+      if (createRegistroInformacionDto.idTipo === undefined || createRegistroInformacionDto.idTipo === null) {
+        tipoUsuario = await this.usuariosService.getTipoUsuario();
+      } else {
+        tipoUsuario = { id: createRegistroInformacionDto.idTipo };
+      }
+  
       let createUsuarioDto: CreateUsuarioDto = {
         nombres: createRegistroInformacionDto.nombres,
         apellidos: createRegistroInformacionDto.apellidos,
@@ -46,25 +50,25 @@ export class RegistroInformacionController {
         telefono: createRegistroInformacionDto.telefono,
         password: createRegistroInformacionDto.password,
         idEmpresas: createRegistroInformacionDto.idEmpresas,
-        idSucursal: [],
-        idAreaSucursal: [],
+        idSucursal: createRegistroInformacionDto.idSucursal,
+        idAreaSucursal: createRegistroInformacionDto.idAreaSucursal,
         idTipo: tipoUsuario.id,
         fotoPerfil: ''
       };
-
+  
       const usuario = await this.usuariosService.create(createUsuarioDto);
-
-      if(!usuario){
-        return new GenericResponse('401', 'Error al crear el usuario ', usuario);
+  
+      if (!usuario) {
+        return new GenericResponse('401', 'Error al crear el usuario', usuario);
       }
-
+  
       const result = await this.registroInformacionService.create(createRegistroInformacionDto, usuario);
-
-      if(!result){
-        return new GenericResponse('401', 'Error al registrar la informacion ', result);
+  
+      if (!result) {
+        return new GenericResponse('401', 'Error al registrar la información', result);
       }
-      return new GenericResponse('200', 'EXITO', result);
-
+      return new GenericResponse('200', 'ÉXITO', result);
+  
     } catch (error) {
       throw new HttpException(new GenericResponse('500', 'Error al agregar', error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -104,12 +108,23 @@ export class RegistroInformacionController {
 
       const registroInformacion = await this.registroInformacionService.update(+id, updateRegistroInformacionDto);
 
+      let tipoUsuario;
+  
+      if (updateRegistroInformacionDto.idTipo === undefined || updateRegistroInformacionDto.idTipo === null) {
+        tipoUsuario = await this.usuariosService.getTipoUsuario();
+      } else {
+        tipoUsuario = await this.usuariosService.getTipoUsuarioById(updateRegistroInformacionDto.idTipo);
+      }
+
       let updateUsuarioDto: UpdateUsuarioDto = {
         nombres: updateRegistroInformacionDto.nombres,
         apellidos: updateRegistroInformacionDto.apellidos,
         email: updateRegistroInformacionDto.correo,
         telefono: updateRegistroInformacionDto.telefono,
+        idTipo: tipoUsuario.id,
         idEmpresas: updateRegistroInformacionDto.idEmpresas,
+        idSucursal: updateRegistroInformacionDto.idSucursal,
+        idAreaSucursal: updateRegistroInformacionDto.idAreaSucursal,
         fotoPerfil: '',
       };
 
