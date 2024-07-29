@@ -62,10 +62,11 @@ export class SucursalesInformacionService {
     return sucursales;
   }
 
-  async findAllByEmpresaId(idEmpresa:number) {
-
+  async findAllByEmpresaId(idEmpresa: number) {
+    // Obtén la empresa
     const empresa = await this.empresaRepository.findOneBy({ id: idEmpresa });
   
+    // Obtén las sucursales con la relación cargada
     const sucursales = await this.sucursalesRepository.find({
       where: { idEmpresa: empresa, estado: 1 },
       relations: [
@@ -74,7 +75,16 @@ export class SucursalesInformacionService {
       ],
     });
   
-    return sucursales;
+    // Filtra los resultados para que solo incluya aquellos en estado 1
+    const filteredSucursales = sucursales.map(sucursal => ({
+      ...sucursal,
+      sucursalesAreasInformacions: sucursal.sucursalesAreasInformacions.filter(area => area.estado === 1).map(area => ({
+        ...area,
+        sucursalesAreasGruposInformacions: area.sucursalesAreasGruposInformacions.filter(grupo => grupo.estado === 1),
+      })),
+    }));
+  
+    return filteredSucursales;
   }
 
   async sucursalByEmpresaIdAndGrupo(idEmpresa: number) {
