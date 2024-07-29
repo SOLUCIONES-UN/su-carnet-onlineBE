@@ -80,14 +80,15 @@ export class RegistroInformacionService {
     return await this.RegistroInformacionRepository.findOneBy({ idUsuario: usuario });
   }
 
-  async findAll(PaginationDto: PaginationDto) {
+  async findAll(paginationDto: PaginationDto) {
 
-    const { limit = 10, offset = 0 } = PaginationDto;
+    const { limit = 10, offset = 0 } = paginationDto;
 
     const RegistroInformacion = await this.RegistroInformacionRepository.find({
       skip: offset,
       take: limit,
-      relations: ['idPais', 'idUsuario'],
+      relations: ['idPais', 'idUsuario.idTipo','idUsuario.usuariosRelacionEmpresas', 'idUsuario.usuariosRelacionEmpresas.idEmpresa', 
+        'idUsuario.usuariosRelacionEmpresas.idSucursal', 'idUsuario.usuariosRelacionEmpresas.idAreaSucursal'],
     });
 
     return RegistroInformacion;
