@@ -12,6 +12,8 @@ import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
 import { RegistrarFotoPerfilDto } from './dto/registrarFotoPerfilDto';
 import { use } from 'passport';
+import { SucursalesInformacion } from '../entities/SucursalesInformacion';
+import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
 
 @Injectable()
 export class UsuariosService {
@@ -31,6 +33,12 @@ export class UsuariosService {
     @InjectRepository(UsuariosRelacionEmpresas)
     private UsuariosRelacionEmpresasRepository: Repository<UsuariosRelacionEmpresas>,
 
+    @InjectRepository(SucursalesInformacion)
+    private SucursalesInformacionRepository: Repository<SucursalesInformacion>,
+
+    @InjectRepository(SucursalesAreasInformacion)
+    private SucursalesAreasInformacionRepository: Repository<SucursalesAreasInformacion>,
+
   ) { }
 
 
@@ -43,8 +51,10 @@ export class UsuariosService {
 
     try {
 
-      const { password, idTipo, idEmpresas, ...userInfo } = createUsuarioDto;
+      const { password, idTipo, idEmpresas, idSucursal, idAreaSucursal, ...userInfo } = createUsuarioDto;
       let empresas = [];
+      let sucursales = [];
+      let areasSucursal = [];
 
       // Validar empresas si existen
       if (idEmpresas !== null && idEmpresas !== undefined && idEmpresas.length > 0) {
@@ -52,6 +62,22 @@ export class UsuariosService {
 
         if (empresas.length !== idEmpresas.length) {
           throw new NotFoundException(`Una o más empresas no fueron encontradas`);
+        }
+      }
+
+      if (idSucursal !== null && idSucursal !== undefined && idSucursal.length > 0) {
+        sucursales = await this.SucursalesInformacionRepository.findByIds(idSucursal);
+
+        if (sucursales.length !== idSucursal.length) {
+          throw new NotFoundException(`Una o más sucursales no fueron encontradas`);
+        }
+      }
+
+      if (idAreaSucursal !== null && idAreaSucursal !== undefined && idAreaSucursal.length > 0) {
+        areasSucursal = await this.SucursalesAreasInformacionRepository.findByIds(idAreaSucursal);
+
+        if (areasSucursal.length !== idAreaSucursal.length) {
+          throw new NotFoundException(`Una o más areas de sucursales no fueron encontradas`);
         }
       }
 
@@ -85,11 +111,20 @@ export class UsuariosService {
       // Crear las relaciones entre usuario y empresas si existen
       if (empresas.length > 0) {
         for (const empresa of empresas) {
-          const UsuariosRelacionEmpresas = this.UsuariosRelacionEmpresasRepository.create({
-            idUsuario: usuario,
-            idEmpresa: empresa
-          });
-          await this.UsuariosRelacionEmpresasRepository.save(UsuariosRelacionEmpresas);
+
+          for (const sucursal of sucursales) {
+
+            for (const areaSucursal of areasSucursal) {
+              const UsuariosRelacionEmpresas = this.UsuariosRelacionEmpresasRepository.create({
+                idUsuario: usuario,
+                idEmpresa: empresa,
+                idSucursal: sucursal,
+                idAreaSucursal: areaSucursal
+              });
+
+              await this.UsuariosRelacionEmpresasRepository.save(UsuariosRelacionEmpresas);
+            }
+          }
         }
       }
 
@@ -101,7 +136,7 @@ export class UsuariosService {
   }
 
 
-  async updatePhotoPerfil(user:string, fotoPerfil:string) {
+  async updatePhotoPerfil(user: string, fotoPerfil: string) {
 
     try {
 
@@ -121,7 +156,7 @@ export class UsuariosService {
         throw new NotFoundException(`Usuario con identificador ${user} no encontrado`);
       }
 
-      const newFoto = usuario.id+"/"+ fotoPerfil;
+      const newFoto = usuario.id + "/" + fotoPerfil;
 
       usuario.fotoPerfil = newFoto;
 
@@ -163,7 +198,7 @@ export class UsuariosService {
         fotoPerfil: true,
         estado: true
       },
-      relations: ['idTipo', 'usuariosRelacionEmpresas', 'usuariosRelacionEmpresas.idEmpresa'],
+      relations: ['idTipo', 'usuariosRelacionEmpresas', 'usuariosRelacionEmpresas.idEmpresa', 'usuariosRelacionEmpresas.idSucursal', 'usuariosRelacionEmpresas.idAreaSucursal'],
     });
 
     return users;
@@ -182,7 +217,7 @@ export class UsuariosService {
         estado: true
 
       },
-      relations: ['idTipo', 'usuariosRelacionEmpresas', 'usuariosRelacionEmpresas.idEmpresa'],
+      relations: ['idTipo', 'usuariosRelacionEmpresas', 'usuariosRelacionEmpresas.idEmpresa', 'usuariosRelacionEmpresas.idSucursal', 'usuariosRelacionEmpresas.idAreaSucursal'],
     });
   }
 
@@ -200,32 +235,47 @@ export class UsuariosService {
 
         for (let i = 0; i < updateUsuarioDto.idEmpresas.length; i++) {
 
-          const idempresa = updateUsuarioDto.idEmpresas[i];
-          const empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idempresa });
+          for (let i = 0; i < updateUsuarioDto.idSucursal.length; i++) {
 
-          const relacionesEncontradas = await this.UsuariosRelacionEmpresasRepository.find({
-            where: {
-              idUsuario: usuario,
-              idEmpresa: empresa,
-            },
-          });
+            for (let i = 0; i < updateUsuarioDto.idAreaSucursal.length; i++) {
 
-          let relacionEncontrada: UsuariosRelacionEmpresas | null = null;
+              const idempresa = updateUsuarioDto.idEmpresas[i];
+              const idSucursal = updateUsuarioDto.idSucursal[i];
+              const idAreaSucursal = updateUsuarioDto.idAreaSucursal[i];
 
-          if (relacionesEncontradas.length > 0) {
+              const empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idempresa });
+              const sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: idSucursal });
+              const areaSucursal = await this.SucursalesAreasInformacionRepository.findOneBy({ id: idAreaSucursal});
 
-            relacionEncontrada = relacionesEncontradas[0];
-            relacionEncontrada.estado = 1;
-            await this.UsuariosRelacionEmpresasRepository.save(relacionesEncontradas);
+              const relacionesEncontradas = await this.UsuariosRelacionEmpresasRepository.find({
+                where: {
+                  idUsuario: usuario,
+                  idEmpresa: empresa,
+                  idSucursal: sucursal,
+                  idAreaSucursal: areaSucursal
+                },
+              });
 
-          }
-          else if (relacionesEncontradas.length === 0) {
+              let relacionEncontrada: UsuariosRelacionEmpresas | null = null;
 
-            const relacionUsuarioEmpresa = this.UsuariosRelacionEmpresasRepository.create({
-              idEmpresa: empresa,
-              idUsuario: usuario
-            });
-            await this.UsuariosRelacionEmpresasRepository.save(relacionUsuarioEmpresa);
+              if (relacionesEncontradas.length > 0) {
+
+                relacionEncontrada = relacionesEncontradas[0];
+                relacionEncontrada.estado = 1;
+                await this.UsuariosRelacionEmpresasRepository.save(relacionesEncontradas);
+
+              }
+              else if (relacionesEncontradas.length === 0) {
+
+                const relacionUsuarioEmpresa = this.UsuariosRelacionEmpresasRepository.create({
+                  idEmpresa: empresa,
+                  idUsuario: usuario,
+                  idSucursal: sucursal,
+                  idAreaSucursal: areaSucursal
+                });
+                await this.UsuariosRelacionEmpresasRepository.save(relacionUsuarioEmpresa);
+              }
+            }
           }
 
         }
