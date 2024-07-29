@@ -45,7 +45,19 @@ export class UpdateRegistroInformacionDto{
     @IsNotEmpty({ message: 'El campo idUsuario es requerido' })
     idUsuario: number;
 
+    @IsNumber()
+    @IsOptional()
+    idTipo: number;
+
     @IsOptional()
     @IsNumber({}, { each: true, message: 'Cada elemento en idEmpresas debe ser un número' })
     idEmpresas: number[];
+
+    @IsOptional()
+    @IsNumber({}, { each: true, message: 'Cada elemento en idSucursal debe ser un número' })
+    idSucursal: number[];
+
+    @IsOptional()
+    @IsNumber({}, { each: true, message: 'Cada elemento en idAreaSucursal debe ser un número' })
+    idAreaSucursal: number[];
 }

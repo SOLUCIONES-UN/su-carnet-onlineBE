@@ -55,6 +55,12 @@ export class RegistroInformacionService {
       const RegistroInformacion = this.RegistroInformacionRepository.create({
         ...infoData,
         idPais: TipoPaises,
+        nombres: nombres,
+        apellidos: apellidos,
+        documento: documento,
+        telefono: telefono,
+        correo: correo,
+        fechaNacimiento: fechaNacimiento,
         idUsuario: usuario,
         estado: 'ACT'
       });

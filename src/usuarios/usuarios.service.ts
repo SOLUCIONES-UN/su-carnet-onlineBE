@@ -47,37 +47,43 @@ export class UsuariosService {
     return await this.tipos_usuariosRepository.findOne({ where: { descripcion: 'aplicacion' } });
   }
 
+  async getTipoUsuarioById(idTipo:number){
+    return await this.tipos_usuariosRepository.findOneBy({id:idTipo});
+  }
+
+
   async create(createUsuarioDto: CreateUsuarioDto) {
 
     try {
 
       const { password, idTipo, idEmpresas, idSucursal, idAreaSucursal, ...userInfo } = createUsuarioDto;
-      let empresas = [];
-      let sucursales = [];
-      let areasSucursal = [];
+
+      let empresa;
+      let sucursal;
+      let areaSucursal;
 
       // Validar empresas si existen
-      if (idEmpresas !== null && idEmpresas !== undefined && idEmpresas.length > 0) {
-        empresas = await this.EmpresasInformacionRepository.findByIds(idEmpresas);
-
-        if (empresas.length !== idEmpresas.length) {
-          throw new NotFoundException(`Una o más empresas no fueron encontradas`);
+      if (idEmpresas !== null && idEmpresas !== undefined) {
+        
+        empresa = await this.EmpresasInformacionRepository.findOneBy({id:idEmpresas});
+        if (!empresa) {
+          throw new NotFoundException(`empresa con id ${idEmpresas} no encontrada`);
         }
       }
 
-      if (idSucursal !== null && idSucursal !== undefined && idSucursal.length > 0) {
-        sucursales = await this.SucursalesInformacionRepository.findByIds(idSucursal);
+      if (idSucursal !== null && idSucursal !== undefined) {
+        sucursal = await this.SucursalesInformacionRepository.findOneBy({id:idSucursal});
 
-        if (sucursales.length !== idSucursal.length) {
-          throw new NotFoundException(`Una o más sucursales no fueron encontradas`);
+        if (!sucursal) {
+          throw new NotFoundException(`sucursal con id ${idSucursal} no encontrada`);
         }
       }
 
-      if (idAreaSucursal !== null && idAreaSucursal !== undefined && idAreaSucursal.length > 0) {
-        areasSucursal = await this.SucursalesAreasInformacionRepository.findByIds(idAreaSucursal);
+      if (idAreaSucursal !== null && idAreaSucursal !== undefined) {
+        areaSucursal = await this.SucursalesAreasInformacionRepository.findOneBy({id:idAreaSucursal});
 
-        if (areasSucursal.length !== idAreaSucursal.length) {
-          throw new NotFoundException(`Una o más areas de sucursales no fueron encontradas`);
+        if (!areaSucursal) {
+          throw new NotFoundException(`area de sucursal con id ${idAreaSucursal} no encontrada`);
         }
       }
 
@@ -109,23 +115,15 @@ export class UsuariosService {
       await this.usuariosRepository.save(usuario);
 
       // Crear las relaciones entre usuario y empresas si existen
-      if (empresas.length > 0) {
-        for (const empresa of empresas) {
+      if (empresa) {
+        const UsuariosRelacionEmpresas = this.UsuariosRelacionEmpresasRepository.create({
+          idUsuario: usuario,
+          idEmpresa: empresa,
+          idSucursal: sucursal,
+          idAreaSucursal: areaSucursal
+        });
 
-          for (const sucursal of sucursales) {
-
-            for (const areaSucursal of areasSucursal) {
-              const UsuariosRelacionEmpresas = this.UsuariosRelacionEmpresasRepository.create({
-                idUsuario: usuario,
-                idEmpresa: empresa,
-                idSucursal: sucursal,
-                idAreaSucursal: areaSucursal
-              });
-
-              await this.UsuariosRelacionEmpresasRepository.save(UsuariosRelacionEmpresas);
-            }
-          }
-        }
+        await this.UsuariosRelacionEmpresasRepository.save(UsuariosRelacionEmpresas);
       }
 
       return usuario;
@@ -134,6 +132,94 @@ export class UsuariosService {
       this.handleDBException(error);
     }
   }
+
+  // async create(createUsuarioDto: CreateUsuarioDto) {
+
+  //   try {
+
+  //     const { password, idTipo, idEmpresas, idSucursal, idAreaSucursal, ...userInfo } = createUsuarioDto;
+  //     let empresas = [];
+  //     let sucursales = [];
+  //     let areasSucursal = [];
+
+  //     // Validar empresas si existen
+  //     if (idEmpresas !== null && idEmpresas !== undefined && idEmpresas.length > 0) {
+  //       empresas = await this.EmpresasInformacionRepository.findByIds(idEmpresas);
+
+  //       if (empresas.length !== idEmpresas.length) {
+  //         throw new NotFoundException(`Una o más empresas no fueron encontradas`);
+  //       }
+  //     }
+
+  //     if (idSucursal !== null && idSucursal !== undefined && idSucursal.length > 0) {
+  //       sucursales = await this.SucursalesInformacionRepository.findByIds(idSucursal);
+
+  //       if (sucursales.length !== idSucursal.length) {
+  //         throw new NotFoundException(`Una o más sucursales no fueron encontradas`);
+  //       }
+  //     }
+
+  //     if (idAreaSucursal !== null && idAreaSucursal !== undefined && idAreaSucursal.length > 0) {
+  //       areasSucursal = await this.SucursalesAreasInformacionRepository.findByIds(idAreaSucursal);
+
+  //       if (areasSucursal.length !== idAreaSucursal.length) {
+  //         throw new NotFoundException(`Una o más areas de sucursales no fueron encontradas`);
+  //       }
+  //     }
+
+  //     // Buscar la relación TipoUsuario 
+  //     const tipoUsuario = await this.tipos_usuariosRepository.findOne({ where: { id: idTipo } });
+
+  //     if (!tipoUsuario) {
+  //       throw new NotFoundException(`TipoUsuario con ID ${idTipo} no encontrado`);
+  //     }
+
+  //     // Generar la passwordSalt
+  //     const passwordSalt = bcrypt.genSaltSync(10);
+
+  //     // Hashear la contraseña con passwordSalt generada
+  //     const passwordHash = bcrypt.hashSync(password, passwordSalt);
+
+  //     // Convertir hash y sal a Buffer
+  //     const passwordHashBuffer = Buffer.from(passwordHash, 'utf-8');
+  //     const saltBuffer = Buffer.from(passwordSalt, 'utf-8');
+
+  //     // Crear el usuario
+  //     const usuario = this.usuariosRepository.create({
+  //       ...userInfo,
+  //       passwordhash: passwordHashBuffer,
+  //       passwordsalt: saltBuffer,
+  //       idTipo: tipoUsuario,
+  //     });
+
+  //     await this.usuariosRepository.save(usuario);
+
+  //     // Crear las relaciones entre usuario y empresas si existen
+  //     if (empresas.length > 0) {
+  //       for (const empresa of empresas) {
+
+  //         for (const sucursal of sucursales) {
+
+  //           for (const areaSucursal of areasSucursal) {
+  //             const UsuariosRelacionEmpresas = this.UsuariosRelacionEmpresasRepository.create({
+  //               idUsuario: usuario,
+  //               idEmpresa: empresa,
+  //               idSucursal: sucursal,
+  //               idAreaSucursal: areaSucursal
+  //             });
+
+  //             await this.UsuariosRelacionEmpresasRepository.save(UsuariosRelacionEmpresas);
+  //           }
+  //         }
+  //       }
+  //     }
+
+  //     return usuario;
+
+  //   } catch (error) {
+  //     this.handleDBException(error);
+  //   }
+  // }
 
 
   async updatePhotoPerfil(user: string, fotoPerfil: string) {
