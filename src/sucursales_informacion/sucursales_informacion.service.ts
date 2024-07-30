@@ -63,10 +63,9 @@ export class SucursalesInformacionService {
   }
 
   async findAllByEmpresaId(idEmpresa: number) {
-    // Obtén la empresa
+
     const empresa = await this.empresaRepository.findOneBy({ id: idEmpresa });
   
-    // Obtén las sucursales con la relación cargada
     const sucursales = await this.sucursalesRepository.find({
       where: { idEmpresa: empresa, estado: 1 },
       relations: [
@@ -75,7 +74,6 @@ export class SucursalesInformacionService {
       ],
     });
   
-    // Filtra los resultados para que solo incluya aquellos en estado 1
     const filteredSucursales = sucursales.map(sucursal => ({
       ...sucursal,
       sucursalesAreasInformacions: sucursal.sucursalesAreasInformacions.filter(area => area.estado === 1).map(area => ({
