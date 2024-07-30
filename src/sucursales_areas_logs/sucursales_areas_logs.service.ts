@@ -77,75 +77,65 @@ export class SucursalesAreasLogsService {
     }
   }
 
-  async verificarCita(idLogCita: number, idUsuario:number){
-
+  async verificarCita(idLogCita: number, idUsuario: number) {
     try {
-
-      const logCita = await this.SucursalesAreasLogsRepository.findOneBy({id: idLogCita});
-
+      const logCita = await this.SucursalesAreasLogsRepository.findOneBy({ id: idLogCita });
+  
       if (!logCita) return new GenericResponse('400', `El logCita con Id ${idLogCita} no encontrado`, null);
-
-      const usuario = await this.UsuariosRepository.findOneBy({id: idUsuario});
-
+  
+      const usuario = await this.UsuariosRepository.findOneBy({ id: idUsuario });
+  
       const RegistroInformacion = await this.RegistroInformacionRepository.findOneBy({ idUsuario: usuario });
-
+  
       const cita = await this.SucursalesAreasPermisosRepository.findOne({
-        where: {idRegistro: RegistroInformacion, sucursalesAreasLogs: logCita},
+        where: { idRegistro: RegistroInformacion, sucursalesAreasLogs: logCita },
         relations: ['idAreaGrupo.idSucursalArea.idSucursal.idEmpresa', 'idRegistro'],
       });
-
-      if(!cita) return new GenericResponse('400', `La cita con log ${logCita.idSucursalAreaPermiso} no encontrada`, null);
-
-      const areaGrupo = await this.SucursalesAreasGruposInformacionRepository.findOneBy(cita.idAreaGrupo);
-
-      if(!areaGrupo) return new GenericResponse('400', `areaGrupo ${cita.idAreaGrupo} no encontrado`, null);
-
-      const sucursales_areas_informacion = await this.SucursalesAreasInformacionRepository.findOneBy(areaGrupo.idSucursalArea);
-
-      if(!sucursales_areas_informacion) return new GenericResponse('400', `sucursales_areas_informacion ${areaGrupo.idSucursalArea} no encontrado`, null);
-
-    const [hours, minutes, seconds] = cita.horaInicio.split(':').map(Number);
   
-    const now = new Date();
-    const citaFecha = new Date(cita.fecha); 
-
-    // Validar si la fecha de la cita es hoy, en el futuro o en el pasado
-    if (now.toDateString() === citaFecha.toDateString()) {
-
-      console.log("fecha")
-      console.log(now.toDateString());
-
-      const fechaHoraCita = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        hours,
-        minutes,
-        seconds || 0
-      );
-
-      if (now > fechaHoraCita) {
-
-        // console.log(now)
-        // console.log(fechaHoraCita);
-        console.log('dassdasdasdasdas');
-
-
-        return new GenericResponse('200', `La cita es hoy pero ya ha pasado el horario`, cita);
-      } else {
-        return new GenericResponse('200', `La cita es hoy y aún está vigente`, cita);
-      }
-    } else if (now < citaFecha) {
-      // La cita es en el futuro
-      return new GenericResponse('200', `La cita es para la fecha ${cita.fecha}`, cita);
-    } else {
-      return new GenericResponse('200', `La cita ya ha pasado estaba para la fecha ${cita.fecha}`, cita);
-    }
-
-    } catch (error) {
-      return new GenericResponse('500', `Error interno al verificar cita `, error);
-    }
+      if (!cita) return new GenericResponse('400', `La cita con log ${logCita.idSucursalAreaPermiso} no encontrada`, null);
+  
+      const areaGrupo = await this.SucursalesAreasGruposInformacionRepository.findOneBy(cita.idAreaGrupo);
+  
+      if (!areaGrupo) return new GenericResponse('400', `areaGrupo ${cita.idAreaGrupo} no encontrado`, null);
+  
+      const sucursales_areas_informacion = await this.SucursalesAreasInformacionRepository.findOneBy(areaGrupo.idSucursalArea);
+  
+      if (!sucursales_areas_informacion) return new GenericResponse('400', `sucursales_areas_informacion ${areaGrupo.idSucursalArea} no encontrado`, null);
+  
+      const [hours, minutes, seconds] = cita.horaInicio.split(':').map(Number);
     
+      const now = new Date();
+      const citaFecha = new Date(cita.fecha);
+  
+      const today = new Date(now.toISOString().slice(0, 10));
+      const citaOnlyDate = new Date(citaFecha.toISOString().slice(0, 10));
+  
+      if (today.getTime() === citaOnlyDate.getTime()) {
+  
+        const fechaHoraCita = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          hours,
+          minutes,
+          seconds || 0
+        );
+  
+        if (now > fechaHoraCita) {
+          return new GenericResponse('200', `La cita es hoy pero ya ha pasado el horario`, cita);
+        } else {
+          return new GenericResponse('200', `La cita es hoy y aún está vigente`, cita);
+        }
+      } else if (today.getTime() < citaOnlyDate.getTime()) {
+        // La cita es en el futuro
+        return new GenericResponse('200', `La cita es para la fecha ${cita.fecha}`, cita);
+      } else {
+        // La cita ya ha pasado
+        return new GenericResponse('200', `La cita ya ha pasado, estaba para la fecha ${cita.fecha}`, cita);
+      }
+    } catch (error) {
+      return new GenericResponse('500', `Error interno al verificar cita`, error);
+    }
   }
 
   async obtenerToken(idUsuario:number){
