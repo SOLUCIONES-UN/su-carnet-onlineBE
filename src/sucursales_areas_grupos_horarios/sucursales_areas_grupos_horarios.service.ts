@@ -197,6 +197,22 @@ export class SucursalesAreasGruposHorariosService {
     return sucursalesAreasGruposHorarios;
   }
 
+  async findAllByGrupo(PaginationDto: PaginationDto, idGrupo) {
+
+    const grupo = await this.SucursalesAreasGruposInformacionRepository.findOneBy({id: idGrupo});
+
+    const { limit = 10, offset = 0 } = PaginationDto;
+
+    const sucursalesAreasGruposHorarios = await this.SucursalesAreasGruposHorariosRepository.find({
+      where:{idAreaGrupo:grupo},
+      skip: offset,
+      take: limit,
+      relations: ['idAreaGrupo.idSucursalArea'],
+    });
+
+    return sucursalesAreasGruposHorarios;
+  }
+
   async update(id: number, updateSucursalesAreasGruposHorarioDto: UpdateSucursalesAreasGruposHorarioDto) {
 
     try {

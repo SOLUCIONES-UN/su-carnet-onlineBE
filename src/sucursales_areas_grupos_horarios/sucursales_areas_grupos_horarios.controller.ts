@@ -36,6 +36,19 @@ export class SucursalesAreasGruposHorariosController {
     }
   }
 
+  @Get('findAllByGrupo/:idGrupo')
+  async findAllByGrupo(@Query() paginationDto: PaginationDto, @Param('idGrupo') idGrupo:number) {
+
+    try {
+
+      const result = await this.sucursalesAreasGruposHorariosService.findAllByGrupo(paginationDto, idGrupo);
+      return new GenericResponse('200', 'EXITO', result);
+
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
 
   @Post('HorariosCitas')
   async getHorariosByGrupo(@Body() horarioFechas: horarioFechasDto) {
