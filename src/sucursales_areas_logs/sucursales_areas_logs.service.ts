@@ -104,15 +104,17 @@ export class SucursalesAreasLogsService {
 
       if(!sucursales_areas_informacion) return new GenericResponse('400', `sucursales_areas_informacion ${areaGrupo.idSucursalArea} no encontrado`, null);
 
-      // Asumiendo que `cita.horaInicio` es un string en formato "HH:mm:ss" (o similar)
     const [hours, minutes, seconds] = cita.horaInicio.split(':').map(Number);
   
     const now = new Date();
-    const citaFecha = new Date(cita.fecha); // Suponiendo que `cita.fecha` es de tipo Date
+    const citaFecha = new Date(cita.fecha); 
 
     // Validar si la fecha de la cita es hoy, en el futuro o en el pasado
     if (now.toDateString() === citaFecha.toDateString()) {
-      // La cita es hoy
+
+      console.log("fecha")
+      console.log(now.toDateString());
+
       const fechaHoraCita = new Date(
         now.getFullYear(),
         now.getMonth(),
@@ -123,6 +125,12 @@ export class SucursalesAreasLogsService {
       );
 
       if (now > fechaHoraCita) {
+
+        // console.log(now)
+        // console.log(fechaHoraCita);
+        console.log('dassdasdasdasdas');
+
+
         return new GenericResponse('200', `La cita es hoy pero ya ha pasado el horario`, cita);
       } else {
         return new GenericResponse('200', `La cita es hoy y aún está vigente`, cita);
@@ -131,7 +139,6 @@ export class SucursalesAreasLogsService {
       // La cita es en el futuro
       return new GenericResponse('200', `La cita es para la fecha ${cita.fecha}`, cita);
     } else {
-      // La cita ya ha pasado
       return new GenericResponse('200', `La cita ya ha pasado estaba para la fecha ${cita.fecha}`, cita);
     }
 
