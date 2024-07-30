@@ -87,6 +87,19 @@ export class RegistroInformacionController {
     }
   }
 
+  @Get('findAllByEmpresa/:idEmpresa')
+  async findAllByEmpresa(@Query() paginationDto: PaginationDto, @Param('idEmpresa') idEmpresa:number) {
+
+    try {
+
+      const result = await this.registroInformacionService.findAllByEmpresa(paginationDto, idEmpresa);
+      return new GenericResponse('200', 'EXITO', result);
+
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @Get('findAllByUsuario/:idUsuario')
   async findAllByUsuario(@Param('idUsuario') idUsuario: number) {
 

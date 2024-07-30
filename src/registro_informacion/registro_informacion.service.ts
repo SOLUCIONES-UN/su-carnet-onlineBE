@@ -9,6 +9,7 @@ import { PaginationDto } from '../common/dtos/pagination.dto';
 import * as bcrypt from 'bcrypt';
 import { Usuarios } from '../entities/Usuarios';
 import * as crypto from 'crypto';
+import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 
 @Injectable()
 export class RegistroInformacionService {
@@ -24,6 +25,8 @@ export class RegistroInformacionService {
 
     @InjectRepository(Usuarios)
     private UsuariosRepository: Repository<Usuarios>,
+    @InjectRepository(EmpresasInformacion)
+    private EmpresasInformacionRepository: Repository<EmpresasInformacion>,
 
   ) { }
 
@@ -80,6 +83,7 @@ export class RegistroInformacionService {
     return await this.RegistroInformacionRepository.findOneBy({ idUsuario: usuario });
   }
 
+  
   async findAll(paginationDto: PaginationDto) {
 
     const { limit = 10, offset = 0 } = paginationDto;
@@ -92,6 +96,34 @@ export class RegistroInformacionService {
     });
 
     return RegistroInformacion;
+  }
+
+  async findAllByEmpresa(paginationDto: PaginationDto, idEmpresa: number) {
+    const { limit = 10, offset = 0 } = paginationDto;
+  
+    // Verificar que la empresa exista
+    const empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idEmpresa });
+    if (!empresa) {
+      throw new Error('Empresa no encontrada');
+    }
+  
+    // Obtener registros de información que están relacionados con usuarios pertenecientes a la empresa específica
+    const registroInformacion = await this.RegistroInformacionRepository.createQueryBuilder('registro')
+      .leftJoinAndSelect('registro.idUsuario', 'usuario')
+      .leftJoinAndSelect('usuario.idTipo', 'tipo')
+      .leftJoinAndSelect('usuario.usuariosRelacionEmpresas', 'relacion')
+      .leftJoinAndSelect('relacion.idEmpresa', 'empresa')
+      .leftJoinAndSelect('relacion.idSucursal', 'sucursal')
+      .leftJoinAndSelect('relacion.idAreaSucursal', 'areaSucursal')
+      .leftJoinAndSelect('registro.idPais', 'pais')
+      .where('relacion.idEmpresa = :idEmpresa', { idEmpresa })
+      .andWhere('relacion.estado = :estado', { estado: 1 })
+      .andWhere('empresa.estado = :empresaEstado', { empresaEstado: 1 })
+      .skip(offset)
+      .take(limit)
+      .getMany();
+  
+    return registroInformacion;
   }
 
   async update(id: number, updateRegistroInformacionDto: UpdateRegistroInformacionDto) {
