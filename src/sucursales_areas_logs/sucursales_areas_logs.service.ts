@@ -102,7 +102,7 @@ export class SucursalesAreasLogsService {
   
       if (!sucursales_areas_informacion) return new GenericResponse('400', `sucursales_areas_informacion ${areaGrupo.idSucursalArea} no encontrado`, null);
   
-      const [hours, minutes, seconds] = cita.horaInicio.split(':').map(Number);
+      const [hours, minutes, seconds] = cita.horaFinal.split(':').map(Number);
     
       const now = new Date();
       const citaFecha = new Date(cita.fecha);
