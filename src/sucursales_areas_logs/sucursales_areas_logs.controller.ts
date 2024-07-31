@@ -5,11 +5,12 @@ import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { UpdateSucursalesAreasLogDto } from './dto/update-sucursales_areas_log.dto';
 import { NotificacionesService } from '../notificaciones/notificaciones.service';
 import { CreateNotificacioneDto } from '../notificaciones/dto/create-notificacione.dto';
+import { SucursalesAreasPermisosService } from '../sucursales_areas_permisos/sucursales_areas_permisos.service';
 
 @Controller('sucursales-areas-logs')
 export class SucursalesAreasLogsController {
   constructor(private readonly sucursalesAreasLogsService: SucursalesAreasLogsService,
-    private readonly notificacionesService: NotificacionesService
+    private readonly notificacionesService: NotificacionesService,
   ) {}
 
   @Post('iniciarVisita')
@@ -28,7 +29,14 @@ export class SucursalesAreasLogsController {
 
   @Patch(':id')
   async update(@Param('id') id: number, @Body() updateSucursalesAreasLogDto: UpdateSucursalesAreasLogDto) {
+
     try {
+
+      const consulta = this.sucursalesAreasLogsService.consultarLog(id);
+
+      if((await consulta).estado == 'RECH' || (await consulta).estado == 'APL') 
+      return new GenericResponse('401', 'QR vencido ya fue utilizado anteriormente ', consulta);
+
       const result = await this.sucursalesAreasLogsService.update(+id, updateSucursalesAreasLogDto);
   
       const tokenObtenido = await this.sucursalesAreasLogsService.obtenerToken(updateSucursalesAreasLogDto.idUsuario);
@@ -62,6 +70,7 @@ export class SucursalesAreasLogsController {
             }
           }
         };
+        
         await this.notificacionesService.sendNotification(createNotificacioneDto);
       }
   

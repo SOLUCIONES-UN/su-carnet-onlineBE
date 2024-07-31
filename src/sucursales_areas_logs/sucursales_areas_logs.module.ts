@@ -12,6 +12,7 @@ import { NotificacionesService } from '../notificaciones/notificaciones.service'
 import { Usuarios } from '../entities/Usuarios';
 import { RegistroInformacion } from '../entities/RegistroInformacion';
 import { Dispositivos } from '../entities/Dispositivos';
+import { SucursalesAreasPermisosService } from '../sucursales_areas_permisos/sucursales_areas_permisos.service';
 
 @Module({
   imports:[
