@@ -42,36 +42,44 @@ export class SucursalesAreasLogsController {
       const tokenObtenido = await this.sucursalesAreasLogsService.obtenerToken(updateSucursalesAreasLogDto.idUsuario);
   
       if (result.estado === "APL") {
-        const createNotificacioneDto: CreateNotificacioneDto = {
-          token: tokenObtenido.tokendispositivo,
-          payload: {
-            notification: {
-              title: 'Confirmacion de Cita',
-              body: 'Acceso confirmado puede continuar ' 
-            },
-            data: {
-              customDataKey: 'customDataValue'
+
+        tokenObtenido.forEach(async element => {
+          const createNotificacioneDto: CreateNotificacioneDto = {
+            token: element.tokendispositivo,
+            payload: {
+              notification: {
+                title: 'Confirmacion de Cita',
+                body: 'Acceso confirmado puede continuar' 
+              },
+              data: {
+                customDataKey: 'customDataValue'
+              }
             }
-          }
-        };
-  
-        await this.notificacionesService.sendNotification(createNotificacioneDto);
+          };
+    
+          await this.notificacionesService.sendNotification(createNotificacioneDto);
+        });
 
       } else if (result.estado === "RECH") {
-        const createNotificacioneDto: CreateNotificacioneDto = {
-          token: tokenObtenido.tokendispositivo,
-          payload: {
-            notification: {
-              title: 'Confirmacion de Cita',
-              body: 'Acceso denegado cita rechazada ' 
-            },
-            data: {
-              customDataKey: 'customDataValue'
+        tokenObtenido.forEach(async element => {
+
+          console.log(element.tokendispositivo);
+
+          const createNotificacioneDto: CreateNotificacioneDto = {
+            token: element.tokendispositivo,
+            payload: {
+              notification: {
+                title: 'Confirmacion de Cita',
+                body: 'Acceso denegado cita rechazada ' 
+              },
+              data: {
+                customDataKey: 'customDataValue'
+              }
             }
-          }
-        };
-        
-        await this.notificacionesService.sendNotification(createNotificacioneDto);
+          };
+          
+          await this.notificacionesService.sendNotification(createNotificacioneDto);
+        });
       }
   
       return new GenericResponse('200', 'EXITO', result);
