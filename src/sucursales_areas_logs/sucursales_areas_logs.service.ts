@@ -153,7 +153,9 @@ export class SucursalesAreasLogsService {
       throw new NotFoundException(`usuario con IdRegistro ${idUsuario} no encontrado`);
     }
 
-    return await this.DispositivosRepository.findOneBy({idusuario:usuario});
+    return await this.DispositivosRepository.find({
+      where: {idusuario: usuario}
+    });
   }
 
 

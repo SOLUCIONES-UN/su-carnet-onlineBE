@@ -27,38 +27,28 @@ export class DispositivosService {
     try {
 
       const usuario = await this.UsuariosRepository.findOneBy({ id: createDispositivoDto.idusuario });
-  
+
       if (!usuario) {
         return new GenericResponse('400', `El usuario con Id ${createDispositivoDto.idusuario} no encontrado`, null);
       }
-  
-      let existDispositivo = await this.DispositivosRepository.findOneBy({ idusuario: usuario });
-  
-      if (existDispositivo) {
 
-        existDispositivo.tokendispositivo = createDispositivoDto.tokendispositivo;
-        await this.DispositivosRepository.save(existDispositivo);
-        return new GenericResponse('200', `Dispositivo actualizado con éxito`, existDispositivo);
-        
-      } else {
-        const dispositivos = this.DispositivosRepository.create({
-          idusuario: usuario,
-          tokendispositivo: createDispositivoDto.tokendispositivo
-        });
-        await this.DispositivosRepository.save(dispositivos);
-        return new GenericResponse('200', `Dispositivo creado con éxito`, dispositivos);
-      }
+      const dispositivos = this.DispositivosRepository.create({
+        idusuario: usuario,
+        tokendispositivo: createDispositivoDto.tokendispositivo
+      });
+      await this.DispositivosRepository.save(dispositivos);
+      return new GenericResponse('200', `Dispositivo creado con éxito`, dispositivos);
     } catch (error) {
       return new GenericResponse('500', `Error al guardar`, error);
     }
   }
 
   async remove(idusuario: number) {
-    
+
     try {
 
-      const usuario = await this.UsuariosRepository.findOneBy({id: idusuario});
-      const dispositivo = await this.DispositivosRepository.findOneBy({idusuario:usuario});
+      const usuario = await this.UsuariosRepository.findOneBy({ id: idusuario });
+      const dispositivo = await this.DispositivosRepository.findOneBy({ idusuario: usuario });
 
       await this.DispositivosRepository.remove(dispositivo);
 
