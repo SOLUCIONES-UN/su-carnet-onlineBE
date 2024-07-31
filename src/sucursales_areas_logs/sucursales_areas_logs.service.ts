@@ -78,7 +78,14 @@ export class SucursalesAreasLogsService {
   }
 
   async verificarCita(idLogCita: number, idUsuario: number) {
+
     try {
+
+      const consulta = this.SucursalesAreasLogsRepository.findOneBy({id: idLogCita});
+
+      if((await consulta).estado == 'RECH' || (await consulta).estado == 'APL') 
+      return new GenericResponse('401', 'QR vencido ya fue utilizado anteriormente ', consulta);
+
       const logCita = await this.SucursalesAreasLogsRepository.findOneBy({ id: idLogCita });
   
       if (!logCita) return new GenericResponse('400', `El logCita con Id ${idLogCita} no encontrado`, null);
