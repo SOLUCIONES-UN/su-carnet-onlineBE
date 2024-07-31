@@ -337,8 +337,8 @@ export class UsuariosService {
                 where: {
                   idUsuario: usuario,
                   idEmpresa: empresa,
-                  idSucursal: sucursal,
-                  idAreaSucursal: areaSucursal
+                  // idSucursal: sucursal,
+                  // idAreaSucursal: areaSucursal
                 },
               });
 
