@@ -348,6 +348,8 @@ export class UsuariosService {
 
                 relacionEncontrada = relacionesEncontradas[0];
                 relacionEncontrada.estado = 1;
+                relacionEncontrada.idSucursal.id = idSucursal,
+                relacionEncontrada.idAreaSucursal.id = idAreaSucursal
                 await this.UsuariosRelacionEmpresasRepository.save(relacionesEncontradas);
 
               }
