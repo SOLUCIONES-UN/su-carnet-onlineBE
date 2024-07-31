@@ -149,6 +149,11 @@ export class SucursalesAreasLogsService {
     return await this.DispositivosRepository.findOneBy({idusuario:usuario});
   }
 
+
+  async consultarLog(id:number){
+    return await this.SucursalesAreasLogsRepository.findOneBy({ id });
+  }
+
   async update(id: number, updateSucursalesAreasLogDto: UpdateSucursalesAreasLogDto){
 
     try {
@@ -163,6 +168,14 @@ export class SucursalesAreasLogsService {
   
       // Guardar los cambios
       await this.SucursalesAreasLogsRepository.save(logVisitas);
+
+      const cita = await this.SucursalesAreasPermisosRepository.findOneBy({id: updateSucursalesAreasLogDto.idSucursalAreaPermiso});
+
+      if(logVisitas.estado == 'APL'){
+
+        cita.estado == 'APL'
+        await this.SucursalesAreasPermisosRepository.save(cita);
+      }
   
       return logVisitas;
 
