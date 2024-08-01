@@ -348,8 +348,10 @@ export class UsuariosService {
 
                 relacionEncontrada = relacionesEncontradas[0];
                 relacionEncontrada.estado = 1;
-                relacionEncontrada.idSucursal = sucursal,
-                relacionEncontrada.idAreaSucursal = areaSucursal
+                relacionEncontrada.idEmpresa = empresa;
+                relacionEncontrada.idSucursal = sucursal;
+                relacionEncontrada.idAreaSucursal = areaSucursal;
+                
                 await this.UsuariosRelacionEmpresasRepository.save(relacionesEncontradas);
 
               }
