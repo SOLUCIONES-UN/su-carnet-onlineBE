@@ -150,16 +150,7 @@ export class RegistroInformacionController {
   }
 
   @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number) {
-
-    try {
-
-      const result = await this.registroInformacionService.remove(+id);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al eliminar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
+  remove(@Param('id') id: string) {
+    return this.registroInformacionService.remove(+id);
   }
 }

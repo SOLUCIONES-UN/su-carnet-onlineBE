@@ -6,11 +6,10 @@ import { TipoPaises } from '../entities/TipoPaises';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PaginationDto } from '../common/dtos/pagination.dto';
-import * as bcrypt from 'bcrypt';
 import { Usuarios } from '../entities/Usuarios';
-import * as crypto from 'crypto';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
+import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
 @Injectable()
 export class RegistroInformacionService {
@@ -208,16 +207,16 @@ export class RegistroInformacionService {
 
     try {
 
-      const RegistroInformacion = await this.RegistroInformacionRepository.findOneBy({ id });
+      const RegistroInformacion = await this.RegistroInformacionRepository.findOneBy({id:id });
 
       if (!RegistroInformacion) {
-        throw new NotFoundException(`RegistroInformacion con ID ${id} not encontrado`);
+        return new GenericResponse('401', `RegistroInformacion con ID ${id} not encontrado`, RegistroInformacion);
       }
 
-      const usuario = await this.UsuariosRepository.findOneBy({id: RegistroInformacion.idUsuario.id});
+      const usuario = await this.UsuariosRepository.findOneBy({registroInformacions: RegistroInformacion});
 
       if (!usuario) {
-        throw new NotFoundException(`Usuario con ID ${id} not encontrado`);
+        return new GenericResponse('401', `El usuario con ID ${id} not encontrado`, usuario);
       }
 
       usuario.estado = 0;
@@ -226,7 +225,7 @@ export class RegistroInformacionService {
       const usuarioRelacionEmpresa = await this.UsuariosRelacionEmpresasRepository.findOneBy({idUsuario: usuario});
 
       if (!usuarioRelacionEmpresa) {
-        throw new NotFoundException(`usuarioRelacionEmpresa con ID ${id} not encontrado`);
+        return new GenericResponse('401', `UsuarioRelacion con ID ${id} not encontrado`, usuarioRelacionEmpresa);
       }
 
       usuarioRelacionEmpresa.estado = 0;
@@ -234,7 +233,9 @@ export class RegistroInformacionService {
       await this.UsuariosRelacionEmpresasRepository.save(usuarioRelacionEmpresa);
       
       RegistroInformacion.estado = 'INA';
-      return await this.RegistroInformacionRepository.save(RegistroInformacion);
+      await this.RegistroInformacionRepository.save(RegistroInformacion);
+
+      return new GenericResponse('200', `EXITO`, RegistroInformacion);
 
     } catch (error) {
       this.handleDBException(error);
