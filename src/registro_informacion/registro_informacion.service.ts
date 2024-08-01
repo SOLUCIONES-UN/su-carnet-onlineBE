@@ -10,6 +10,7 @@ import * as bcrypt from 'bcrypt';
 import { Usuarios } from '../entities/Usuarios';
 import * as crypto from 'crypto';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
+import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
 
 @Injectable()
 export class RegistroInformacionService {
@@ -25,8 +26,12 @@ export class RegistroInformacionService {
 
     @InjectRepository(Usuarios)
     private UsuariosRepository: Repository<Usuarios>,
+
     @InjectRepository(EmpresasInformacion)
     private EmpresasInformacionRepository: Repository<EmpresasInformacion>,
+
+    @InjectRepository(UsuariosRelacionEmpresas)
+    private UsuariosRelacionEmpresasRepository: Repository<UsuariosRelacionEmpresas>,
 
   ) { }
 
@@ -149,6 +154,7 @@ export class RegistroInformacionService {
       .andWhere('empresa.estado = :empresaEstado', { empresaEstado: 1 })
       .andWhere('relacion.idSucursal IS NOT NULL')
       .andWhere('relacion.idAreaSucursal IS NOT NULL')
+      .andWhere('registro.estado = :registroEstado', { registroEstado: 'ACT' }) // Filtrar por estado 'ACT'
       .orderBy('usuario.id') // Puedes ordenar los resultados como prefieras
       .skip(offset)
       .take(limit)
@@ -156,6 +162,7 @@ export class RegistroInformacionService {
   
     return registroInformacion;
   }
+
 
   async update(id: number, updateRegistroInformacionDto: UpdateRegistroInformacionDto) {
 
@@ -207,6 +214,25 @@ export class RegistroInformacionService {
         throw new NotFoundException(`RegistroInformacion con ID ${id} not encontrado`);
       }
 
+      const usuario = await this.UsuariosRepository.findOneBy({id: RegistroInformacion.idUsuario.id});
+
+      if (!usuario) {
+        throw new NotFoundException(`Usuario con ID ${id} not encontrado`);
+      }
+
+      usuario.estado = 0;
+      await this.UsuariosRepository.save(usuario);
+
+      const usuarioRelacionEmpresa = await this.UsuariosRelacionEmpresasRepository.findOneBy({idUsuario: usuario});
+
+      if (!usuarioRelacionEmpresa) {
+        throw new NotFoundException(`usuarioRelacionEmpresa con ID ${id} not encontrado`);
+      }
+
+      usuarioRelacionEmpresa.estado = 0;
+
+      await this.UsuariosRelacionEmpresasRepository.save(usuarioRelacionEmpresa);
+      
       RegistroInformacion.estado = 'INA';
       return await this.RegistroInformacionRepository.save(RegistroInformacion);
 
