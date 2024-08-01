@@ -7,6 +7,7 @@ import { PaginationDto } from '../common/dtos/pagination.dto';
 import { UsuariosService } from '../usuarios/usuarios.service';
 import { CreateUsuarioDto } from '../usuarios/dto/create-usuario.dto';
 import { UpdateUsuarioDto } from '../usuarios/dto/update-usuario.dto';
+import { updateUsuarioEmpresaDto } from '../usuarios/dto/update-usuario-empresa.dto';
 
 @Controller('registro-informacion')
 export class RegistroInformacionController {
@@ -129,7 +130,7 @@ export class RegistroInformacionController {
         tipoUsuario = await this.usuariosService.getTipoUsuarioById(updateRegistroInformacionDto.idTipo);
       }
 
-      let updateUsuarioDto: UpdateUsuarioDto = {
+      let updateUsuarioDto: updateUsuarioEmpresaDto = {
         nombres: updateRegistroInformacionDto.nombres,
         apellidos: updateRegistroInformacionDto.apellidos,
         email: updateRegistroInformacionDto.correo,
@@ -141,13 +142,7 @@ export class RegistroInformacionController {
         fotoPerfil: '',
       };
 
-      const usuario = await this.usuariosService.update(updateRegistroInformacionDto.idUsuario, updateUsuarioDto);
-
-      if(!usuario){
-        return new GenericResponse('401', 'Error al editar el usuario ', usuario);
-      }
-
-      return new GenericResponse('200', 'EXITO', registroInformacion);
+      return await this.usuariosService.updateUserEmpresa(updateRegistroInformacionDto.idUsuario, updateUsuarioDto);
 
     } catch (error) {
       throw new HttpException(new GenericResponse('500', 'Error al editar', error), HttpStatus.INTERNAL_SERVER_ERROR);
