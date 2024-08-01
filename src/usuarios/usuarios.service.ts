@@ -10,10 +10,10 @@ import { TipoUsuario } from '../entities/TipoUsuario';
 import { changePasswordDto } from './dto/changePasswordDto';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
-import { RegistrarFotoPerfilDto } from './dto/registrarFotoPerfilDto';
-import { use } from 'passport';
 import { SucursalesInformacion } from '../entities/SucursalesInformacion';
 import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
+import { updateUsuarioEmpresaDto } from './dto/update-usuario-empresa.dto';
+import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
 @Injectable()
 export class UsuariosService {
@@ -47,8 +47,8 @@ export class UsuariosService {
     return await this.tipos_usuariosRepository.findOne({ where: { descripcion: 'aplicacion' } });
   }
 
-  async getTipoUsuarioById(idTipo:number){
-    return await this.tipos_usuariosRepository.findOneBy({id:idTipo});
+  async getTipoUsuarioById(idTipo: number) {
+    return await this.tipos_usuariosRepository.findOneBy({ id: idTipo });
   }
 
 
@@ -64,15 +64,15 @@ export class UsuariosService {
 
       // Validar empresas si existen
       if (idEmpresas !== null && idEmpresas !== undefined) {
-        
-        empresa = await this.EmpresasInformacionRepository.findOneBy({id:idEmpresas});
+
+        empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idEmpresas });
         if (!empresa) {
           throw new NotFoundException(`empresa con id ${idEmpresas} no encontrada`);
         }
       }
 
       if (idSucursal !== null && idSucursal !== undefined) {
-        sucursal = await this.SucursalesInformacionRepository.findOneBy({id:idSucursal});
+        sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: idSucursal });
 
         if (!sucursal) {
           throw new NotFoundException(`sucursal con id ${idSucursal} no encontrada`);
@@ -80,7 +80,7 @@ export class UsuariosService {
       }
 
       if (idAreaSucursal !== null && idAreaSucursal !== undefined) {
-        areaSucursal = await this.SucursalesAreasInformacionRepository.findOneBy({id:idAreaSucursal});
+        areaSucursal = await this.SucursalesAreasInformacionRepository.findOneBy({ id: idAreaSucursal });
 
         if (!areaSucursal) {
           throw new NotFoundException(`area de sucursal con id ${idAreaSucursal} no encontrada`);
@@ -331,7 +331,7 @@ export class UsuariosService {
 
               const empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idempresa });
               const sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: idSucursal });
-              const areaSucursal = await this.SucursalesAreasInformacionRepository.findOneBy({ id: idAreaSucursal});
+              const areaSucursal = await this.SucursalesAreasInformacionRepository.findOneBy({ id: idAreaSucursal });
 
               const relacionesEncontradas = await this.UsuariosRelacionEmpresasRepository.find({
                 where: {
@@ -351,7 +351,7 @@ export class UsuariosService {
                 relacionEncontrada.idEmpresa = empresa;
                 relacionEncontrada.idSucursal = sucursal;
                 relacionEncontrada.idAreaSucursal = areaSucursal;
-                
+
                 await this.UsuariosRelacionEmpresasRepository.save(relacionesEncontradas);
 
               }
@@ -395,7 +395,6 @@ export class UsuariosService {
         usuario.idTipo = tipoUsuario;
       }
 
-      // Actualizar los demás campos, exceptuando `idTipo`, `password` y `idEmpresas`
       for (const key in updateUsuarioDto) {
         if (updateUsuarioDto.hasOwnProperty(key) && key !== 'idTipo' && key !== 'password' && key !== 'idEmpresas') {
           usuario[key] = updateUsuarioDto[key];
@@ -408,6 +407,70 @@ export class UsuariosService {
 
     } catch (error) {
       this.handleDBException(error);
+    }
+  }
+
+
+  async updateUserEmpresa(id: number, updateUsuarioDto: updateUsuarioEmpresaDto) {
+
+    try {
+
+      const {idEmpresas, idSucursal, idAreaSucursal, ...infoData} = updateUsuarioDto;
+
+      const usuario = await this.usuariosRepository.findOne({ where: { id } });
+
+      if (!usuario) {
+        return new GenericResponse('400', `El usuario con Id ${id} no encontrado`, null);
+      }
+
+      const tipoUsuario = await this.tipos_usuariosRepository.findOneBy({ id: updateUsuarioDto.idTipo });
+
+      if (!tipoUsuario) {
+        return new GenericResponse('400', `El tipoUsuario con Id ${updateUsuarioDto.idTipo} no encontrado`, null);
+      }
+
+      const empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idEmpresas });
+
+      if (!empresa) {
+        return new GenericResponse('400', `La empresa con Id ${idEmpresas} no encontrado`, null);
+      }
+
+      const sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: idSucursal });
+
+      if (!sucursal) {
+        return new GenericResponse('400', `La sucursal con Id ${idSucursal} no encontrado`, null);
+      }
+
+      const areaSucursal = await this.SucursalesAreasInformacionRepository.findOneBy({ id: idAreaSucursal });
+
+      if (!areaSucursal) {
+        return new GenericResponse('400', `La areaSucursal con Id ${idAreaSucursal} no encontrado`, null);
+      }
+
+      const updatedUsuario = this.usuariosRepository.merge(usuario, {
+        ...infoData,
+        idTipo: tipoUsuario,
+      });
+
+      const relacionUsuarioEmpresa = await this.UsuariosRelacionEmpresasRepository.findOne({
+        where: { idUsuario: usuario, idEmpresa: empresa }
+      });
+
+      if (!relacionUsuarioEmpresa) return new GenericResponse('400', `No existe una relacion entre el usuario ${usuario.nombres} ${usuario.apellidos} y la empresa ${empresa.nombre}`, null);
+
+      relacionUsuarioEmpresa.idUsuario = usuario;
+      relacionUsuarioEmpresa.idEmpresa = empresa;
+      relacionUsuarioEmpresa.idSucursal = sucursal;
+      relacionUsuarioEmpresa.idAreaSucursal = areaSucursal;
+
+      await this.UsuariosRelacionEmpresasRepository.save(relacionUsuarioEmpresa);
+
+      await this.usuariosRepository.save(updatedUsuario);
+
+      return new GenericResponse('200', `EXITO`, updateUsuarioDto);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error al editar usuario de empresa `, error);
     }
   }
 

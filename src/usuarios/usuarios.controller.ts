@@ -6,6 +6,7 @@ import { PaginationDto } from '../common/dtos/pagination.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { changePasswordDto } from './dto/changePasswordDto';
 import { VerificacionUsuariosService } from '../verificacion_usuarios/verificacion_usuarios.service';
+import { updateUsuarioEmpresaDto } from './dto/update-usuario-empresa.dto';
 
 @Controller('usuarios')
 export class UsuariosController {
@@ -63,17 +64,30 @@ export class UsuariosController {
   }
  
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateUsuarioDto: UpdateUsuarioDto) {
+  async update(@Param('id') id: string, @Body() updateUsuarioDto: updateUsuarioEmpresaDto) {
 
     try {
 
-      const result = await this.usuariosService.update(+id, updateUsuarioDto);
+      const result = await this.usuariosService.updateUserEmpresa(+id, updateUsuarioDto);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
       throw new HttpException(new GenericResponse('500', 'Error al editar', error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
+  // @Patch('updateUsuarioEmpresa/:id')
+  // async updateUsuarioEmpresa(@Param('id') id: string, @Body() updateUsuarioDto: updateUsuarioEmpresaDto) {
+
+  //   try {
+
+  //     const result = await this.usuariosService.updateUserEmpresa(+id, updateUsuarioDto);
+  //     return new GenericResponse('200', 'EXITO', result);
+
+  //   } catch (error) {
+  //     throw new HttpException(new GenericResponse('500', 'Error al editar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+  //   }
+  // }
 
   @Patch('updatePhotoPerfil/:usuario/:fotoPerfil')
   async updatePhotoPerfil(@Param('usuario') usuario: string, @Param('fotoPerfil') fotoPerfil: string) {
