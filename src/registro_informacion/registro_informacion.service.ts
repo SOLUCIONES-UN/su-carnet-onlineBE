@@ -51,24 +51,12 @@ export class RegistroInformacionService {
 
     try {
 
-      const dpi = await this.RegistroInformacionRepository.findOneBy({ documento: createRegistroInformacionDto.documento });
-
-      if(dpi) return new GenericResponse('401', `Ya existe registro con el DPI ${createRegistroInformacionDto.documento}`, null);
-
-      const email = await this.RegistroInformacionRepository.findOneBy({ correo: createRegistroInformacionDto.correo });
-
-      if(email) return new GenericResponse('401', `Ya existe registro con el correo ${createRegistroInformacionDto.correo}`, null);
-
-      const telefonoUser = await this.RegistroInformacionRepository.findOneBy({ correo: createRegistroInformacionDto.correo });
-
-      if(telefonoUser) return new GenericResponse('401', `Ya existe registro con el telefono ${createRegistroInformacionDto.telefono}`, null);
-
       const { idPais, nombres, apellidos, documento, telefono, correo, fechaNacimiento, ...infoData } = createRegistroInformacionDto;
 
       const TipoPaises = await this.TipoPaisesRepository.findOneBy({ id: idPais });
 
       if (!TipoPaises) {
-        return new GenericResponse('401', `TipoPaises ${idPais} not encontrado`, TipoPaises);
+        return new GenericResponse('401', `TipoPaises ${idPais} not encontrado`, usuario);
       }
 
       const RegistroInformacion = this.RegistroInformacionRepository.create({
@@ -89,7 +77,7 @@ export class RegistroInformacionService {
       return new GenericResponse('200', `EXITO`, RegistroInformacion);
 
     } catch (error) {
-      return new GenericResponse('500', `Eror al crear registro`, error);
+      return new GenericResponse('500', `Eror al editar`, error);
     }
   }
 
@@ -113,6 +101,8 @@ export class RegistroInformacionService {
 
     return RegistroInformacion;
   }
+
+
 
   async findAllByEmpresa(paginationDto: PaginationDto, idEmpresa: number) {
     const { limit = 10, offset = 0 } = paginationDto;
@@ -156,19 +146,19 @@ export class RegistroInformacionService {
       const registro_informacion = await this.RegistroInformacionRepository.findOneBy({ id });
 
       if (!registro_informacion) {
-        return new GenericResponse('401', `registro_informacion ${id} not encontrado`, registro_informacion);
+        throw new NotFoundException(`registro_informacion con ID ${id} no encontrado`);
       }
 
       const TipoPaises = await this.TipoPaisesRepository.findOneBy({ id: idPais });
 
       if (!TipoPaises) {
-        return new GenericResponse('401', `TipoPaises ${idPais} not encontrado`, registro_informacion);
+        throw new NotFoundException(`TipoPaises con ID ${idPais} no encontrado`);
       }
 
       const usuario = await this.UsuariosRepository.findOneBy({ id: idUsuario });
 
       if (!usuario) {
-        return new GenericResponse('401', `usuario ${idUsuario} not encontrado`, registro_informacion);
+        throw new NotFoundException(`usuario con ID ${idUsuario} no encontrado`);
       }
 
       const update_registro_informacion = this.RegistroInformacionRepository.merge(registro_informacion, {
@@ -180,10 +170,10 @@ export class RegistroInformacionService {
       // Guardar los cambios en la base de datos
       await this.RegistroInformacionRepository.save(update_registro_informacion);
 
-      return new GenericResponse('200', `EXITO`, update_registro_informacion);
+      return update_registro_informacion;
 
     } catch (error) {
-      return new GenericResponse('500', `Error al editar`, error);
+      this.handleDBException(error);
     }
   }
 
