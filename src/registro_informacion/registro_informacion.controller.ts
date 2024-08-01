@@ -21,7 +21,7 @@ export class RegistroInformacionController {
       const registroInformacion = await this.registroInformacionService.existRegistro(createRegistroInformacionDto.documento);
   
       if (registroInformacion) {
-        return new GenericResponse('401', 'Esta persona con DPI ', registroInformacion.documento + ' ya se ha registrado anteriormente ');
+        return new GenericResponse('401', `Ya existe un registro con el DPI ${createRegistroInformacionDto.documento}`, null);
       }
   
       const existeEmail = await this.usuariosService.existsEmail(createRegistroInformacionDto.correo);
