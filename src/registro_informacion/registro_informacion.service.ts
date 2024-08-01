@@ -98,11 +98,39 @@ export class RegistroInformacionService {
     return RegistroInformacion;
   }
 
+  // async findAllByEmpresa(paginationDto: PaginationDto, idEmpresa: number) {
+  //   const { limit = 10, offset = 0 } = paginationDto;
+  
+  //   // Verificar que la empresa exista
+  //   const empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idEmpresa });
+  //   if (!empresa) {
+  //     throw new Error('Empresa no encontrada');
+  //   }
+  
+  //   // Obtener registros de información que están relacionados con usuarios pertenecientes a la empresa específica
+  //   const registroInformacion = await this.RegistroInformacionRepository.createQueryBuilder('registro')
+  //     .leftJoinAndSelect('registro.idUsuario', 'usuario')
+  //     .leftJoinAndSelect('usuario.idTipo', 'tipo')
+  //     .leftJoinAndSelect('usuario.usuariosRelacionEmpresas', 'relacion')
+  //     .leftJoinAndSelect('relacion.idEmpresa', 'empresa')
+  //     .leftJoinAndSelect('relacion.idSucursal', 'sucursal')
+  //     .leftJoinAndSelect('relacion.idAreaSucursal', 'areaSucursal')
+  //     .leftJoinAndSelect('registro.idPais', 'pais')
+  //     .where('relacion.idEmpresa = :idEmpresa', { idEmpresa })
+  //     .andWhere('relacion.estado = :estado', { estado: 1 })
+  //     .andWhere('empresa.estado = :empresaEstado', { empresaEstado: 1 })
+  //     .skip(offset)
+  //     .take(limit)
+  //     .getMany();
+  
+  //   return registroInformacion;
+  // }
+
   async findAllByEmpresa(paginationDto: PaginationDto, idEmpresa: number) {
     const { limit = 10, offset = 0 } = paginationDto;
   
     // Verificar que la empresa exista
-    const empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idEmpresa });
+    const empresa = await this.EmpresasInformacionRepository.findOne({ where: { id: idEmpresa } });
     if (!empresa) {
       throw new Error('Empresa no encontrada');
     }
@@ -119,6 +147,9 @@ export class RegistroInformacionService {
       .where('relacion.idEmpresa = :idEmpresa', { idEmpresa })
       .andWhere('relacion.estado = :estado', { estado: 1 })
       .andWhere('empresa.estado = :empresaEstado', { empresaEstado: 1 })
+      .andWhere('relacion.idSucursal IS NOT NULL')
+      .andWhere('relacion.idAreaSucursal IS NOT NULL')
+      .orderBy('usuario.id') // Puedes ordenar los resultados como prefieras
       .skip(offset)
       .take(limit)
       .getMany();
