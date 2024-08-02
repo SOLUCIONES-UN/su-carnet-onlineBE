@@ -17,6 +17,7 @@ export class RegistroInformacionController {
 
   @Post()
   async create(@Body() createRegistroInformacionDto: CreateRegistroInformacionDto) {
+
     try {
       const registroInformacion = await this.registroInformacionService.existRegistro(createRegistroInformacionDto.documento);
   
@@ -68,7 +69,7 @@ export class RegistroInformacionController {
       if (!result) {
         return new GenericResponse('401', 'Error al registrar la información', result);
       }
-      return new GenericResponse('200', 'ÉXITO', result);
+      return new GenericResponse('200', 'EXITO', result);
   
     } catch (error) {
       throw new HttpException(new GenericResponse('500', 'Error al agregar', error), HttpStatus.INTERNAL_SERVER_ERROR);
