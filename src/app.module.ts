@@ -42,6 +42,7 @@ import { MembresiaInformacionModule } from './membresia_informacion/membresia_in
 import { RegistroMembresiasModule } from './registro_membresias/registro_membresias.module';
 import { NotificacionesModule } from './notificaciones/notificaciones.module';
 import { DispositivosModule } from './dispositivos/dispositivos.module';
+import { FormulariosModule } from './formularios/formularios.module';
 
 @Module({
   imports: [
@@ -143,6 +144,8 @@ import { DispositivosModule } from './dispositivos/dispositivos.module';
     NotificacionesModule,
 
     DispositivosModule,
+
+    FormulariosModule,
   ],
 })
 export class AppModule {}
