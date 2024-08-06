@@ -16,4 +16,8 @@ export class ReporteCitasDto {
     @IsNumber()
     @IsNotEmpty({ message: 'El campo idUsuario es requerido' })
     idUsuario: number;
+
+    @IsString()
+    @IsNotEmpty({ message: 'El campo identificadorReporte es requerido' })
+    identificadorReport: string;
 }

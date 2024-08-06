@@ -18,17 +18,35 @@ export class FormulariosService {
   { }
   
   async create(createFormularioDto: CreateFormularioDto) {  
-    
+
     try {
+
+      let identificador: string;
+  
+      do {
+        identificador = this.generateRandomCode();
+      } while (await this.FormulariosRepository.findOneBy({ identificador }));
+  
       const formulario = this.FormulariosRepository.create(createFormularioDto);
-
+      formulario.identificador = identificador;
+  
       await this.FormulariosRepository.save(formulario);
-
-      return new GenericResponse('200', `EXITO`, formulario );
-
+  
+      return new GenericResponse('200', `EXITO`, formulario);
     } catch (error) {
-      return new GenericResponse('500', `Error interno al agregar `, error );
+      return new GenericResponse('500', `Error interno al agregar`, error);
     }
+  }
+
+  public generateRandomCode(): string {
+
+    let codeVerification = '';
+
+    for (let i = 0; i < 4; i++) {
+      const randomDigit = Math.floor(Math.random() * 9) + 1;
+      codeVerification += randomDigit.toString();
+    }
+    return codeVerification;
   }
 
   async findAll(PaginationDto: PaginationDto) {
