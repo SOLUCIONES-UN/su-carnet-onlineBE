@@ -84,7 +84,7 @@ export class VerificacionUsuariosService {
 
     const msg = {
       to: correoDestino,
-      from: 'jaarbamo@gmail.com', // Tu dirección de correo verificada en SendGrid
+      from: 'jaarbamo@gmail.com',
       subject: 'Verificación de usuario',
       text: 'verificar tu usuario',
       html: HtmlEmail.bodyForConfirmationCode(usuario.nombres, usuario.apellidos, otp, action),
