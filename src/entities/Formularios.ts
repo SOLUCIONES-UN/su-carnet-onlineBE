@@ -18,4 +18,11 @@ export class Formularios {
 
   @Column("integer", { name: "estado", default: () => "1" })
   estado: number;
+
+  @Column("character varying", {
+    name: "identificador",
+    nullable: true,
+    length: 4,
+  })
+  identificador: string | null;
 }
