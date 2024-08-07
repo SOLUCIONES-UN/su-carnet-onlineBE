@@ -104,7 +104,6 @@ export class AuthService {
       const hashToCompare = bcrypt.hashSync(password, usuario.passwordsalt.toString('utf-8'));
 
       if (hashToCompare !== usuario.passwordhash.toString('utf-8')) {
-        // throw new UnauthorizedException('Credenciales inválidas');
         return new GenericResponse('400', `Credenciales inválidas`, null);
       }
 
@@ -133,6 +132,8 @@ export class AuthService {
             id: sucursal.id,
             descripcion: sucursal.descripcion,
             direccion: sucursal.direccion,
+            archivoImagen1: sucursal.archivoImagen1,
+            archivoImagen2: sucursal.archivoImagen1
         } : null,
         areaSucursal: areaSucursal ? {
             id: areaSucursal.id,
