@@ -18,6 +18,8 @@ import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { TipoUsuario } from '../entities/TipoUsuario';
+import { SucursalesInformacion } from '../entities/SucursalesInformacion';
+import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
 
 @Injectable()
 export class AuthService {
@@ -33,6 +35,12 @@ export class AuthService {
     @InjectRepository(UsuariosRelacionEmpresas)
     private UsuariosRelacionEmpresasRepository: Repository<UsuariosRelacionEmpresas>,
 
+    @InjectRepository(SucursalesInformacion)
+    private SucursalesInformacionRepository: Repository<SucursalesInformacion>,
+
+    @InjectRepository(SucursalesAreasInformacion)
+    private SucursalesAreasInformacionRepository: Repository<SucursalesAreasInformacion>,
+
     @InjectRepository(TipoUsuario)
     private TipoUsuarioRepository: Repository<TipoUsuario>,
 
@@ -47,6 +55,8 @@ export class AuthService {
 
       let usuario: Usuarios;
       let empresa: EmpresasInformacion;
+      let sucursal: SucursalesInformacion = null;
+      let areaSucursal: SucursalesAreasInformacion = null;
 
       if (companyCode) {
         empresa = await this.empresasRepository.findOneBy({ codigoEmpresa: companyCode });
@@ -73,17 +83,27 @@ export class AuthService {
         }
         
       }else if(companyCode != null || companyCode != ''){
-        const relacionEmpresa = await this.UsuariosRelacionEmpresasRepository.findOneBy({idUsuario:usuario});
+        const relacionEmpresa = await this.UsuariosRelacionEmpresasRepository.findOne({ 
+          where: {idUsuario: usuario},
+          relations: ['idSucursal', 'idAreaSucursal']
+        });
 
-        if(!relacionEmpresa){
+        if (!relacionEmpresa) {
           return new GenericResponse('401', `El usuario no esta relacionado a ninguna empresa`, null);
+        }
+
+        if (relacionEmpresa.idSucursal) {
+          sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: relacionEmpresa.idSucursal.id });
+        }
+
+        if (relacionEmpresa.idAreaSucursal) {
+          areaSucursal = await this.SucursalesAreasInformacionRepository.findOneBy({ id: relacionEmpresa.idAreaSucursal.id });
         }
       }
 
       const hashToCompare = bcrypt.hashSync(password, usuario.passwordsalt.toString('utf-8'));
 
       if (hashToCompare !== usuario.passwordhash.toString('utf-8')) {
-        // throw new UnauthorizedException('Credenciales inválidas');
         return new GenericResponse('400', `Credenciales inválidas`, null);
       }
 
@@ -91,25 +111,36 @@ export class AuthService {
       delete usuario.passwordsalt;
 
       const responseData = {
-          usuario: {
-              email: usuario.email,
-              nombres: usuario.nombres,
-              apellidos: usuario.apellidos,
-              telefono: usuario.telefono,
-              id: usuario.id,
-              registroInformacions: usuario.registroInformacions,
-              tipoUsuario: usuario.idTipo,
-          },
-          empresa: empresa ? {
-              id: empresa.id,
-              cnombre: empresa.nombre,
-              codigoEmpresa: empresa.codigoEmpresa,
-              disclaimer: empresa.disclaimer,
-              sitioWeb: empresa.sitioWeb,
-              logotipo: empresa.logotipo
-          } : null,
-          token: this.getJwtToken({ email: usuario.email }),
-      };
+        usuario: {
+            email: usuario.email,
+            nombres: usuario.nombres,
+            apellidos: usuario.apellidos,
+            telefono: usuario.telefono,
+            id: usuario.id,
+            registroInformacions: usuario.registroInformacions,
+            tipoUsuario: usuario.idTipo,
+        },
+        empresa: empresa ? {
+            id: empresa.id,
+            nombre: empresa.nombre,
+            codigoEmpresa: empresa.codigoEmpresa,
+            disclaimer: empresa.disclaimer,
+            sitioWeb: empresa.sitioWeb,
+            logotipo: empresa.logotipo
+        } : null,
+        sucursal: sucursal ? {
+            id: sucursal.id,
+            descripcion: sucursal.descripcion,
+            direccion: sucursal.direccion,
+            archivoImagen1: sucursal.archivoImagen1,
+            archivoImagen2: sucursal.archivoImagen1
+        } : null,
+        areaSucursal: areaSucursal ? {
+            id: areaSucursal.id,
+            descripcion: areaSucursal.descripcion
+        } : null,
+        token: this.getJwtToken({ email: usuario.email }),
+    };
 
       return new GenericResponse('201', `EXITO`, responseData);
 
@@ -134,85 +165,105 @@ export class AuthService {
   async loginAdministracion(LoginUserDto: LoginUserDto) : Promise<GenericResponse<any>> {
 
     try {
+        const { user, password, companyCode } = LoginUserDto;
 
-      const { user, password, companyCode } = LoginUserDto;
+        let usuario: Usuarios;
+        let empresa: EmpresasInformacion;
+        let sucursal: SucursalesInformacion = null;
+        let areaSucursal: SucursalesAreasInformacion = null;
 
-      let usuario: Usuarios;
-      let empresa: EmpresasInformacion;
+        if (companyCode) {
+            empresa = await this.empresasRepository.findOneBy({ codigoEmpresa: companyCode });
 
-      if (companyCode) {
-        empresa = await this.empresasRepository.findOneBy({ codigoEmpresa: companyCode });
-
-        if (!empresa) {
-          return new GenericResponse('400', `La empresa con código ${companyCode} no encontrada`, empresa);
-        }
-      }
-
-      if (this.isEmail(user)) {
-        usuario = await this.findUserByEmail(user);
-      } else if (this.isPhoneNumber(user)) {
-        usuario = await this.findUserByPhone(user);
-      }
-
-      if (!usuario)  return new GenericResponse('400', `El usuario no existe o puede estar inactivo`, null);
-
-      if(companyCode === null || companyCode === ''){
-
-        const relacionEmpresa = await this.UsuariosRelacionEmpresasRepository.findOneBy({idUsuario:usuario});
-        
-        if(relacionEmpresa){
-          return new GenericResponse('401', `El usuario pertenece a una empresa debe ingresar el codigo de la empresa`, null);
+            if (!empresa) {
+                return new GenericResponse('400', `La empresa con código ${companyCode} no encontrada`, empresa);
+            }
         }
 
-        const tipoUsuario = await this.TipoUsuarioRepository.findOne({where: {descripcion: 'administrador'}});
-
-        if(usuario.idTipo.id != tipoUsuario.id){
-          return new GenericResponse('401', `El usuario no pertenece a este nivel no es un administrador`, null);
+        if (this.isEmail(user)) {
+            usuario = await this.findUserByEmail(user);
+        } else if (this.isPhoneNumber(user)) {
+            usuario = await this.findUserByPhone(user);
         }
-        
-      }else if(companyCode != null || companyCode != ''){
-        const relacionEmpresa = await this.UsuariosRelacionEmpresasRepository.findOneBy({idUsuario:usuario});
 
-        if(!relacionEmpresa){
-          return new GenericResponse('401', `El usuario no esta relacionado a ninguna empresa`, null);
+        if (!usuario) return new GenericResponse('400', `El usuario no existe o puede estar inactivo`, null);
+
+        if(companyCode === null || companyCode === ''){
+
+            const relacionEmpresa = await this.UsuariosRelacionEmpresasRepository.findOneBy({ idUsuario: usuario });
+
+            if (relacionEmpresa) {
+              return new GenericResponse('401', `El usuario pertenece a una empresa debe ingresar el codigo de la empresa`, null);
+            }
+
+            const tipoUsuario = await this.TipoUsuarioRepository.findOne({ where: { descripcion: 'administrador' } });
+
+            if (usuario.idTipo.id != tipoUsuario.id) {
+                return new GenericResponse('401', `El usuario no pertenece a este nivel no es un administrador`, null);
+            }
+
+        } else if (companyCode != null || companyCode != '') {
+            const relacionEmpresa = await this.UsuariosRelacionEmpresasRepository.findOne({ 
+              where: {idUsuario: usuario},
+              relations: ['idSucursal', 'idAreaSucursal']
+            });
+
+            if (!relacionEmpresa) {
+              return new GenericResponse('401', `El usuario no esta relacionado a ninguna empresa`, null);
+            }
+
+            if (relacionEmpresa.idSucursal) {
+              sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: relacionEmpresa.idSucursal.id });
+            }
+
+            if (relacionEmpresa.idAreaSucursal) {
+              areaSucursal = await this.SucursalesAreasInformacionRepository.findOneBy({ id: relacionEmpresa.idAreaSucursal.id });
+            }
         }
-      }
 
-      const hashToCompare = bcrypt.hashSync(password, usuario.passwordsalt.toString('utf-8'));
+        const hashToCompare = bcrypt.hashSync(password, usuario.passwordsalt.toString('utf-8'));
 
-      if (hashToCompare !== usuario.passwordhash.toString('utf-8')) {
-        // throw new UnauthorizedException('Credenciales inválidas');
-        return new GenericResponse('400', `Credenciales inválidas`, null);
-      }
+        if (hashToCompare !== usuario.passwordhash.toString('utf-8')) {
+            return new GenericResponse('400', `Credenciales inválidas`, null);
+        }
 
-      delete usuario.passwordhash;
-      delete usuario.passwordsalt;
+        delete usuario.passwordhash;
+        delete usuario.passwordsalt;
 
-      const responseData = {
-          usuario: {
-              email: usuario.email,
-              nombres: usuario.nombres,
-              apellidos: usuario.apellidos,
-              telefono: usuario.telefono,
-              id: usuario.id,
-              registroInformacions: usuario.registroInformacions,
-              tipoUsuario: usuario.idTipo,
-          },
-          empresa: empresa ? {
-              id: empresa.id,
-              nombre: empresa.nombre,
-              codigoEmpresa: empresa.codigoEmpresa,
-              disclaimer: empresa.disclaimer,
-              sitioWeb: empresa.sitioWeb,
-              logotipo: empresa.logotipo
-          } : null,
-          token: this.getJwtToken({ email: usuario.email }),
-      };
+        const responseData = {
+            usuario: {
+                email: usuario.email,
+                nombres: usuario.nombres,
+                apellidos: usuario.apellidos,
+                telefono: usuario.telefono,
+                id: usuario.id,
+                registroInformacions: usuario.registroInformacions,
+                tipoUsuario: usuario.idTipo,
+            },
+            empresa: empresa ? {
+                id: empresa.id,
+                nombre: empresa.nombre,
+                codigoEmpresa: empresa.codigoEmpresa,
+                disclaimer: empresa.disclaimer,
+                sitioWeb: empresa.sitioWeb,
+                logotipo: empresa.logotipo
+            } : null,
+            sucursal: sucursal ? {
+                id: sucursal.id,
+                descripcion: sucursal.descripcion,
+                direccion: sucursal.direccion,
+            } : null,
+            areaSucursal: areaSucursal ? {
+                id: areaSucursal.id,
+                descripcion: areaSucursal.descripcion
+            } : null,
+            token: this.getJwtToken({ email: usuario.email }),
+        };
 
-      return new GenericResponse('201', `EXITO`, responseData);
+        return new GenericResponse('201', `EXITO`, responseData);
 
     } catch (error) {
-      return new GenericResponse('500', `error`, error);
+        return new GenericResponse('500', `error`, error);
     }
 }
 
