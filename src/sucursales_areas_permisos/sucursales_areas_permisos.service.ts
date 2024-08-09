@@ -99,6 +99,18 @@ export class SucursalesAreasPermisosService {
     return areaSucursalPermisos;
   }
 
+  async citasArea(idAreaGrupo: number){
+
+    const areaGrupo = await this.SucursalesAreasGruposInformacionRepository.findOneBy({id: idAreaGrupo});
+
+    const areaSucursalPermisos = await this.SucursalesAreasPermisosRepository.find({
+      where: {idAreaGrupo:areaGrupo},
+      relations: ['idRegistro']
+    });
+
+    return areaSucursalPermisos;
+  }
+
   async citasUsuario(idUsuario: number) {
     const usuario = await this.UsuariosRepository.findOne({
       where: { id: idUsuario, estado: 2 }
