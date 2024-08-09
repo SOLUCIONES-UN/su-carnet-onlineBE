@@ -3,12 +3,11 @@ import { CreateSucursalesAreasLogDto } from './dto/create-sucursales_areas_log.d
 import { UpdateSucursalesAreasLogDto } from './dto/update-sucursales_areas_log.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SucursalesAreasLogs } from '../entities/SucursalesAreasLogs';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { SucursalesAreasGruposPuertas } from '../entities/SucursalesAreasGruposPuertas';
 import { SucursalesAreasPermisos } from '../entities/SucursalesAreasPermisos';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { SucursalesAreasGruposInformacion } from '../entities/SucursalesAreasGruposInformacion';
-import { log } from 'console';
 import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
 import { Usuarios } from '../entities/Usuarios';
 import { RegistroInformacion } from '../entities/RegistroInformacion';
@@ -161,6 +160,20 @@ export class SucursalesAreasLogsService {
 
   async consultarLog(id:number){
     return await this.SucursalesAreasLogsRepository.findOneBy({ id });
+  }
+
+  async visitasEnProceso() {
+  
+    const ahora = new Date(); 
+    const inicio = new Date(ahora); 
+  
+    inicio.setMinutes(0, 0, 0);
+  
+    return await this.SucursalesAreasLogsRepository.find({
+      where: {
+        fechaHoraGeneracion: Between(inicio, ahora)
+      }
+    });
   }
 
   async update(id: number, updateSucursalesAreasLogDto: UpdateSucursalesAreasLogDto){

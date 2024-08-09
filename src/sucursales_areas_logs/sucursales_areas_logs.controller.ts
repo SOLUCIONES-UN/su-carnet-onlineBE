@@ -101,6 +101,18 @@ export class SucursalesAreasLogsController {
     }
   }
 
+  @Get('visitasEnProceso')
+  async visitasEnProceso() {
+
+    try {
+      const result = await this.sucursalesAreasLogsService.visitasEnProceso();
+      return new GenericResponse('200', 'EXITO', result);
+
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @Get('verificarCita/:idLogCita/:idUsuario')
   async verificarCita(@Param('idLogCita') idLogCita: number, idUsuario: number) {
     return await this.sucursalesAreasLogsService.verificarCita(idLogCita, idUsuario);
