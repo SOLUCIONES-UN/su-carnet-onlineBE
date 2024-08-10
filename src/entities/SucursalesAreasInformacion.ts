@@ -21,8 +21,8 @@ export class SucursalesAreasInformacion {
   @Column("character varying", { name: "descripcion", length: 250 })
   descripcion: string;
 
-  @Column("text", { name: "informacion" })
-  informacion: string;
+  @Column("text", { name: "informacion", array: true })
+  informacion: string[];
 
   @Column("character varying", { name: "archivo_imagen1", length: 250 })
   archivoImagen1: string;
@@ -48,8 +48,8 @@ export class SucursalesAreasInformacion {
   @Column("integer", { name: "estado", default: () => "1" })
   estado: number;
 
-  @Column("text", { name: "instrucciones_qr", nullable: true })
-  instruccionesQr: string | null;
+  @Column("text", { name: "instrucciones_qr", nullable: true, array: true })
+  instruccionesQr: string[] | null;
 
   @Column("integer", { name: "tiempo_qr", nullable: true })
   tiempoQr: number | null;

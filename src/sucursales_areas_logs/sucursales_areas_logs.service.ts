@@ -104,7 +104,7 @@ export class SucursalesAreasLogsService {
   
       if (!areaGrupo) return new GenericResponse('400', `areaGrupo ${cita.idAreaGrupo} no encontrado`, null);
   
-      const sucursales_areas_informacion = await this.SucursalesAreasInformacionRepository.findOneBy(areaGrupo.idSucursalArea);
+      const sucursales_areas_informacion = await this.SucursalesAreasInformacionRepository.findOneBy(areaGrupo);
   
       if (!sucursales_areas_informacion) return new GenericResponse('400', `sucursales_areas_informacion ${areaGrupo.idSucursalArea} no encontrado`, null);
   
@@ -171,7 +171,8 @@ export class SucursalesAreasLogsService {
   
     return await this.SucursalesAreasLogsRepository.find({
       where: {
-        fechaHoraGeneracion: Between(inicio, ahora)
+        fechaHoraGeneracion: Between(inicio, ahora),
+        estado: 'APL'
       }
     });
   }

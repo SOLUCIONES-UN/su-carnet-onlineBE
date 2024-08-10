@@ -135,10 +135,10 @@ export class SucursalesAreasPermisosService {
   
     const resultadosConInstrucciones = sucursalesAreasPermisos.map(item => {
       const informacion = item.idAreaGrupo.idSucursalArea.informacion;
-      const instruccionesGenerales = informacion ? informacion.split('-') : [];
+      const instruccionesGenerales = informacion ? informacion : [];
       
       const instruccionesQr = item.idAreaGrupo.idSucursalArea.instruccionesQr;
-      const instruccionesQrArray = instruccionesQr ? instruccionesQr.split('-') : [];
+      const instruccionesQrArray = instruccionesQr ? instruccionesQr : [];
   
       return {
         ...item,
