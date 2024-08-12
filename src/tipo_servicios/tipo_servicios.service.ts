@@ -17,7 +17,7 @@ export class TipoServiciosService {
     @InjectRepository(TipoServicios)
     private TipoServiciosRepository: Repository<TipoServicios>,
 
-    @InjectRepository(EmpresasInformacion)
+    @InjectRepository(TipoCategoriasServicios)
     private categoriaRepository: Repository<TipoCategoriasServicios>,
 
     @InjectRepository(EmpresasInformacion)
