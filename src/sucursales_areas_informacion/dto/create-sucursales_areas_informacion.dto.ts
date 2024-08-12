@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString, isNumber } from "class-validator";
+import { IsArray, IsNotEmpty, IsNumber, IsString, isNumber } from "class-validator";
 
 export class CreateSucursalesAreasInformacionDto {
 
@@ -6,9 +6,9 @@ export class CreateSucursalesAreasInformacionDto {
     @IsNotEmpty({ message: 'El campo descripcion es requerido' })
     descripcion: string;
 
-    @IsString()
+    @IsArray()
     @IsNotEmpty({ message: 'El campo informacion es requerido' })
-    informacion: string;
+    informacion: string[];
 
     @IsString()
     @IsNotEmpty({ message: 'El campo archivoImagen1 es requerido' })
@@ -38,9 +38,9 @@ export class CreateSucursalesAreasInformacionDto {
     @IsNotEmpty({ message: 'El campo outsoursing es requerido' })
     outsoursing: string;
 
-    @IsString()
+    @IsArray()
     @IsNotEmpty({ message: 'El campo instruccionesQr es requerido' })
-    instruccionesQr: string;
+    instruccionesQr: string[];
 
     @IsNumber()
     @IsNotEmpty({ message: 'El campo tiempoQr es requerido' })

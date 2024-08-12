@@ -48,6 +48,19 @@ export class SucursalesAreasPermisosController {
     }
   }
 
+  @Get('getCitasArea/:idArea')
+  async getCitasArea(@Param('idArea') idArea: number) {
+
+    try {
+
+      const result = await this.sucursalesAreasPermisosService.citasArea(idArea);
+      return new GenericResponse('200', 'EXITO', result);
+
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateSucursalesAreasPermisoDto: UpdateSucursalesAreasPermisoDto) {
     

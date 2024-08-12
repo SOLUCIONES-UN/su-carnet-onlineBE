@@ -44,6 +44,7 @@ import { NotificacionesModule } from './notificaciones/notificaciones.module';
 import { DispositivosModule } from './dispositivos/dispositivos.module';
 import { FormulariosModule } from './formularios/formularios.module';
 import { ReportesModule } from './reportes/reportes.module';
+import { TiposCuentasModule } from './tipos_cuentas/tipos_cuentas.module';
 
 @Module({
   imports: [
@@ -149,6 +150,8 @@ import { ReportesModule } from './reportes/reportes.module';
     FormulariosModule,
 
     ReportesModule,
+
+    TiposCuentasModule,
   ],
 })
 export class AppModule {}

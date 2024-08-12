@@ -99,6 +99,18 @@ export class SucursalesAreasPermisosService {
     return areaSucursalPermisos;
   }
 
+  async citasArea(idAreaGrupo: number){
+
+    const areaGrupo = await this.SucursalesAreasGruposInformacionRepository.findOneBy({id: idAreaGrupo});
+
+    const areaSucursalPermisos = await this.SucursalesAreasPermisosRepository.find({
+      where: {idAreaGrupo:areaGrupo},
+      relations: ['idRegistro']
+    });
+
+    return areaSucursalPermisos;
+  }
+
   async citasUsuario(idUsuario: number) {
     const usuario = await this.UsuariosRepository.findOne({
       where: { id: idUsuario, estado: 2 }
@@ -123,10 +135,10 @@ export class SucursalesAreasPermisosService {
   
     const resultadosConInstrucciones = sucursalesAreasPermisos.map(item => {
       const informacion = item.idAreaGrupo.idSucursalArea.informacion;
-      const instruccionesGenerales = informacion ? informacion.split('-') : [];
+      const instruccionesGenerales = informacion ? informacion : [];
       
       const instruccionesQr = item.idAreaGrupo.idSucursalArea.instruccionesQr;
-      const instruccionesQrArray = instruccionesQr ? instruccionesQr.split('-') : [];
+      const instruccionesQrArray = instruccionesQr ? instruccionesQr : [];
   
       return {
         ...item,
