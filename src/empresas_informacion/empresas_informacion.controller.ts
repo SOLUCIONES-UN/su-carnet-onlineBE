@@ -57,12 +57,12 @@ export class EmpresasInformacionController {
     }
   }
 
-  @Get('GetRecientes')
-  async GetRecientes() {
+  @Get('GetRecientes/:idUsuario')
+  async GetRecientes(@Param('idUsuario') idUsuario: number) {
 
     try {
 
-      const result = await this.empresasInformacionService.GetRecientes();
+      const result = await this.empresasInformacionService.GetRecientes(idUsuario);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {

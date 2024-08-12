@@ -148,7 +148,8 @@ export class EmpresasInformacionService {
   }
 
 
-  async GetRecientes() {
+  async GetRecientes(idUsuario: number) {
+
     const empresas = await this.empresaRepository.find({
       where: {
         estado: 1,
@@ -160,8 +161,32 @@ export class EmpresasInformacionService {
       take: 5, 
       relations: ['empresasDocumentos.idTipoDocumento'],
     });
-  
-    return empresas;
+
+    const usuario = await this.UsuariosRepository.findOneBy({id: idUsuario});
+
+    if(!usuario){
+      throw new NotFoundException(`Usuario con ID ${idUsuario} no encontrado`);
+    }
+
+    // Iterar sobre las empresas y verificar si el usuario está afiliado
+    const empresasConAfiliacion = await Promise.all(empresas.map(async (empresa) => {
+
+      const comercio = await this.empresaRepository.findOneBy({id: empresa.id});
+
+      const afiliacion = await this.RegistroAfiliacionesRepository.findOne({
+        where: {
+          idUsuario: usuario,
+          idEmpresa: comercio,
+        },
+      });
+
+      return {
+        ...empresa,
+        usuarioAfiliado: afiliacion ? 1 : 0,
+      };
+    }));
+
+    return empresasConAfiliacion;
   }
 
   async findOne(id: number) {
