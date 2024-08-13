@@ -50,15 +50,7 @@ export class RegistroMembresiasController {
 
   @Get('membresiasUsuario/:idUsuario')
   async membresiasUsuario(@Param('idUsuario') idUsuario: number) {
-
-    try {
-
-      const result = await this.registroMembresiasService.membresiasUsuario(idUsuario);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return this.registroMembresiasService.membresiasUsuario(idUsuario);
   }
 
   @Patch(':id')

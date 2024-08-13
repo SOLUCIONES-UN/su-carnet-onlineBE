@@ -164,15 +164,9 @@ export class SucursalesAreasLogsService {
 
   async visitasEnProceso() {
   
-    const ahora = new Date(); 
-    const inicio = new Date(ahora); 
-  
-    inicio.setMinutes(0, 0, 0);
-  
     return await this.SucursalesAreasLogsRepository.find({
       where: {
-        fechaHoraGeneracion: Between(inicio, ahora),
-        estado: 'APL'
+        estado: 'PRC'
       }
     });
   }

@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 import { RegistroInformacion } from '../entities/RegistroInformacion';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { Usuarios } from '../entities/Usuarios';
+import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
 @Injectable()
 export class RegistroMembresiasService {
@@ -79,16 +80,29 @@ export class RegistroMembresiasService {
 
   async membresiasUsuario(idUsuario: number){
 
-    const usuario = await this.UsuariosRepository.findOneBy({id:idUsuario});
+    try {
+      const usuario = await this.UsuariosRepository.findOneBy({id:idUsuario});
 
-    const registroInformacion = await this.RegistroInformacionRepository.findOneBy({idUsuario: usuario});
+      if(!usuario){
+        return new GenericResponse('401', `Usuario con ID ${idUsuario} no encontrado`, null);
+      }
 
-    const membresias = await this.RegistroMembresiaRepository.find({
-      where: {registroInformacion: registroInformacion, estado:1},
-      relations: ['membresiaInformacion.tipoMembresia', 'membresiaInformacion.empresa', 'registroInformacion.idUsuario'],
-    })
+      const registroInformacion = await this.RegistroInformacionRepository.findOneBy({idUsuario: usuario});
 
-    return membresias;
+      if(!registroInformacion){
+        return new GenericResponse('401', `Registro informacion con usuario ${usuario.nombres} no encontrada`, null);
+      }
+
+      const membresias = await this.RegistroMembresiaRepository.find({
+        where: {registroInformacion: registroInformacion, estado:1},
+        relations: ['membresiaInformacion.tipoMembresia', 'membresiaInformacion.empresa', 'registroInformacion.idUsuario'],
+      })
+
+      return new GenericResponse('200', `EXITO`, membresias);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error al consultar`, error);
+    }
   }
 
   async findOne(id: number) {
