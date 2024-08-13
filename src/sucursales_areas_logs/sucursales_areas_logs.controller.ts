@@ -61,10 +61,8 @@ export class SucursalesAreasLogsController {
         });
 
       } else if (result.estado === "RECH") {
+
         tokenObtenido.forEach(async element => {
-
-          console.log(element.tokendispositivo);
-
           const createNotificacioneDto: CreateNotificacioneDto = {
             token: element.tokendispositivo,
             payload: {

@@ -188,9 +188,14 @@ export class SucursalesAreasLogsService {
 
       const cita = await this.SucursalesAreasPermisosRepository.findOneBy({id: updateSucursalesAreasLogDto.idSucursalAreaPermiso});
 
-      if(logVisitas.estado == 'APL'){
+      if(logVisitas.estado == 'PRC'){
 
-        cita.estado == 'APL'
+        cita.estado == 'PRC'
+        await this.SucursalesAreasPermisosRepository.save(cita);
+      }
+
+      if(logVisitas.estado == 'TER'){
+        cita.estado == 'TER'
         await this.SucursalesAreasPermisosRepository.save(cita);
       }
   
