@@ -8,11 +8,14 @@ import { TipoPermisos } from '../entities/TipoPermisos';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OutsoursingAfiliaciones } from '../entities/OutsoursingAfiliaciones';
 import { Usuarios } from '../entities/Usuarios';
+import { SucursalesAreasLogs } from '../entities/SucursalesAreasLogs';
 
 @Module({
 
   imports:[
-    TypeOrmModule.forFeature([SucursalesAreasPermisos, SucursalesAreasGruposInformacion, TipoPermisos, RegistroInformacion, OutsoursingAfiliaciones, Usuarios]),
+    TypeOrmModule.forFeature([SucursalesAreasPermisos, SucursalesAreasGruposInformacion, TipoPermisos, RegistroInformacion, OutsoursingAfiliaciones, Usuarios,
+      SucursalesAreasLogs
+    ]),
   ],
 
   controllers: [SucursalesAreasPermisosController],

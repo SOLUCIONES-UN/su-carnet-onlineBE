@@ -10,6 +10,7 @@ import { RegistroInformacion } from '../entities/RegistroInformacion';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { OutsoursingAfiliaciones } from '../entities/OutsoursingAfiliaciones';
 import { Usuarios } from '../entities/Usuarios';
+import { SucursalesAreasLogs } from '../entities/SucursalesAreasLogs';
 
 @Injectable()
 export class SucursalesAreasPermisosService {
@@ -33,7 +34,10 @@ export class SucursalesAreasPermisosService {
     private OutsoursingAfiliacionesRepository: Repository<OutsoursingAfiliaciones>,
 
     @InjectRepository(Usuarios)
-    private UsuariosRepository: Repository<Usuarios>
+    private UsuariosRepository: Repository<Usuarios>,
+
+    @InjectRepository(SucursalesAreasLogs)
+    private SucursalesAreasLogsRepository: Repository<SucursalesAreasLogs>
 
   ) { }
 
@@ -190,6 +194,16 @@ export class SucursalesAreasPermisosService {
 
       // Guardar los cambios en la base de datos
       await this.SucursalesAreasPermisosRepository.save(updateAreaSucursalPermisos);
+
+      if(updateAreaSucursalPermisos.estado == 'TER'){
+
+        const logVisita = await this.SucursalesAreasLogsRepository.findOne({
+          where: {idSucursalAreaPermiso: areaSucursalPermisos}
+        });
+
+        logVisita.estado == 'TER'
+        await this.SucursalesAreasLogsRepository.save(logVisita);
+      }
 
       return updateAreaSucursalPermisos;
 
