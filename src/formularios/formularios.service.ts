@@ -50,15 +50,21 @@ export class FormulariosService {
   }
 
   async findAll(PaginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = PaginationDto;
+   
+    try {
+      const { limit = 10, offset = 0 } = PaginationDto;
 
-    const formularios = await this.FormulariosRepository.find({
-      where: { estado: 1 },
-      skip: offset,
-      take: limit,
-    });
-    
-    return formularios;
+      const formularios = await this.FormulariosRepository.find({
+        where: { estado: 1 },
+        skip: offset,
+        take: limit,
+      });
+      
+      return new GenericResponse('200', `EXITO `, formularios );
+
+    } catch (error) {
+      return new GenericResponse('500', `Error al consultar `, error );
+    }
   }
 
   async findOne(id: number) {
