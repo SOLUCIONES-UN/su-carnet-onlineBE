@@ -14,22 +14,22 @@ export class FormulariosController {
   }
 
   @Get()
-  findAll(@Query() paginationDto: PaginationDto) {
+  async findAll(@Query() paginationDto: PaginationDto) {
     return this.formulariosService.findAll(paginationDto);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return this.formulariosService.findOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFormularioDto: UpdateFormularioDto) {
+  async update(@Param('id') id: string, @Body() updateFormularioDto: UpdateFormularioDto) {
     return this.formulariosService.update(+id, updateFormularioDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string) {
     return this.formulariosService.remove(+id);
   }
 }
