@@ -82,9 +82,6 @@ export class SucursalesAreasLogsService {
 
       const consulta = this.SucursalesAreasLogsRepository.findOneBy({id: idLogCita});
 
-
-      console.log('consulta log '+ consulta)
-
       if((await consulta).estado == 'RECH' || (await consulta).estado == 'APL') 
       return new GenericResponse('401', 'QR vencido ya fue utilizado anteriormente ', consulta);
 
@@ -110,10 +107,6 @@ export class SucursalesAreasLogsService {
       const sucursales_areas_informacion = await this.SucursalesAreasInformacionRepository.findOne({
         where: {sucursalesAreasGruposInformacions: areaGrupo}
       });
-
-      console.log('areas grupos ', areaGrupo);
-
-      console.log('sucursales_areas_informacion ', sucursales_areas_informacion)
   
       if (!sucursales_areas_informacion) return new GenericResponse('400', `sucursales_areas_informacion ${areaGrupo.idSucursalArea} no encontrado`, null);
   
