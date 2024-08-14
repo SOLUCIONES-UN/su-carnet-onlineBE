@@ -195,14 +195,16 @@ export class SucursalesAreasPermisosService {
       // Guardar los cambios en la base de datos
       await this.SucursalesAreasPermisosRepository.save(updateAreaSucursalPermisos);
 
-      if(updateAreaSucursalPermisos.estado == 'TER'){
+      const logVisita = await this.SucursalesAreasLogsRepository.findOne({
+        where: {idSucursalAreaPermiso: areaSucursalPermisos}
+      });
 
-        const logVisita = await this.SucursalesAreasLogsRepository.findOne({
-          where: {idSucursalAreaPermiso: areaSucursalPermisos}
-        });
+      if(logVisita){
 
-        logVisita.estado == 'TER'
-        await this.SucursalesAreasLogsRepository.save(logVisita);
+        if(updateSucursalesAreasPermisoDto.estado === 'TER'){
+          logVisita.estado = 'TER';
+          await this.SucursalesAreasLogsRepository.save(logVisita);
+        }
       }
 
       return updateAreaSucursalPermisos;
