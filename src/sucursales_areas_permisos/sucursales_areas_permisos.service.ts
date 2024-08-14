@@ -125,7 +125,7 @@ export class SucursalesAreasPermisosService {
     }
   
     const registro_informacion = await this.RegistroInformacionRepository.findOne({
-      where: { idUsuario: usuario }
+      where: { idUsuario: usuario, estado: 'ACT' }
     });
   
     if (!registro_informacion) {
@@ -167,9 +167,7 @@ export class SucursalesAreasPermisosService {
 
       const areaGrupo = await this.SucursalesAreasGruposInformacionRepository.findOneBy({ id: idAreaGrupo });
 
-      const usuario = await this.UsuariosRepository.findOneBy({id: idUsuario});
-
-      const RegistroInformacion = await this.RegistroInformacionRepository.findOneBy({ idUsuario: usuario });
+      const RegistroInformacion = await this.RegistroInformacionRepository.findOneBy({id: updateSucursalesAreasPermisoDto.idUsuario });
 
       const TipoPermisos = await this.TipoPermisosRepository.findOneBy({ id: idPermiso });
 
@@ -178,7 +176,7 @@ export class SucursalesAreasPermisosService {
       }
 
       if (!RegistroInformacion) {
-        throw new NotFoundException(`RegistroInformacion con ID ${usuario.registroInformacions} no encontrada`);
+        throw new NotFoundException(`RegistroInformacion con ID ${updateSucursalesAreasPermisoDto.idUsuario} no encontrada`);
       }
 
       const OutsoursingAfiliaciones = await this.OutsoursingAfiliacionesRepository.findOneBy({id: idOutsoursingAfiliaciones});
