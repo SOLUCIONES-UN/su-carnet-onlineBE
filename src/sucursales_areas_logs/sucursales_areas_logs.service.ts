@@ -209,6 +209,10 @@ export class SucursalesAreasLogsService {
 
     const SucursalesAreasPermisos = await this.SucursalesAreasPermisosRepository.findOneBy({ id: idCita });
 
+    if(!SucursalesAreasPermisos){
+      return new GenericResponse('400', `La cita con id ${idCita} no encontrada `, null);
+    }
+
     return await this.SucursalesAreasLogsRepository.findOne({
       where: {idSucursalAreaPermiso: SucursalesAreasPermisos, estado: "PEN"},
       relations: ['idSucursalAreaPermiso'],
