@@ -189,8 +189,6 @@ export class SucursalesAreasPermisosService {
         idRegistro: RegistroInformacion,
         estado: updateSucursalesAreasPermisoDto.estado
       });
-
-      // Guardar los cambios en la base de datos
       await this.SucursalesAreasPermisosRepository.save(updateAreaSucursalPermisos);
 
       const logVisita = await this.SucursalesAreasLogsRepository.findOne({
