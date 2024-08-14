@@ -113,7 +113,6 @@ export class SucursalesAreasInformacionService {
         idSucursal: sucursal
       });
   
-      // Guardar los cambios en la base de datos
       await this.sucursalesAreasRepository.save(updateAreaSucursal);
   
       return updateAreaSucursal;
