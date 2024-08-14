@@ -173,36 +173,33 @@ export class SucursalesAreasLogsService {
     });
   }
 
-  async update(id: number, updateSucursalesAreasLogDto: UpdateSucursalesAreasLogDto){
-
+  async update(id: number, updateSucursalesAreasLogDto: UpdateSucursalesAreasLogDto) {
     try {
-
       const logVisitas = await this.SucursalesAreasLogsRepository.findOneBy({ id });
-
+  
       if (!logVisitas) {
         throw new NotFoundException(`logVisitas con ID ${id} no encontrado`);
       }
   
       Object.assign(logVisitas, updateSucursalesAreasLogDto);
-  
-      // Guardar los cambios
+    
       await this.SucursalesAreasLogsRepository.save(logVisitas);
-
-      const cita = await this.SucursalesAreasPermisosRepository.findOneBy({id: updateSucursalesAreasLogDto.idSucursalAreaPermiso});
-
-      if(logVisitas.estado == 'PRC'){
-
-        cita.estado == 'PRC'
-        await this.SucursalesAreasPermisosRepository.save(cita);
-      }
-
-      if(logVisitas.estado == 'TER'){
-        cita.estado == 'TER'
-        await this.SucursalesAreasPermisosRepository.save(cita);
+  
+      const cita = await this.SucursalesAreasPermisosRepository.findOneBy({
+        id: updateSucursalesAreasLogDto.idSucursalAreaPermiso,
+      });
+  
+      if (!cita) {
+        throw new NotFoundException(`Cita con ID ${updateSucursalesAreasLogDto.idSucursalAreaPermiso} no encontrada`);
       }
   
+      if (logVisitas.estado === 'PRC' || logVisitas.estado === 'TER') {
+        cita.estado = logVisitas.estado;
+        await this.SucursalesAreasPermisosRepository.save(cita);
+      }
+    
       return logVisitas;
-
+  
     } catch (error) {
       this.handleDBException(error);
     }
