@@ -125,7 +125,7 @@ export class SucursalesAreasPermisosService {
     }
   
     const registro_informacion = await this.RegistroInformacionRepository.findOne({
-      where: { idUsuario: usuario, estado: 'ACT' }
+      where: { idUsuario: usuario }
     });
   
     if (!registro_informacion) {
