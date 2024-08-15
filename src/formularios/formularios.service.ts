@@ -85,7 +85,7 @@ export class FormulariosService {
       // Guardar los cambios
       await this.FormulariosRepository.save(formulario);
   
-      return formulario;
+      return new GenericResponse('200', `EXITO`, formulario);
 
     } catch (error) {
       return new GenericResponse('500', `Error interno al editar `, error );
