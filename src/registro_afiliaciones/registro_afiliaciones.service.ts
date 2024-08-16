@@ -6,6 +6,7 @@ import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { NumericType, Repository } from 'typeorm';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { Usuarios } from '../entities/Usuarios';
+import { UpdateRegistroAfiliacioneDto } from './dto/update-registro_afiliacione.dto';
 
 @Injectable()
 export class RegistroAfiliacionesService {
@@ -29,30 +30,73 @@ export class RegistroAfiliacionesService {
 
     try {
 
-      const { idEmpresa, idUsuario, ...infoData } = createRegistroAfiliacioneDto;
-
-      const usuario = await this.UsuariosRepository.findOneBy({id:idUsuario});
+      const usuario = await this.UsuariosRepository.findOneBy({id:createRegistroAfiliacioneDto.idUsuario});
 
       if (!usuario) {
-        throw new NotFoundException(`usuario con ID ${idUsuario} no encontrado`);
+        throw new NotFoundException(`usuario con ID ${createRegistroAfiliacioneDto.idUsuario} no encontrado`);
       }
 
-      const empresaInformacion = await this.empresaRepository.findOneBy({ id: idEmpresa });
+      const empresaInformacion = await this.empresaRepository.findOneBy({ id: createRegistroAfiliacioneDto.idEmpresa });
 
       if (!empresaInformacion) {
-        throw new NotFoundException(`empresaInformacion con ID ${idEmpresa} no encontrada`);
+        throw new NotFoundException(`empresaInformacion con ID ${createRegistroAfiliacioneDto.idEmpresa} no encontrada`);
+      }
+
+      let fechaInicioAfiliacion = null; 
+
+      if(createRegistroAfiliacioneDto.estado === 'PEN'){
+        fechaInicioAfiliacion = null;
+      }
+      else if(createRegistroAfiliacioneDto.estado != 'PEN'){
+        fechaInicioAfiliacion = new Date();
       }
 
       const RegistroAfiliaciones = this.RegistroAfiliacionesRepository.create({
-        ...infoData,
         idEmpresa: empresaInformacion,
         idUsuario: usuario,
-        estado: 'PEN'
+        fechaSolicitud: new Date(),
+        fechaInicio: fechaInicioAfiliacion,
+        estado: createRegistroAfiliacioneDto.estado
       });
 
       await this.RegistroAfiliacionesRepository.save(RegistroAfiliaciones);
 
       return RegistroAfiliaciones;
+
+    } catch (error) {
+      this.handleDBException(error);
+    }
+  }
+
+  async AceptarAfiliacion(id: number, updateRegistroAfiliacioneDto: UpdateRegistroAfiliacioneDto){
+
+    try {
+
+      const usuario = await this.UsuariosRepository.findOneBy({id:updateRegistroAfiliacioneDto.idUsuario});
+
+      if (!usuario) {
+        throw new NotFoundException(`usuario con ID ${updateRegistroAfiliacioneDto.idUsuario} no encontrado`);
+      }
+
+      const empresaInformacion = await this.empresaRepository.findOneBy({ id: updateRegistroAfiliacioneDto.idEmpresa });
+
+      if (!empresaInformacion) {
+        throw new NotFoundException(`empresaInformacion con ID ${updateRegistroAfiliacioneDto.idEmpresa} no encontrada`);
+      }
+
+      const RegistroAfiliacion = await this.RegistroAfiliacionesRepository.findOneBy({ id });
+
+      if (!RegistroAfiliacion) {
+        throw new NotFoundException(`RegistroAfiliacion con ID ${id} not encontrado`);
+      }
+      const updateRegistroAfiliacion = this.RegistroAfiliacionesRepository.merge(RegistroAfiliacion, {
+        idEmpresa: empresaInformacion,
+        idUsuario: usuario,
+        fechaInicio: new Date(),
+        estado: updateRegistroAfiliacioneDto.estado
+      });
+
+      return await this.RegistroAfiliacionesRepository.save(updateRegistroAfiliacion);
 
     } catch (error) {
       this.handleDBException(error);

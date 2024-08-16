@@ -3,14 +3,6 @@ import { IsNull } from "typeorm";
 
 export class CreateRegistroAfiliacioneDto {
 
-    @IsString()
-    @IsNotEmpty({ message: 'El campo fechaSolicitud es requerido' })
-    fechaSolicitud: string;
-
-    @IsString()
-    @IsNotEmpty({ message: 'El campo fechaInicio es requerido' })
-    fechaInicio: string;
-
     @IsNumber()
     @IsNotEmpty({ message: 'El campo idEmpresa es requerido' })
     idEmpresa: number;
@@ -18,4 +10,8 @@ export class CreateRegistroAfiliacioneDto {
     @IsNumber()
     @IsNotEmpty({ message: 'El campo idUsuario es requerido' })
     idUsuario: number;
+
+    @IsString()
+    @IsNotEmpty({ message: 'El campo estado es requerido' })
+    estado: string;
 }

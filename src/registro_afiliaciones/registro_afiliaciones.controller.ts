@@ -3,6 +3,7 @@ import { RegistroAfiliacionesService } from './registro_afiliaciones.service';
 import { CreateRegistroAfiliacioneDto } from './dto/create-registro_afiliacione.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { UpdateRegistroAfiliacioneDto } from './dto/update-registro_afiliacione.dto';
 
 @Controller('registro-afiliaciones')
 export class RegistroAfiliacionesController {
@@ -24,6 +25,20 @@ export class RegistroAfiliacionesController {
 
     } catch (error) {
       throw new HttpException(new GenericResponse('500', 'Error al agregar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+  }
+
+  @Patch('AceptarAfiliacion/:id')
+  async update(@Param('id') id: string, @Body() updateRegistroAfiliacioneDto: UpdateRegistroAfiliacioneDto) {
+    
+    try {
+
+      const result = await this.registroAfiliacionesService.AceptarAfiliacion(+id, updateRegistroAfiliacioneDto);
+      return new GenericResponse('200', 'EXITO', result);
+
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al editar', error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
   }
