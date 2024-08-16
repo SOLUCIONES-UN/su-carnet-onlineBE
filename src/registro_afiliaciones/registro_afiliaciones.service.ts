@@ -78,7 +78,7 @@ export class RegistroAfiliacionesService {
 
     return await this.RegistroAfiliacionesRepository.findOne({
       where:{ idEmpresa: empresaInformacion, idUsuario: usuario},
-      relations: ['idEmpresa'],
+      relations: ['idEmpresa', 'idUsuario'],
     })
 
   }
@@ -114,7 +114,7 @@ export class RegistroAfiliacionesService {
     const RegistroAfiliaciones = await this.RegistroAfiliacionesRepository.find({
       skip: offset,
       take: limit,
-      relations: ['idEmpresa'],
+      relations: ['idEmpresa', 'idUsuario'],
     });
 
     return RegistroAfiliaciones;
@@ -126,7 +126,7 @@ export class RegistroAfiliacionesService {
 
     const RegistroAfiliaciones = await this.RegistroAfiliacionesRepository.find({
       where: {idUsuario: usuario},
-      relations: ['idEmpresa'],
+      relations: ['idEmpresa', 'idUsuario'],
     });
 
     return RegistroAfiliaciones;
