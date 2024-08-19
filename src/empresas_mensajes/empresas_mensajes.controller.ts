@@ -34,5 +34,10 @@ export class EmpresasMensajesController {
     }
   }
 
+  @Get('mensajesEmpresa/:idEmpresa')
+  async mensajesEmpresa(@Param('idEmpresa') idEmpresa: number) {
+    return this.empresasMensajesService.mensajesEmpresa(idEmpresa);
+  }
+
   
 }

@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import * as bcrypt from 'bcrypt';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
 @Injectable()
 export class EmpresasMensajesService {
@@ -33,17 +34,15 @@ export class EmpresasMensajesService {
         throw new NotFoundException(`EmpresasInformacion con ID ${idEmpresa} no encontrada`);
       }
 
-      const saltRounds = 10;
+      // const saltRounds = 10;
 
-      const [ tituloEncript, contenidoEncript] = await Promise.all([
-        bcrypt.hash(titulo, saltRounds),
-        bcrypt.hash(contenido, saltRounds),
-      ]);
+      // const [ tituloEncript, contenidoEncript] = await Promise.all([
+      //   bcrypt.hash(titulo, saltRounds),
+      //   bcrypt.hash(contenido, saltRounds),
+      // ]);
 
       const empresas_mensaje = this.EmpresasMensajesRepository.create({
         ...infoData,
-        titulo: tituloEncript,
-        contenido: contenidoEncript,
         fechaHoraEnvio: new Date,
         estado: 'ENV',
         idEmpresa: EmpresasInformacion
@@ -70,6 +69,24 @@ export class EmpresasMensajesService {
     });
 
     return empresas_mensajes;
+  }
+
+
+  async mensajesEmpresa(idEmpresa: number){
+
+    try {
+      
+      const empresa = await this.EmpresasInformacionRepository.findOneBy({id:idEmpresa});
+
+      const empresas_mensajes = await this.EmpresasMensajesRepository.find({
+        where: {idEmpresa:empresa}
+      })
+
+      return new GenericResponse('200', `ÉXITO`, empresas_mensajes);
+      
+    } catch (error) {
+      return new GenericResponse('500', `Error al consultar`, error);
+    }
   }
 
 
