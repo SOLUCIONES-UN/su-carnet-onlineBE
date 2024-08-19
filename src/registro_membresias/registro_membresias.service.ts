@@ -117,7 +117,7 @@ export class RegistroMembresiasService {
             },
           },
         },
-        relations: ['membresiaInformacion.tipoMembresia', 'membresiaInformacion.empresa'],
+        relations: ['membresiaInformacion.tipoMembresia', 'membresiaInformacion.empresa', 'registroInformacion.idUsuario'],
       });
   
       return new GenericResponse('200', `ÉXITO`, membresias);
