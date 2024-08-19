@@ -43,12 +43,12 @@ export class RegistroAfiliacionesController {
 
   }
 
-  @Get()
-  async findAll(@Query() paginationDto: PaginationDto) {
+  @Get(':idEmpresa/:estado')
+  async findAll(@Param('idEmpresa') idEmpresa: number, @Param('estado') estado: string,) {
 
     try {
 
-      const result = await this.registroAfiliacionesService.findAll(paginationDto);
+      const result = await this.registroAfiliacionesService.findAll(idEmpresa, estado);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {

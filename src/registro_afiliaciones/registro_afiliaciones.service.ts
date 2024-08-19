@@ -151,17 +151,22 @@ export class RegistroAfiliacionesService {
     return true; 
   }
 
-  async findAll(PaginationDto: PaginationDto) {
-
-    const { limit = 10, offset = 0 } = PaginationDto;
-
+  async findAll(idEmpresa: number, estado: string) {
+    const whereCondition: any = {};
+  
+    if (idEmpresa !== 0) {
+      whereCondition.idEmpresa = await this.empresaRepository.findOneBy({ id: idEmpresa });
+    }
+  
+    if (estado !== 'TODOS') {
+      whereCondition.estado = estado;
+    }
+  
     const RegistroAfiliaciones = await this.RegistroAfiliacionesRepository.find({
-      skip: offset,
-      take: limit,
-      where: {estado: 'PEN'},
+      where: whereCondition,
       relations: ['idEmpresa', 'idUsuario'],
     });
-
+  
     return RegistroAfiliaciones;
   }
 
