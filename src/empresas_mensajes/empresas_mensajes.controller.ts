@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, Query, ParseIntPipe } from '@nestjs/common';
 import { EmpresasMensajesService } from './empresas_mensajes.service';
 import { CreateEmpresasMensajeDto } from './dto/create-empresas_mensaje.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { UpdateEmpresasMensajeDto } from './dto/update-empresas_mensaje.dto';
 
 @Controller('empresas-mensajes')
 export class EmpresasMensajesController {
@@ -37,6 +38,18 @@ export class EmpresasMensajesController {
   @Get('mensajesEmpresa/:idEmpresa')
   async mensajesEmpresa(@Param('idEmpresa') idEmpresa: number) {
     return this.empresasMensajesService.mensajesEmpresa(idEmpresa);
+  }
+
+
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() updateEmpresasMensajeDto: UpdateEmpresasMensajeDto) {
+    return await this.empresasMensajesService.update(+id, updateEmpresasMensajeDto);
+  }
+
+  @Delete(':id')
+  async remove(@Param('id', ParseIntPipe) id: number) {
+
+    return await this.empresasMensajesService.remove(id);
   }
 
   

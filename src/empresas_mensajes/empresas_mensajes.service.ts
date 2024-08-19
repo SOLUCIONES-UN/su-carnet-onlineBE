@@ -7,6 +7,7 @@ import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import * as bcrypt from 'bcrypt';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
+import { UpdateEmpresasMensajeDto } from './dto/update-empresas_mensaje.dto';
 
 @Injectable()
 export class EmpresasMensajesService {
@@ -34,13 +35,6 @@ export class EmpresasMensajesService {
         throw new NotFoundException(`EmpresasInformacion con ID ${idEmpresa} no encontrada`);
       }
 
-      // const saltRounds = 10;
-
-      // const [ tituloEncript, contenidoEncript] = await Promise.all([
-      //   bcrypt.hash(titulo, saltRounds),
-      //   bcrypt.hash(contenido, saltRounds),
-      // ]);
-
       const empresas_mensaje = this.EmpresasMensajesRepository.create({
         ...infoData,
         fechaHoraEnvio: new Date,
@@ -57,6 +51,53 @@ export class EmpresasMensajesService {
     }
   }
 
+  async update(id: number, updateEmpresasMensajeDto: UpdateEmpresasMensajeDto){
+
+    try {
+
+      const {idEmpresa, ...infoData} = updateEmpresasMensajeDto;
+
+      const empresas_mensaje = await this.EmpresasMensajesRepository.findOneBy({id:id});
+
+      if(!empresas_mensaje) return new GenericResponse('401', `Mensaje de empresa con id ${id} no existe`, null);
+
+      const empresa = await this.EmpresasInformacionRepository.findOneBy({id:idEmpresa});
+
+      if(!empresa) return new GenericResponse('401', `Empresa con id ${idEmpresa} no existe`, null);
+  
+      const updated_MensajeEmpresa = this.EmpresasMensajesRepository.merge(empresas_mensaje, {
+        ...infoData,
+        idEmpresa: empresa
+      });
+  
+      await this.EmpresasMensajesRepository.save(updated_MensajeEmpresa);
+  
+      return new GenericResponse('200', `EXITO`, updated_MensajeEmpresa);
+  
+    } catch (error) {
+      return new GenericResponse('500', `Error al editar`, error);
+    }
+  }
+
+
+  async remove(id: number) {
+
+    try {
+
+      const mensajesEmpresa = await this.EmpresasMensajesRepository.findOneBy({id:id});
+
+      if (!mensajesEmpresa) return new GenericResponse('401', `EmpresaMensaje con id ${id} no existe`, null);
+
+      mensajesEmpresa.estado = 'INA';
+
+      return await this.EmpresasMensajesRepository.save(mensajesEmpresa);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error al eliminar`, error);
+    }
+
+  }
+
 
   async findAll(PaginationDto: PaginationDto) {
 
@@ -65,6 +106,7 @@ export class EmpresasMensajesService {
     const empresas_mensajes = await this.EmpresasMensajesRepository.find({
       skip: offset,
       take: limit,
+      where: {estado: 'ENV'},
       relations: ['idEmpresa'],
     });
 
