@@ -53,6 +53,11 @@ export class RegistroMembresiasController {
     return this.registroMembresiasService.membresiasUsuario(idUsuario);
   }
 
+  @Get('membresiasEmpresa/:idEmpresa')
+  async membresiasEmpresa(@Param('idEmpresa') idEmpresa: number) {
+    return await this.registroMembresiasService.membresiasEmpresas(idEmpresa);
+  }
+
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateRegistroMembresiaDto: UpdateRegistroMembresiaDto) {
     

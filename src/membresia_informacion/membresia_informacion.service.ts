@@ -68,6 +68,7 @@ export class MembresiaInformacionService {
       where: {estado: 1},
       skip: offset,
       take: limit,
+      relations: ['empresa'],
     });
     
     return membresia_informacion;

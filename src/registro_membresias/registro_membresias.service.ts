@@ -105,6 +105,27 @@ export class RegistroMembresiasService {
     }
   }
 
+
+  async membresiasEmpresas(idEmpresa: number) {
+    try {
+      const membresias = await this.RegistroMembresiaRepository.find({
+        where: {
+          estado: 1,
+          membresiaInformacion: {
+            empresa: {
+              id: idEmpresa,
+            },
+          },
+        },
+        relations: ['membresiaInformacion.tipoMembresia', 'membresiaInformacion.empresa'],
+      });
+  
+      return new GenericResponse('200', `ÉXITO`, membresias);
+    } catch (error) {
+      return new GenericResponse('500', `Error al consultar`, error);
+    }
+  }
+
   async findOne(id: number) {
     return this.RegistroMembresiaRepository.findOneBy({ id });
   }
