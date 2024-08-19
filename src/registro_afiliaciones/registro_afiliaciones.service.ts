@@ -158,6 +158,7 @@ export class RegistroAfiliacionesService {
     const RegistroAfiliaciones = await this.RegistroAfiliacionesRepository.find({
       skip: offset,
       take: limit,
+      where: {estado: 'PEN'},
       relations: ['idEmpresa', 'idUsuario'],
     });
 
