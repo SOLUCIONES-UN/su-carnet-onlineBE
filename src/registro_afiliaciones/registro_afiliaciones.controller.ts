@@ -69,9 +69,8 @@ export class RegistroAfiliacionesController {
     }
   }
 
-  @Get('afiliacionByUsuario/:idUsuario')
-  async afiliacionByUsuario(@Param('idUsuario') idUsuario: number) {
-
+  @Get(':idUsuario')
+  async afiliacionByUsuario(@Param('idUsuario') idUsuario: string) {
     try {
 
       const result = await this.registroAfiliacionesService.afiliacionByUsuario(+idUsuario);
