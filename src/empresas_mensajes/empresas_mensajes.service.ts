@@ -67,6 +67,7 @@ export class EmpresasMensajesService {
   
       const updated_MensajeEmpresa = this.EmpresasMensajesRepository.merge(empresas_mensaje, {
         ...infoData,
+        estado: 'ENV',
         idEmpresa: empresa
       });
   
