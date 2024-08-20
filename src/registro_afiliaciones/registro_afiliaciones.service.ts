@@ -214,7 +214,7 @@ export class RegistroAfiliacionesService {
     // Validar la existencia de idEmpresa
     const registroAfiliaciones = await this.RegistroAfiliacionesRepository.find(
       {
-        where: { idUsuario: usuario },
+        where: { idUsuario: usuario, estado: 'ACEP' },
         relations: ['idEmpresa', 'idUsuario'],
       },
     );
