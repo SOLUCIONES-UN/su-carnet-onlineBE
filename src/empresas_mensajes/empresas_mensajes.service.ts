@@ -4,7 +4,6 @@ import { EmpresasMensajes } from '../entities/EmpresasMensajes';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
-import * as bcrypt from 'bcrypt';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { UpdateEmpresasMensajeDto } from './dto/update-empresas_mensaje.dto';
@@ -38,7 +37,7 @@ export class EmpresasMensajesService {
       const empresas_mensaje = this.EmpresasMensajesRepository.create({
         ...infoData,
         fechaHoraEnvio: new Date,
-        estado: 'ENV',
+        estado: 'ACT',
         idEmpresa: EmpresasInformacion
       });
 
@@ -67,7 +66,7 @@ export class EmpresasMensajesService {
   
       const updated_MensajeEmpresa = this.EmpresasMensajesRepository.merge(empresas_mensaje, {
         ...infoData,
-        estado: 'ENV',
+        estado: 'ACT',
         idEmpresa: empresa
       });
   
@@ -107,7 +106,7 @@ export class EmpresasMensajesService {
     const empresas_mensajes = await this.EmpresasMensajesRepository.find({
       skip: offset,
       take: limit,
-      where: {estado: 'ENV'},
+      where: {estado: 'ACT'},
       relations: ['idEmpresa'],
     });
 
