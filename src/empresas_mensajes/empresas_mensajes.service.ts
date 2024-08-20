@@ -38,6 +38,9 @@ export class EmpresasMensajesService {
         ...infoData,
         fechaHoraEnvio: new Date,
         estado: 'ACT',
+        titulo: createEmpresasMensajeDto.titulo,
+        accion: createEmpresasMensajeDto.accion,
+        contenido: createEmpresasMensajeDto.contenido,
         idEmpresa: EmpresasInformacion
       });
 

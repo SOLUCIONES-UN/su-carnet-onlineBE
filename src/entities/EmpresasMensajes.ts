@@ -16,7 +16,7 @@ export class EmpresasMensajes {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;
 
-  @Column("character varying", { name: "titulo" })
+  @Column("character varying", { name: "titulo", length: 200 })
   titulo: string;
 
   @Column("text", { name: "contenido" })
