@@ -77,6 +77,7 @@ export class SucursalesDocumentosService {
     const sucursalesDocumentos = await this.SucursalesDocumentossRepository.find({
       skip: offset,
       take: limit,
+      where: {estado: 1},
       relations: ['idSucursal', 'idTipoDocumento'],
     });
     
