@@ -1,4 +1,5 @@
 import {
+  Column,
   Entity,
   Index,
   JoinColumn,
@@ -13,6 +14,9 @@ import { TipoDocumentos } from "./TipoDocumentos";
 export class SucursalesDocumentos {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;
+
+  @Column("integer", { name: "estado", nullable: true, default: () => "1" })
+  estado: number | null;
 
   @ManyToOne(
     () => SucursalesInformacion,

@@ -204,14 +204,13 @@ export class RegistroAfiliacionesService {
   }
 
   async afiliacionByUsuario(idUsuario: number) {
-    // Verificar si el usuario existe
+   
     const usuario = await this.UsuariosRepository.findOneBy({ id: idUsuario });
 
     if (!usuario) {
       throw new Error('Usuario no encontrado');
     }
 
-    // Validar la existencia de idEmpresa
     const registroAfiliaciones = await this.RegistroAfiliacionesRepository.find(
       {
         where: { idUsuario: usuario, estado: 'ACEP' },

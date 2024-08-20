@@ -25,33 +25,46 @@ export class SucursalesDocumentosService {
   ) { }
 
   async create(createSucursalesDocumentoDto: CreateSucursalesDocumentoDto) {
-    
+
     try {
-      
+
       const { idSucursal, idTipoDocumento, ...infoData } = createSucursalesDocumentoDto;
   
-      const SucursalInformacion = await this.SucursalesInformacionRepository.findOneBy({ id: idSucursal });
-  
-      if (!SucursalInformacion) {
+      const sucursalInformacion = await this.SucursalesInformacionRepository.findOneBy({ id: idSucursal });
+      if (!sucursalInformacion) {
         throw new NotFoundException(`SucursalInformacion con ID ${idSucursal} no encontrada`);
       }
-
-      const TipoDocumentos = await this.tiposDocumentosRepository.findOneBy({id:idTipoDocumento});
-
-      if(!TipoDocumentos){
+  
+      const tipoDocumentos = await this.tiposDocumentosRepository.findOneBy({ id: idTipoDocumento });
+      if (!tipoDocumentos) {
         throw new NotFoundException(`TipoDocumentos con ID ${idTipoDocumento} no encontrado`);
       }
   
-      const sucursalesDocumentos = this.SucursalesDocumentossRepository.create({
-        ...infoData,
-        idSucursal: SucursalInformacion,
-        idTipoDocumento: TipoDocumentos
+      const existeDocumento = await this.SucursalesDocumentossRepository.findOne({
+        where: { idSucursal: sucursalInformacion, idTipoDocumento: tipoDocumentos }
       });
   
-      await this.SucursalesDocumentossRepository.save(sucursalesDocumentos);
+      if (!existeDocumento) {
+        const sucursalesDocumentos = this.SucursalesDocumentossRepository.create({
+          ...infoData,
+          idSucursal: sucursalInformacion,
+          idTipoDocumento: tipoDocumentos,
+          estado: 1  
+        });
   
-      return sucursalesDocumentos; 
-
+        await this.SucursalesDocumentossRepository.save(sucursalesDocumentos);
+  
+        return sucursalesDocumentos;
+  
+      } else {
+        Object.assign(existeDocumento, infoData); 
+        existeDocumento.estado = 1; 
+  
+        await this.SucursalesDocumentossRepository.save(existeDocumento);
+  
+        return existeDocumento;
+      }
+  
     } catch (error) {
       this.handleDBException(error);
     }
@@ -73,14 +86,17 @@ export class SucursalesDocumentosService {
   async remove(id: number) {
     
     try {
-      
-      const sucursalesDocumentos = await this.SucursalesDocumentossRepository.findOne({ where: { id } });
+      const sucursales_documento =
+        await this.SucursalesDocumentossRepository.findOneBy({ id });
 
-      if(!sucursalesDocumentos){
-        throw new NotFoundException(`empresaDocumentos con ID ${id} not encontrado`);
+      if (!sucursales_documento) {
+        throw new NotFoundException(
+          `sucursales_documento con ID ${id} not encontrado`,
+        );
       }
-      return await this.SucursalesDocumentossRepository.remove(sucursalesDocumentos);
 
+      sucursales_documento.estado = 0;
+      return await this.SucursalesDocumentossRepository.save(sucursales_documento);
     } catch (error) {
       this.handleDBException(error);
     }
