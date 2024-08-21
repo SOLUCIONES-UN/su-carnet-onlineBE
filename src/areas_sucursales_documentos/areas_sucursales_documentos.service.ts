@@ -74,7 +74,7 @@ export class AreasSucursalesDocumentosService {
       skip: offset,
       take: limit,
       where: {estado: 1},
-      relations: ['idAreasucursal', 'idTipoDocumento', 'idAreasucursal.idSucursal'],
+      relations: ['idAreasucursal', 'idTipoDocumento', 'idAreasucursal.idSucursal', 'idAreasucursal.idSucursal.idEmpresa'],
     });
     
     return new GenericResponse('200', `EXITO`, Documentos);
