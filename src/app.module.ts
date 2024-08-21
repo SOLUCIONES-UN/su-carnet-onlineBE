@@ -45,6 +45,7 @@ import { DispositivosModule } from './dispositivos/dispositivos.module';
 import { FormulariosModule } from './formularios/formularios.module';
 import { ReportesModule } from './reportes/reportes.module';
 import { TiposCuentasModule } from './tipos_cuentas/tipos_cuentas.module';
+import { AreasSucursalesDocumentosModule } from './areas_sucursales_documentos/areas_sucursales_documentos.module';
 
 @Module({
   imports: [
@@ -152,6 +153,8 @@ import { TiposCuentasModule } from './tipos_cuentas/tipos_cuentas.module';
     ReportesModule,
 
     TiposCuentasModule,
+
+    AreasSucursalesDocumentosModule,
   ],
 })
 export class AppModule {}

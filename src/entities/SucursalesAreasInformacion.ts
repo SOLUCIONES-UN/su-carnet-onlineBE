@@ -7,6 +7,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { AreasSucursalesDocumentos } from "./AreasSucursalesDocumentos";
 import { SucursalesAreasGruposInformacion } from "./SucursalesAreasGruposInformacion";
 import { SucursalesInformacion } from "./SucursalesInformacion";
 import { SucursalesAreasPuertas } from "./SucursalesAreasPuertas";
@@ -53,6 +54,12 @@ export class SucursalesAreasInformacion {
 
   @Column("integer", { name: "tiempo_qr", nullable: true })
   tiempoQr: number | null;
+
+  @OneToMany(
+    () => AreasSucursalesDocumentos,
+    (areasSucursalesDocumentos) => areasSucursalesDocumentos.idAreasucursal
+  )
+  areasSucursalesDocumentos: AreasSucursalesDocumentos[];
 
   @OneToMany(
     () => SucursalesAreasGruposInformacion,
