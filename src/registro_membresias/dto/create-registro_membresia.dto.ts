@@ -20,5 +20,5 @@ export class CreateRegistroMembresiaDto {
 
     @IsNumber()
     @IsNotEmpty({ message: 'El campo registroInformacion es requerido' })
-    registroInformacion: number;
+    idUsuario: number;
 }

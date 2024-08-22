@@ -35,7 +35,7 @@ export class RegistroMembresiasService {
     
     try {
 
-      const {membresiaInformacion, registroInformacion, ...infoData} = createRegistroMembresiaDto;
+      const {membresiaInformacion, idUsuario, ...infoData} = createRegistroMembresiaDto;
 
       const membresia_informacion = await this.MembresiaInformacionRepository.findOneBy({ id: membresiaInformacion });
   
@@ -43,7 +43,13 @@ export class RegistroMembresiasService {
         throw new NotFoundException(`membresia_informacion con ID ${membresiaInformacion} no encontrado`);
       }
 
-      const registro_informacion = await this.RegistroInformacionRepository.findOneBy({id: registroInformacion});
+      const usuario = await this.UsuariosRepository.findOneBy({id:idUsuario});
+
+      if(!usuario){
+        throw new NotFoundException(`usuario con ID ${idUsuario} no encontrado`);
+      }
+
+      const registro_informacion = await this.RegistroInformacionRepository.findOneBy({idUsuario: usuario});
 
       if (!registro_informacion) {
         throw new NotFoundException(`registro_informacion con ID ${registro_informacion} no encontrado`);
@@ -134,7 +140,7 @@ export class RegistroMembresiasService {
     
     try {
 
-      const {membresiaInformacion, registroInformacion, ...infoData} = updateRegistroMembresiaDto;
+      const {membresiaInformacion, idUsuario, ...infoData} = updateRegistroMembresiaDto;
 
       const membresia_informacion = await this.MembresiaInformacionRepository.findOneBy({ id: membresiaInformacion });
   
@@ -142,11 +148,19 @@ export class RegistroMembresiasService {
         throw new NotFoundException(`membresia_informacion con ID ${membresiaInformacion} no encontrado`);
       }
 
-      const registro_informacion = await this.RegistroInformacionRepository.findOneBy({id: registroInformacion});
+      const usuario = await this.UsuariosRepository.findOneBy({id:idUsuario});
+
+      if(!usuario){
+        throw new NotFoundException(`usuario con ID ${idUsuario} no encontrado`);
+      }
+
+      const registro_informacion = await this.RegistroInformacionRepository.findOneBy({idUsuario: usuario});
 
       if (!registro_informacion) {
         throw new NotFoundException(`registro_informacion con ID ${registro_informacion} no encontrado`);
       }
+
+      console.log(registro_informacion)
 
       const registro_membresia = await this.RegistroMembresiaRepository.findOneBy({id: id});
   
