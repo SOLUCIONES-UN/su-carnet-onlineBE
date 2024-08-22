@@ -3,11 +3,13 @@ import { CreateAreasSucursalesDocumentoDto } from './dto/create-areas_sucursales
 import { UpdateAreasSucursalesDocumentoDto } from './dto/update-areas_sucursales_documento.dto';
 import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { AreasSucursalesDocumentos } from '../entities/AreasSucursalesDocumentos';
 import { TipoDocumentos } from '../entities/TipoDocumentos';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { SucursalesInformacion } from '../entities/SucursalesInformacion';
+import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 
 @Injectable()
 export class AreasSucursalesDocumentosService {
@@ -15,6 +17,12 @@ export class AreasSucursalesDocumentosService {
   constructor(
     @InjectRepository(SucursalesAreasInformacion)
     private SucursalesAreasInformacionRepository: Repository<SucursalesAreasInformacion>,
+
+    @InjectRepository(SucursalesInformacion)
+    private SucursalesInformacionRepository: Repository<SucursalesInformacion>,
+
+    @InjectRepository(EmpresasInformacion)
+    private EmpresasInformacionRepository: Repository<EmpresasInformacion>,
 
     @InjectRepository(AreasSucursalesDocumentos)
     private AreasSucursalesDocumentosRepository: Repository<AreasSucursalesDocumentos>,
@@ -66,19 +74,32 @@ export class AreasSucursalesDocumentosService {
     }
   }
 
-  async findAll(PaginationDto: PaginationDto) {
+  async findAll(idEmpresa: number, idSucursal: number, idAreaSucursal: number) {
 
-    const { limit = 10, offset = 0 } = PaginationDto;
-
-    const Documentos = await this.AreasSucursalesDocumentosRepository.find({
-      skip: offset,
-      take: limit,
-      where: {estado: 1},
-      relations: ['idAreasucursal', 'idTipoDocumento', 'idAreasucursal.idSucursal'],
-    });
+    const queryBuilder = this.AreasSucursalesDocumentosRepository.createQueryBuilder('documento')
+      .leftJoinAndSelect('documento.idAreasucursal', 'areaSucursal')
+      .leftJoinAndSelect('areaSucursal.idSucursal', 'sucursal')
+      .leftJoinAndSelect('sucursal.idEmpresa', 'empresa')
+      .leftJoinAndSelect('documento.idTipoDocumento', 'tipoDocumento');
+  
+    if (idEmpresa !== 0) {
+      queryBuilder.andWhere('empresa.id = :idEmpresa', { idEmpresa });
+    }
+  
+    if (idSucursal !== 0) {
+      queryBuilder.andWhere('sucursal.id = :idSucursal', { idSucursal });
+    }
+  
+    if (idAreaSucursal !== 0) {
+      queryBuilder.andWhere('areaSucursal.id = :idAreaSucursal', { idAreaSucursal });
+    }
+  
+    const Documentos = await queryBuilder.getMany();
     
-    return new GenericResponse('200', `EXITO`, Documentos);
+    return new GenericResponse('200', 'EXITO', Documentos);
   }
+
+ 
 
   findOne(id: number) {
     return `This action returns a #${id} areasSucursalesDocumento`;

@@ -13,9 +13,9 @@ export class AreasSucursalesDocumentosController {
     return this.areasSucursalesDocumentosService.create(createAreasSucursalesDocumentoDto);
   }
 
-  @Get()
-  async findAll(@Query() paginationDto: PaginationDto) {
-    return this.areasSucursalesDocumentosService.findAll(paginationDto);
+  @Get(':idEmpresa/:idSucursal/:idAreaSucursal')
+  async findAll(@Param('idEmpresa') idEmpresa: number, @Param('idSucursal') idSucursal: number, @Param('idAreaSucursal') idAreaSucursal: number) {
+    return this.areasSucursalesDocumentosService.findAll(idEmpresa, idSucursal, idAreaSucursal); 
   }
 
   @Get(':id')
