@@ -21,12 +21,11 @@ export class SucursalesDocumentosController {
     }
   }
 
-  @Get()
-  async findAll(@Query() paginationDto: PaginationDto) {
+  @Get(':idEmpresa/:idSucursal')
+  async findAll(@Param('idEmpresa') idEmpresa: number, @Param('idSucursal') idSucursal: number) {
 
     try {
-
-      const result = await this.sucursalesDocumentosService.findAll(paginationDto);
+      const result = await this.sucursalesDocumentosService.findAll(idEmpresa, idSucursal); 
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {

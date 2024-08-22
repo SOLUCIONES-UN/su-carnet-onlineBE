@@ -3,9 +3,11 @@ import { CreateSucursalesDocumentoDto } from './dto/create-sucursales_documento.
 import { SucursalesInformacion } from '../entities/SucursalesInformacion';
 import { SucursalesDocumentos } from '../entities/SucursalesDocumentos';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { TipoDocumentos } from '../entities/TipoDocumentos';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { EmpresasInformacion } from '../entities/EmpresasInformacion';
+import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
 @Injectable()
 export class SucursalesDocumentosService {
@@ -15,6 +17,9 @@ export class SucursalesDocumentosService {
   constructor(
     @InjectRepository(SucursalesInformacion)
     private SucursalesInformacionRepository: Repository<SucursalesInformacion>,
+
+    @InjectRepository(SucursalesInformacion)
+    private EmpresasInformacionRepository: Repository<EmpresasInformacion>,
 
     @InjectRepository(SucursalesDocumentos)
     private SucursalesDocumentossRepository: Repository<SucursalesDocumentos>,
@@ -70,18 +75,45 @@ export class SucursalesDocumentosService {
     }
   }
 
-  async findAll(PaginationDto: PaginationDto) {
+  async findAll(idEmpresa: number, idSucursal: number) {
 
-    const { limit = 10, offset = 0 } = PaginationDto;
-
+    if (idEmpresa !== 0) {
+      const empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idEmpresa });
+      if (!empresa) {
+        return new GenericResponse('400', `No se encontró Empresa con el ID ${idEmpresa}`, null);
+      }
+    }
+  
+    if (idSucursal !== 0) {
+      const sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: idSucursal });
+      if (!sucursal) {
+        return new GenericResponse('400', `No se encontró Sucursal con el ID ${idSucursal}`, null);
+      }
+    }
+  
+    let whereCondition: any = { estado: 1 };
+  
+    if (idEmpresa !== 0) {
+      const empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idEmpresa });
+      const sucursalesDeEmpresa = await this.SucursalesInformacionRepository.find({
+        where: { idEmpresa: empresa },
+        select: ['id'], 
+      });
+  
+      const idsSucursales = sucursalesDeEmpresa.map(sucursal => sucursal.id);
+      whereCondition.idSucursal = In(idsSucursales);
+    }
+  
+    if (idSucursal !== 0) {
+      whereCondition.idSucursal = idSucursal;
+    }
+  
     const sucursalesDocumentos = await this.SucursalesDocumentossRepository.find({
-      skip: offset,
-      take: limit,
-      where: {estado: 1},
+      where: whereCondition,
       relations: ['idSucursal', 'idTipoDocumento'],
     });
-    
-    return sucursalesDocumentos;
+  
+    return new GenericResponse('200', 'Éxito', sucursalesDocumentos);
   }
 
   async remove(id: number) {
