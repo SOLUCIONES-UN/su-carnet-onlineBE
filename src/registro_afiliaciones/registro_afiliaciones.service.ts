@@ -32,8 +32,6 @@ export class RegistroAfiliacionesService {
   async create(createRegistroAfiliacioneDto: CreateRegistroAfiliacioneDto) {
 
     try {
-
-      console.log("tipo solicitud")
       
       const usuario = await this.UsuariosRepository.findOneBy({
         id: createRegistroAfiliacioneDto.idUsuario,
