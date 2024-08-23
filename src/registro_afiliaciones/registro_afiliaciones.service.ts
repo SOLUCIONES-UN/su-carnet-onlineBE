@@ -120,6 +120,7 @@ export class RegistroAfiliacionesService {
           idUsuario: usuario,
           fechaInicio: new Date(),
           estado: updateRegistroAfiliacioneDto.estado,
+          tipoSolicitud: updateRegistroAfiliacioneDto.tipoSolicitud
         });
 
       return await this.RegistroAfiliacionesRepository.save(
