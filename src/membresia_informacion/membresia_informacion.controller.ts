@@ -35,6 +35,19 @@ export class MembresiaInformacionController {
     }
   }
 
+  @Get(':idEmpresa')
+  async membresiasEmpresa(@Param('idEmpresa') idEmpresa:number) {
+
+    try {
+
+      const result = await this.membresiaInformacionService.MembresiasEmpresa(idEmpresa);
+      return new GenericResponse('200', 'EXITO', result);
+
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
 

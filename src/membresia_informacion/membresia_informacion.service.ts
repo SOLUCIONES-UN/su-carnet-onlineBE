@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { TipoMembresia } from '../entities/TipoMembresia';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { watch } from 'fs';
 
 @Injectable()
 export class MembresiaInformacionService {
@@ -68,6 +69,19 @@ export class MembresiaInformacionService {
       where: {estado: 1},
       skip: offset,
       take: limit,
+      relations: ['empresa'],
+    });
+    
+    return membresia_informacion;
+  }
+
+
+  async MembresiasEmpresa(idEmpresa: number) {
+
+    const empresa = await this.EmpresasInformacionRepository.findOneBy({id:idEmpresa});
+
+    const membresia_informacion = await this.MembresiaInformacionRepository.find({
+      where: {estado: 1, empresa:empresa},
       relations: ['empresa'],
     });
     

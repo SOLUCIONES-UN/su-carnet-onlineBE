@@ -1,5 +1,4 @@
 import { IsNotEmpty, IsNumber, IsString } from "class-validator";
-import { IsNull } from "typeorm";
 
 export class CreateRegistroAfiliacioneDto {
 
@@ -14,4 +13,8 @@ export class CreateRegistroAfiliacioneDto {
     @IsString()
     @IsNotEmpty({ message: 'El campo estado es requerido' })
     estado: string;
+
+    @IsNumber()
+    @IsNotEmpty({ message: 'El campo tipoSolicitud es requerido' })
+    tipoSolicitud: number;
 }

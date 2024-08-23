@@ -30,7 +30,11 @@ export class RegistroAfiliacionesService {
   ) {}
 
   async create(createRegistroAfiliacioneDto: CreateRegistroAfiliacioneDto) {
+
     try {
+
+      console.log("tipo solicitud")
+      
       const usuario = await this.UsuariosRepository.findOneBy({
         id: createRegistroAfiliacioneDto.idUsuario,
       });
@@ -65,6 +69,8 @@ export class RegistroAfiliacionesService {
         fechaSolicitud: new Date(),
         fechaInicio: fechaInicioAfiliacion,
         estado: createRegistroAfiliacioneDto.estado,
+        tipoSolicitud: createRegistroAfiliacioneDto.tipoSolicitud
+        //Tipo solicitud si es 1 sera afiliacion a empresa si es 2 sera solicitud de empleo
       });
 
       await this.RegistroAfiliacionesRepository.save(RegistroAfiliaciones);

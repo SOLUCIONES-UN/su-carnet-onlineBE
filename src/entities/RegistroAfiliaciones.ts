@@ -27,6 +27,9 @@ export class RegistroAfiliaciones {
   @Column("character varying", { name: "estado", length: 4 })
   estado: string;
 
+  @Column("integer", { name: "tipoSolicitud", nullable: true })
+  tipoSolicitud: number | null;
+
   @ManyToOne(
     () => EmpresasInformacion,
     (empresasInformacion) => empresasInformacion.registroAfiliaciones
