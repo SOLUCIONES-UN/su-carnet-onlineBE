@@ -23,14 +23,7 @@ export class SucursalesDocumentosController {
 
   @Get(':idEmpresa/:idSucursal')
   async findAll(@Param('idEmpresa') idEmpresa: number, @Param('idSucursal') idSucursal: number) {
-
-    try {
-      const result = await this.sucursalesDocumentosService.findAll(idEmpresa, idSucursal); 
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.sucursalesDocumentosService.findAll(idEmpresa, idSucursal); 
   }
 
   @Delete(':id')

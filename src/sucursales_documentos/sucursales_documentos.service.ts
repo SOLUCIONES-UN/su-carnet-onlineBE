@@ -18,7 +18,7 @@ export class SucursalesDocumentosService {
     @InjectRepository(SucursalesInformacion)
     private SucursalesInformacionRepository: Repository<SucursalesInformacion>,
 
-    @InjectRepository(SucursalesInformacion)
+    @InjectRepository(EmpresasInformacion)
     private EmpresasInformacionRepository: Repository<EmpresasInformacion>,
 
     @InjectRepository(SucursalesDocumentos)
@@ -76,44 +76,49 @@ export class SucursalesDocumentosService {
   }
 
   async findAll(idEmpresa: number, idSucursal: number) {
-
-    if (idEmpresa !== 0) {
-      const empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idEmpresa });
-      if (!empresa) {
-        return new GenericResponse('400', `No se encontró Empresa con el ID ${idEmpresa}`, null);
+    
+    try {
+      let whereCondition: any = { estado: 1 };
+  
+      if (idEmpresa === 0) {
+        whereCondition = { estado: 1 };
+      } else {
+        const empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idEmpresa });
+        if (!empresa) {
+          return new GenericResponse('400', `No se encontró Empresa con el ID ${idEmpresa}`, null);
+        }
+  
+        if (idSucursal === 0) {
+          const sucursalesDeEmpresa = await this.SucursalesInformacionRepository.find({
+            where: { idEmpresa: empresa },
+          });
+  
+          const idsSucursales = sucursalesDeEmpresa.map(sucursal => sucursal.id);
+  
+          if (idsSucursales.length > 0) {
+            whereCondition.idSucursal = In(idsSucursales);
+          } else {
+            return new GenericResponse('200', 'EXITO', []);
+          }
+        } else {
+          const sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: idSucursal, idEmpresa: empresa });
+          if (!sucursal) {
+            return new GenericResponse('400', `La Sucursal con el ID ${idSucursal} no pertenece a la Empresa con el ID ${idEmpresa}`, null);
+          }
+          whereCondition.idSucursal = idSucursal;
+        }
       }
-    }
   
-    if (idSucursal !== 0) {
-      const sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: idSucursal });
-      if (!sucursal) {
-        return new GenericResponse('400', `No se encontró Sucursal con el ID ${idSucursal}`, null);
-      }
-    }
-  
-    let whereCondition: any = { estado: 1 };
-  
-    if (idEmpresa !== 0) {
-      const empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idEmpresa });
-      const sucursalesDeEmpresa = await this.SucursalesInformacionRepository.find({
-        where: { idEmpresa: empresa },
-        select: ['id'], 
+      const sucursalesDocumentos = await this.SucursalesDocumentossRepository.find({
+        where: whereCondition,
+        relations: ['idSucursal', 'idTipoDocumento', 'idSucursal.idEmpresa'],
       });
   
-      const idsSucursales = sucursalesDeEmpresa.map(sucursal => sucursal.id);
-      whereCondition.idSucursal = In(idsSucursales);
+      return new GenericResponse('200', 'EXITO', sucursalesDocumentos);
+  
+    } catch (error) {
+      return new GenericResponse('500', 'Error al consultar', error.message || error);
     }
-  
-    if (idSucursal !== 0) {
-      whereCondition.idSucursal = idSucursal;
-    }
-  
-    const sucursalesDocumentos = await this.SucursalesDocumentossRepository.find({
-      where: whereCondition,
-      relations: ['idSucursal', 'idTipoDocumento'],
-    });
-  
-    return new GenericResponse('200', 'Éxito', sucursalesDocumentos);
   }
 
   async remove(id: number) {
