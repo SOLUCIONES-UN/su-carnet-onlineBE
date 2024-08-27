@@ -3,22 +3,41 @@ import { IsNotEmpty, IsNumber, IsOptional, IsString } from "class-validator";
 export class CreateTarjetaPresentacionDto {
 
     @IsString()
-    @IsNotEmpty({ message: 'El campo imgFondo es requerido' })
+    @IsOptional()
     imgFondo: string;
 
     @IsString()
-    @IsNotEmpty({ message: 'El campo linkedin es requerido' })
+    @IsOptional()
     linkedin: string;
 
     @IsString()
-    @IsNotEmpty({ message: 'El campo facebook es requerido' })
+    @IsOptional()
     facebook: string;
 
     @IsString()
-    @IsNotEmpty({ message: 'El campo instagram es requerido' })
+    @IsOptional()
     instagram: string;
 
-    @IsNumber()
+    @IsString()
+    @IsOptional()
+    telefonoOficina: string;
+
+    @IsString()
+    @IsOptional()
+    telefonoMovil: string;
+
+    @IsString()
+    @IsOptional()
+    correo: string;
+
+    @IsString()
+    @IsOptional()
+    puesto: string;
+
+    @IsString()
+    @IsOptional()
+    direccion: string;
+
     @IsNumber()
     @IsOptional()
     idEmpresa: number;

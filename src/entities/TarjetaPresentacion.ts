@@ -46,6 +46,33 @@ export class TarjetaPresentacion {
   @Column("integer", { name: "estado", default: () => "1" })
   estado: number;
 
+  @Column("character varying", {
+    name: "telefono_oficina",
+    nullable: true,
+    length: 15,
+  })
+  telefonoOficina: string | null;
+
+  @Column("character varying", {
+    name: "telefono_movil",
+    nullable: true,
+    length: 15,
+  })
+  telefonoMovil: string | null;
+
+  @Column("character varying", { name: "correo", nullable: true, length: 20 })
+  correo: string | null;
+
+  @Column("character varying", { name: "puesto", nullable: true, length: 50 })
+  puesto: string | null;
+
+  @Column("character varying", {
+    name: "direccion",
+    nullable: true,
+    length: 50,
+  })
+  direccion: string | null;
+
   @ManyToOne(
     () => EmpresasInformacion,
     (empresasInformacion) => empresasInformacion.tarjetaPresentacions
