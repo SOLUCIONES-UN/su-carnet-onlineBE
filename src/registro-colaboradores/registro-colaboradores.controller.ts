@@ -12,14 +12,9 @@ export class RegistroColaboradoresController {
     return this.registroColaboradoresService.create(createRegistroColaboradoreDto);
   }
 
-  @Get()
-  findAll() {
-    return this.registroColaboradoresService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.registroColaboradoresService.findOne(+id);
+  @Get(':idEmpresa/:estado')
+  findAll(@Param('idEmpresa') idEmpresa: number, @Param('estado') estado: string) {
+    return this.registroColaboradoresService.findAll(idEmpresa, estado);
   }
 
   @Patch(':id')

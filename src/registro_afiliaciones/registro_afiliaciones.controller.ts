@@ -44,7 +44,7 @@ export class RegistroAfiliacionesController {
   }
 
   @Get(':idEmpresa/:estado')
-  async findAll(@Param('idEmpresa') idEmpresa: number, @Param('estado') estado: string,) {
+  async findAll(@Param('idEmpresa') idEmpresa: number, @Param('estado') estado: string) {
 
     try {
 

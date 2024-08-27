@@ -26,9 +26,7 @@ export class RegistroColaboradoresService {
     
     try {
       
-      const usuario = await this.UsuariosRepository.findOneBy({
-        id: createRegistroColaboradoreDto.idUsuario,
-      });
+      const usuario = await this.UsuariosRepository.findOneBy({id: createRegistroColaboradoreDto.idUsuario});
 
       if (!usuario) return new GenericResponse('400', `No se encontro el usuario con id ${createRegistroColaboradoreDto.idUsuario}`, null);
 
@@ -61,19 +59,74 @@ export class RegistroColaboradoresService {
     }
   }
 
-  async findAll() {
-    return `This action returns all registroColaboradores`;
+  async findAll(idEmpresa: number, estado: string) {
+    const whereCondition: any = {};
+
+    if (idEmpresa !== 0) {
+      whereCondition.idEmpresa = await this.empresaRepository.findOneBy({id: idEmpresa});
+    }
+
+    if (estado !== 'TODOS') {
+      whereCondition.estado = estado;
+    }
+
+    const RegistroColaboradores = await this.RegistroColaboradoresRepository.find(
+      {
+        where: whereCondition,
+        relations: ['idEmpresa', 'idUsuario'],
+      },
+    );
+
+    return new GenericResponse('200', `EXITO`, RegistroColaboradores);
   }
 
-  async findOne(id: number) {
-    return `This action returns a #${id} registroColaboradore`;
-  }
 
   async update(id: number, updateRegistroColaboradoreDto: UpdateRegistroColaboradoreDto) {
-    return `This action updates a #${id} registroColaboradore`;
+    
+    try {
+      const usuario = await this.UsuariosRepository.findOneBy({ id: updateRegistroColaboradoreDto.idUsuario});
+
+      if (!usuario) return new GenericResponse('400', `No se encontro el usuario con id ${updateRegistroColaboradoreDto.idUsuario}`, null);
+
+      const empresaInformacion = await this.empresaRepository.findOneBy({
+        id: updateRegistroColaboradoreDto.idEmpresa,
+      });
+
+      if(!empresaInformacion) return new GenericResponse('400', `No se encontro la empresa con id ${updateRegistroColaboradoreDto.idEmpresa}`, null);
+
+      const RegistroColaboradores = await this.RegistroColaboradoresRepository.findOneBy({ id });
+
+      if(!RegistroColaboradores) return new GenericResponse('400', `No se encontro RegistroColaboradores con id ${id}`, null);
+
+      const updateRegistroColaboradores = this.RegistroColaboradoresRepository.merge(RegistroColaboradores, {
+          idEmpresa: empresaInformacion,
+          idUsuario: usuario,
+          fechaInicio: new Date(),
+          estado: updateRegistroColaboradoreDto.estado,
+        });
+
+      await this.RegistroColaboradoresRepository.save(updateRegistroColaboradores);
+
+      return new GenericResponse('200', `EXITO`, updateRegistroColaboradores);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error al editar`, error);
+    }
+
   }
 
   async remove(id: number) {
-    return `This action removes a #${id} registroColaboradore`;
+
+    try {
+      const  RegistroColaboradores = await this.RegistroColaboradoresRepository.findOneBy({ id });
+
+      if (!RegistroColaboradores) return new GenericResponse('400', `No se encontro RegistroColaboradores con id ${id}`, null);
+
+      RegistroColaboradores.estado = 'INA';
+      return await this.RegistroColaboradoresRepository.save(RegistroColaboradores);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error el eliminar`, error);
+    }
   }
 }

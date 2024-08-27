@@ -18,8 +18,11 @@ export class RegistroColaboradores {
   @Column("timestamp without time zone", { name: "fecha_solicitud" })
   fechaSolicitud: Date;
 
-  @Column("timestamp without time zone", { name: "fecha_inicio" })
-  fechaInicio: Date;
+  @Column("timestamp without time zone", {
+    name: "fecha_inicio",
+    nullable: true,
+  })
+  fechaInicio: Date | null;
 
   @Column("character varying", { name: "estado", length: 4 })
   estado: string;
