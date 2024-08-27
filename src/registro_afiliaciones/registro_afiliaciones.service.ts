@@ -9,8 +9,7 @@ import { CreateRegistroAfiliacioneDto } from './dto/create-registro_afiliacione.
 import { RegistroAfiliaciones } from '../entities/RegistroAfiliaciones';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
-import { NumericType, Repository } from 'typeorm';
-import { PaginationDto } from '../common/dtos/pagination.dto';
+import { Repository } from 'typeorm';
 import { Usuarios } from '../entities/Usuarios';
 import { UpdateRegistroAfiliacioneDto } from './dto/update-registro_afiliacione.dto';
 
@@ -67,8 +66,6 @@ export class RegistroAfiliacionesService {
         fechaSolicitud: new Date(),
         fechaInicio: fechaInicioAfiliacion,
         estado: createRegistroAfiliacioneDto.estado,
-        tipoSolicitud: createRegistroAfiliacioneDto.tipoSolicitud
-        //Tipo solicitud si es 1 sera afiliacion a empresa si es 2 sera solicitud de empleo
       });
 
       await this.RegistroAfiliacionesRepository.save(RegistroAfiliaciones);
@@ -118,7 +115,6 @@ export class RegistroAfiliacionesService {
           idUsuario: usuario,
           fechaInicio: new Date(),
           estado: updateRegistroAfiliacioneDto.estado,
-          tipoSolicitud: updateRegistroAfiliacioneDto.tipoSolicitud
         });
 
       return await this.RegistroAfiliacionesRepository.save(

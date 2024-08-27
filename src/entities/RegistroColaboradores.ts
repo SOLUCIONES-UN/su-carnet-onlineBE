@@ -9,32 +9,29 @@ import {
 import { EmpresasInformacion } from "./EmpresasInformacion";
 import { Usuarios } from "./Usuarios";
 
-@Index("registro_afiliaciones_pkey", ["id"], { unique: true })
-@Entity("registro_afiliaciones", { schema: "public" })
-export class RegistroAfiliaciones {
+@Index("registro_colaboradores_pkey", ["id"], { unique: true })
+@Entity("registro_colaboradores", { schema: "public" })
+export class RegistroColaboradores {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;
 
   @Column("timestamp without time zone", { name: "fecha_solicitud" })
   fechaSolicitud: Date;
 
-  @Column("timestamp without time zone", {
-    name: "fecha_inicio",
-    nullable: true,
-  })
-  fechaInicio: Date | null;
+  @Column("timestamp without time zone", { name: "fecha_inicio" })
+  fechaInicio: Date;
 
   @Column("character varying", { name: "estado", length: 4 })
   estado: string;
 
   @ManyToOne(
     () => EmpresasInformacion,
-    (empresasInformacion) => empresasInformacion.registroAfiliaciones
+    (empresasInformacion) => empresasInformacion.registroColaboradores
   )
   @JoinColumn([{ name: "id_empresa", referencedColumnName: "id" }])
   idEmpresa: EmpresasInformacion;
 
-  @ManyToOne(() => Usuarios, (usuarios) => usuarios.registroAfiliaciones)
+  @ManyToOne(() => Usuarios, (usuarios) => usuarios.registroColaboradores)
   @JoinColumn([{ name: "id_usuario", referencedColumnName: "id" }])
   idUsuario: Usuarios;
 }

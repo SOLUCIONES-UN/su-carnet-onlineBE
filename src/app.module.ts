@@ -48,6 +48,7 @@ import { TiposCuentasModule } from './tipos_cuentas/tipos_cuentas.module';
 import { AreasSucursalesDocumentosModule } from './areas_sucursales_documentos/areas_sucursales_documentos.module';
 import { DepartamentosModule } from './departamentos/departamentos.module';
 import { MunicipiosModule } from './municipios/municipios.module';
+import { RegistroColaboradoresModule } from './registro-colaboradores/registro-colaboradores.module';
 
 @Module({
   imports: [
@@ -161,6 +162,8 @@ import { MunicipiosModule } from './municipios/municipios.module';
     DepartamentosModule,
 
     MunicipiosModule,
+
+    RegistroColaboradoresModule,
   ],
 })
 export class AppModule {}

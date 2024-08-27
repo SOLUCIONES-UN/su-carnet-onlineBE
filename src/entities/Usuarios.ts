@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 import { Dispositivos } from "./Dispositivos";
 import { RegistroAfiliaciones } from "./RegistroAfiliaciones";
+import { RegistroColaboradores } from "./RegistroColaboradores";
 import { RegistroInformacion } from "./RegistroInformacion";
 import { TarjetaPresentacion } from "./TarjetaPresentacion";
 import { TipoUsuario } from "./TipoUsuario";
@@ -56,6 +57,12 @@ export class Usuarios {
     (registroAfiliaciones) => registroAfiliaciones.idUsuario
   )
   registroAfiliaciones: RegistroAfiliaciones[];
+
+  @OneToMany(
+    () => RegistroColaboradores,
+    (registroColaboradores) => registroColaboradores.idUsuario
+  )
+  registroColaboradores: RegistroColaboradores[];
 
   @OneToMany(
     () => RegistroInformacion,

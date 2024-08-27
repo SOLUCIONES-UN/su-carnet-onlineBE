@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsNumber, IsString } from "class-validator";
 
-export class CreateRegistroAfiliacioneDto {
-
+export class CreateRegistroColaboradoreDto {
+    
     @IsNumber()
     @IsNotEmpty({ message: 'El campo idEmpresa es requerido' })
     idEmpresa: number;
