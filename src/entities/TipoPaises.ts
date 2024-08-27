@@ -5,6 +5,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { Departamentos } from "./Departamentos";
 import { RegistroInformacion } from "./RegistroInformacion";
 
 @Index("tipo_paises_pkey", ["id"], { unique: true })
@@ -18,6 +19,9 @@ export class TipoPaises {
 
   @Column("integer", { name: "estado", default: () => "1" })
   estado: number;
+
+  @OneToMany(() => Departamentos, (departamentos) => departamentos.idpais)
+  departamentos: Departamentos[];
 
   @OneToMany(
     () => RegistroInformacion,
