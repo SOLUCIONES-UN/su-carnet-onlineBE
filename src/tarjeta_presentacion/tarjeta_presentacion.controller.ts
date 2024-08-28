@@ -36,11 +36,11 @@ export class TarjetaPresentacionController {
   }
 
   @Get('findAllByUser/:id_usuario')
-  async findAllByUser(@Query() paginationDto: PaginationDto, @Param('id_usuario') id_usuario: number) {
+  async findAllByUser(@Param('id_usuario') id_usuario: number) {
 
     try {
 
-      const result = await this.tarjetaPresentacionService.findAllByUsers(paginationDto, id_usuario);
+      const result = await this.tarjetaPresentacionService.findAllByUsers(id_usuario);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {

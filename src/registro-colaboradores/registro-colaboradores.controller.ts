@@ -17,6 +17,12 @@ export class RegistroColaboradoresController {
     return this.registroColaboradoresService.findAll(idEmpresa, estado);
   }
 
+  @Get(':idUsuario')
+  solicitudesPendientes(@Param('idUsuario') idUsuario: number) {
+    return this.registroColaboradoresService.solicitudesPendientes(idUsuario);
+  }
+
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateRegistroColaboradoreDto: UpdateRegistroColaboradoreDto) {
     return this.registroColaboradoresService.update(+id, updateRegistroColaboradoreDto);

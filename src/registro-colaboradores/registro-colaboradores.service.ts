@@ -80,6 +80,24 @@ export class RegistroColaboradoresService {
     return new GenericResponse('200', `EXITO`, RegistroColaboradores);
   }
 
+  async solicitudesPendientes(idUsuario: number){
+
+    try {
+
+      const usuario = await this.UsuariosRepository.findOneBy({id:idUsuario});
+
+      const solicitudes = await this.RegistroColaboradoresRepository.find({
+        where: {idUsuario:usuario, estado: 'PEN'},
+        relations: ['idEmpresa', 'idUsuario'],
+      })
+
+      return new GenericResponse('200', `EXITO`, solicitudes);
+
+    } catch (error) {
+      return new GenericResponse('200', `EXITO`, error);
+    }
+  }
+
 
   async update(id: number, updateRegistroColaboradoreDto: UpdateRegistroColaboradoreDto) {
     
