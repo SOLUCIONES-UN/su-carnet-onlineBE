@@ -50,6 +50,7 @@ export class DepartamentosService {
 
     const departamentos = await this.DepartamentosRepository.find({
       where: { estado: 1 },
+      relations:['idpais'],
       skip: offset,
       take: limit,
     });
