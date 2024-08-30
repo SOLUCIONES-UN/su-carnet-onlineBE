@@ -80,7 +80,7 @@ export class RegistroColaboradoresService {
     return new GenericResponse('200', `EXITO`, RegistroColaboradores);
   }
 
-  async solicitudesPendientes(idUsuario: number){
+  async solicitudesUsuario(idUsuario: number){
 
     try {
 
@@ -89,7 +89,7 @@ export class RegistroColaboradoresService {
       if(!usuario) return new GenericResponse('400', `Usuario con id $${idUsuario} no existe `, null);
 
       const solicitudes = await this.RegistroColaboradoresRepository.find({
-        where: {idUsuario:usuario, estado: 'PEN'},
+        where: {idUsuario:usuario},
         relations: ['idEmpresa', 'idUsuario'],
       })
 

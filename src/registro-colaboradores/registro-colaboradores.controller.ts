@@ -19,7 +19,7 @@ export class RegistroColaboradoresController {
 
   @Get(':idUsuario')
   solicitudesPendientes(@Param('idUsuario') idUsuario: number) {
-    return this.registroColaboradoresService.solicitudesPendientes(idUsuario);
+    return this.registroColaboradoresService.solicitudesUsuario(idUsuario);
   }
 
 
