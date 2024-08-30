@@ -33,7 +33,7 @@ export class DepartamentosService {
 
       const departamento = this.DepartamentosRepository.create({
         ...infoData,
-        idpais: pais
+        idpais: pais,
       });
 
       await this.DepartamentosRepository.save(departamento);

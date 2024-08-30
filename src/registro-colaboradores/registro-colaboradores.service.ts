@@ -86,6 +86,8 @@ export class RegistroColaboradoresService {
 
       const usuario = await this.UsuariosRepository.findOneBy({id:idUsuario});
 
+      if(!usuario) return new GenericResponse('400', `Usuario con id $${idUsuario} no existe `, null);
+
       const solicitudes = await this.RegistroColaboradoresRepository.find({
         where: {idUsuario:usuario, estado: 'PEN'},
         relations: ['idEmpresa', 'idUsuario'],
