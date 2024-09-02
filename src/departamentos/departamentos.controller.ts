@@ -23,6 +23,11 @@ export class DepartamentosController {
     return this.departamentosService.findOne(+id);
   }
 
+  @Get('findAllByPais/:idPais')
+  findAllByPais(@Param('idPais') idPais: string) {
+    return this.departamentosService.findAllByPais(+idPais);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateDepartamentoDto: UpdateDepartamentoDto) {
     return this.departamentosService.update(+id, updateDepartamentoDto);

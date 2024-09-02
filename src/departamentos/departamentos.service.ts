@@ -58,6 +58,18 @@ export class DepartamentosService {
     return new GenericResponse('200', `EXITO`, departamentos);
   }
 
+  async findAllByPais(idPais:number) {
+
+    const pais = await this.paisesRepository.findOneBy({id:idPais});
+
+    const departamentos = await this.DepartamentosRepository.find({
+      where: { estado: 1, idpais: pais},
+      relations:['idpais'],
+    });
+    
+    return new GenericResponse('200', `EXITO`, departamentos);
+  }
+
   async findOne(id: number) {
     return this.DepartamentosRepository.findOneBy({ id });
   }
