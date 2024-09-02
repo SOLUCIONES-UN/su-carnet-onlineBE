@@ -12,6 +12,7 @@ import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { Repository } from 'typeorm';
 import { Usuarios } from '../entities/Usuarios';
 import { UpdateRegistroAfiliacioneDto } from './dto/update-registro_afiliacione.dto';
+import { RegistroInformacion } from '../entities/RegistroInformacion';
 
 @Injectable()
 export class RegistroAfiliacionesService {
@@ -182,26 +183,29 @@ export class RegistroAfiliacionesService {
   }
 
   async findAll(idEmpresa: number, estado: string) {
-    const whereCondition: any = {};
 
+    const whereCondition: any = {};
+  
     if (idEmpresa !== 0) {
       whereCondition.idEmpresa = await this.empresaRepository.findOneBy({
         id: idEmpresa,
       });
     }
-
+  
     if (estado !== 'TODOS') {
       whereCondition.estado = estado;
     }
-
-    const RegistroAfiliaciones = await this.RegistroAfiliacionesRepository.find(
-      {
-        where: whereCondition,
-        relations: ['idEmpresa', 'idUsuario'],
-      },
-    );
-
-    return RegistroAfiliaciones;
+  
+    const registroAfiliaciones = await this.RegistroAfiliacionesRepository.find({
+      where: whereCondition,
+      relations: [
+        'idEmpresa', 
+        'idUsuario', 
+        'idUsuario.registroInformacions'  
+      ],
+    });
+  
+    return registroAfiliaciones;
   }
 
   async afiliacionByUsuario(idUsuario: number) {
