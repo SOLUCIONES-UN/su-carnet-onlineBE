@@ -44,7 +44,7 @@ export class SucursalesAreasGruposPuertasService {
         where: {idPuerta:AreasPuertas, idAreaGrupo:AreasGruposInformacion}
       })
 
-      if(estaAsignada) return new GenericResponse('401', `La puerta ya esta asignada`, estaAsignada);
+      if(estaAsignada) return new GenericResponse('401', `La puerta ya esta asignada`, estaAsignada); 
   
       const AreasGruposPuertas = this.puertasRepository.create({
         ...infoData,
