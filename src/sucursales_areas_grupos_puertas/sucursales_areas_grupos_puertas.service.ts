@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { SucursalesAreasGruposInformacion } from '../entities/SucursalesAreasGruposInformacion';
 import { SucursalesAreasPuertas } from '../entities/SucursalesAreasPuertas';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
 @Injectable()
 export class SucursalesAreasGruposPuertasService {
@@ -33,15 +34,17 @@ export class SucursalesAreasGruposPuertasService {
   
       const AreasPuertas = await this.SucursalesAreasPuertasRepository.findOneBy({ id: idPuerta });
   
-      if (!AreasPuertas) {
-        throw new NotFoundException(`sucursalesAreasPuertas con ID ${idPuerta} no encontrada`);
-      }
+      if (!AreasPuertas) return new GenericResponse('400', `No se encontro AreasPuertas con id $${idPuerta}`, null);
 
       const AreasGruposInformacion = await this.AreasGruposInformacionRepository.findOneBy({id:idAreaGrupo});
 
-      if(!AreasGruposInformacion){
-        throw new NotFoundException(`AreasGruposInformacion con ID ${idAreaGrupo} no encontrado`);
-      }
+      if(!AreasGruposInformacion) return new GenericResponse('400', `No se encontro AreasGruposInformacion con id $${idAreaGrupo}`, null);
+
+      const estaAsignada = await this.puertasRepository.findOne({
+        where: {idPuerta:AreasPuertas, idAreaGrupo:AreasGruposInformacion}
+      })
+
+      if(estaAsignada) return new GenericResponse('401', `La puerta ya esta asignada`, estaAsignada);
   
       const AreasGruposPuertas = this.puertasRepository.create({
         ...infoData,
@@ -51,10 +54,10 @@ export class SucursalesAreasGruposPuertasService {
   
       await this.puertasRepository.save(AreasGruposPuertas);
   
-      return AreasGruposPuertas; 
+      return new GenericResponse('200', `EXITO`, AreasGruposPuertas);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error al agregar`, error);
     }
   }
 

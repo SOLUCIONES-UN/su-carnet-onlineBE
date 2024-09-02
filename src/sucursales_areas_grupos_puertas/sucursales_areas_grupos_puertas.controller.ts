@@ -11,14 +11,7 @@ export class SucursalesAreasGruposPuertasController {
   @Post()
   async create(@Body() createSucursalesAreasGruposPuertaDto: CreateSucursalesAreasGruposPuertaDto) {
     
-    try {
-
-      const result = await this.sucursalesAreasGruposPuertasService.create(createSucursalesAreasGruposPuertaDto);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al agregar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return this.sucursalesAreasGruposPuertasService.create(createSucursalesAreasGruposPuertaDto);
   }
 
   @Get()
