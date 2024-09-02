@@ -45,6 +45,7 @@ export class MunicipiosService {
 
     const municipios = await this.MunicipiosRepository.find({
       where: { estado: 1 },
+      relations: ['iddepartamento', 'iddepartamento.idpais']
     });
     
     return new GenericResponse('200', `EXITO`, municipios);
