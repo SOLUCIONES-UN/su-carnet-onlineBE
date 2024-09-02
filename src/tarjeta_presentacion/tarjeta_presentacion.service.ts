@@ -85,7 +85,10 @@ export class TarjetaPresentacionService {
   }
 
   async findOne(id: number) {
-    return this.TarjetaPresentacionRepository.findOneBy({ id });
+    return this.TarjetaPresentacionRepository.findOne({
+      where: {id:id},
+      relations: ['idEmpresa', 'idUsuario'],
+    })
   }
 
   async update(id: number, updateTarjetaPresentacionDto: UpdateTarjetaPresentacionDto) {
