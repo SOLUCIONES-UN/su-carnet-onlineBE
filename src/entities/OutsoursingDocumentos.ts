@@ -1,4 +1,5 @@
 import {
+  Column,
   Entity,
   Index,
   JoinColumn,
@@ -13,6 +14,9 @@ import { OutsoursingInformacion } from "./OutsoursingInformacion";
 export class OutsoursingDocumentos {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;
+
+  @Column("integer", { name: "estado", nullable: true, default: () => "1" })
+  estado: number | null;
 
   @ManyToOne(
     () => RegistroDocumentos,

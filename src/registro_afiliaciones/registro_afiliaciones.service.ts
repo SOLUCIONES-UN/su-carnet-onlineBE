@@ -12,7 +12,8 @@ import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { Repository } from 'typeorm';
 import { Usuarios } from '../entities/Usuarios';
 import { UpdateRegistroAfiliacioneDto } from './dto/update-registro_afiliacione.dto';
-import { RegistroInformacion } from '../entities/RegistroInformacion';
+import { CreateNotificacioneDto } from '../notificaciones/dto/create-notificacione.dto';
+import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
 @Injectable()
 export class RegistroAfiliacionesService {
@@ -32,15 +33,19 @@ export class RegistroAfiliacionesService {
   async create(createRegistroAfiliacioneDto: CreateRegistroAfiliacioneDto) {
 
     try {
+
+      const verificarRegistro = await this.verificarAfiliacion(createRegistroAfiliacioneDto);
+
+      if(verificarRegistro){
+        return new GenericResponse('401', 'Ya estas afiliado a esta empresa', verificarRegistro);
+      }
       
       const usuario = await this.UsuariosRepository.findOneBy({
         id: createRegistroAfiliacioneDto.idUsuario,
       });
 
       if (!usuario) {
-        throw new NotFoundException(
-          `usuario con ID ${createRegistroAfiliacioneDto.idUsuario} no encontrado`,
-        );
+        return new GenericResponse('400', `Usuario con id ${createRegistroAfiliacioneDto.idUsuario} no encontrado`, []);
       }
 
       const empresaInformacion = await this.empresaRepository.findOneBy({
@@ -48,9 +53,7 @@ export class RegistroAfiliacionesService {
       });
 
       if (!empresaInformacion) {
-        throw new NotFoundException(
-          `empresaInformacion con ID ${createRegistroAfiliacioneDto.idEmpresa} no encontrada`,
-        );
+        return new GenericResponse('400', `Empresa con id ${createRegistroAfiliacioneDto.idEmpresa} no encontrada `, []);
       }
 
       let fechaInicioAfiliacion = null;
@@ -69,11 +72,28 @@ export class RegistroAfiliacionesService {
         estado: createRegistroAfiliacioneDto.estado,
       });
 
+      // const usuarios 
+
+      // const createNotificacioneDto: CreateNotificacioneDto = {
+      //   token: element.tokendispositivo,
+      //   payload: {
+      //     notification: {
+      //       title: 'Confirmacion de Cita',
+      //       body: 'Acceso confirmado puede continuar' 
+      //     },
+      //     data: {
+      //       customDataKey: 'customDataValue'
+      //     }
+      //   }
+      // };
+
+      // await this.notificacionesService.sendNotification(createNotificacioneDto);
+
       await this.RegistroAfiliacionesRepository.save(RegistroAfiliaciones);
 
-      return RegistroAfiliaciones;
+      return new GenericResponse('200', `EXITO`, RegistroAfiliaciones);
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error al crear `, error);
     }
   }
 

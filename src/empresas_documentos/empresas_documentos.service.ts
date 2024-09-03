@@ -64,7 +64,7 @@ export class EmpresasDocumentosService {
     const empresaDocumentos = await this.empresaDocumentosRepository.find({
       skip: offset,
       take: limit,
-      relations: ['idEmpresa', 'idTipoDocumento'],
+      relations: ['idEmpresa', 'idTipoDocumento'],  
     });
     
     return empresaDocumentos;

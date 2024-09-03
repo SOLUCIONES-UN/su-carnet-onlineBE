@@ -11,21 +11,8 @@ export class RegistroAfiliacionesController {
 
   @Post()
   async create(@Body() createRegistroAfiliacioneDto: CreateRegistroAfiliacioneDto) {
-   
-    try {
-
-      const verificarRegistro = await this.registroAfiliacionesService.verificarAfiliacion(createRegistroAfiliacioneDto);
-
-      if(verificarRegistro){
-        return new GenericResponse('401', 'Ya estas afiliado a esta empresa', verificarRegistro);
-      }
-
-      const result = await this.registroAfiliacionesService.create(createRegistroAfiliacioneDto);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al agregar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  
+    return this.registroAfiliacionesService.create(createRegistroAfiliacioneDto);
 
   }
 

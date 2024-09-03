@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import { CreateNotificacioneDto } from './dto/create-notificacione.dto';
+import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
 
 @Injectable()
@@ -22,9 +23,11 @@ export class NotificacionesService {
         },
       };
       const response = await this.firebaseAdmin.messaging().sendToDevice(createNotificacioneDto.token, messagingPayload);
-      return response;
+      
+      return new GenericResponse('200', `EXITO`, response);
+
     } catch (error) {
-      throw new Error(`Error al enviar la notificacion push: ${error.message}`);
+      return new GenericResponse('200', `EXITO`, error.message);
     }
   }
 

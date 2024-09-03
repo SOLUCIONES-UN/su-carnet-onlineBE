@@ -27,17 +27,17 @@ export class Usuarios {
   @Column("character varying", { name: "apellidos", length: 100 })
   apellidos: string;
 
-  @Column("character varying", { name: "email", length: 50 })
-  email: string;
+  @Column("character varying", { name: "email", nullable: true, length: 50 })
+  email: string | null;
 
-  @Column("character varying", { name: "telefono", length: 15 })
-  telefono: string;
+  @Column("character varying", { name: "telefono", nullable: true, length: 15 })
+  telefono: string | null;
 
-  @Column("bytea", { name: "passwordhash" })
-  passwordhash: Buffer;
+  @Column("bytea", { name: "passwordhash", nullable: true })
+  passwordhash: Buffer | null;
 
-  @Column("bytea", { name: "passwordsalt" })
-  passwordsalt: Buffer;
+  @Column("bytea", { name: "passwordsalt", nullable: true })
+  passwordsalt: Buffer | null;
 
   @Column("integer", { name: "estado", default: () => "1" })
   estado: number;
@@ -48,6 +48,9 @@ export class Usuarios {
     length: 250,
   })
   fotoPerfil: string | null;
+
+  @Column("boolean", { name: "recibePush", nullable: true })
+  recibePush: boolean | null;
 
   @OneToMany(() => Dispositivos, (dispositivos) => dispositivos.idusuario)
   dispositivos: Dispositivos[];
