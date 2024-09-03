@@ -3,7 +3,7 @@ import { CreateSucursalesAreasPuertaDto } from './dto/create-sucursales_areas_pu
 import { UpdateSucursalesAreasPuertaDto } from './dto/update-sucursales_areas_puerta.dto';
 import { SucursalesAreasPuertas } from '../entities/SucursalesAreasPuertas';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
@@ -56,7 +56,7 @@ export class SucursalesAreasPuertasService {
     const areaSucursalesPuertas = await this.sucursalesAreas_Puertas_Repository.find({
       skip: offset,
       take: limit,
-      relations: ['idSucursalArea', 'idSucursalArea.idSucursal'],
+      relations: ['idSucursalArea', 'idSucursalArea.idSucursal', 'idSucursalArea.idSucursal.idEmpresa'],
     });
     
     return areaSucursalesPuertas;
@@ -70,12 +70,46 @@ export class SucursalesAreasPuertasService {
 
       const areaSucursalesPuertas = await this.sucursalesAreas_Puertas_Repository.find({
         where: {idSucursalArea:areaSucursal},
-        relations: ['idSucursalArea', 'idSucursalArea.idSucursal'],
+        relations: ['idSucursalArea', 'idSucursalArea.idSucursal','idSucursalArea.idSucursal.idEmpresa'],
       });
       return new GenericResponse('200', `EXITO`, areaSucursalesPuertas);
 
     } catch (error) {
       return new GenericResponse('500', `Error`, error);
+    }
+  }
+
+  async findAllByEmpresa(idEmpresa: number) {
+    try {
+      const areasSucursales = await this.sucursalesAreasRepository.find({
+        where: {
+          idSucursal: {
+            idEmpresa: {
+              id: idEmpresa,
+            },
+          },
+        },
+        relations: ['idSucursal', 'idSucursal.idEmpresa'],
+      });
+  
+      if (areasSucursales.length === 0) {
+        return new GenericResponse('404', `No se encontraron áreas para la empresa con ID ${idEmpresa}`, []);
+      }
+  
+      // 2. Obtener las puertas de las áreas filtradas en el paso anterior
+      const areaSucursalesPuertas = await this.sucursalesAreas_Puertas_Repository.find({
+        where: {
+          idSucursalArea: {
+            id: In(areasSucursales.map(area => area.id)),
+          },
+        },
+        relations: ['idSucursalArea', 'idSucursalArea.idSucursal'],
+      });
+  
+      return new GenericResponse('200', `Éxito`, areaSucursalesPuertas);
+  
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error.message);
     }
   }
 
