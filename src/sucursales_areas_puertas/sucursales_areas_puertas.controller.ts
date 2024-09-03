@@ -36,6 +36,12 @@ export class SucursalesAreasPuertasController {
     }
   }
 
+  @Get('findAllByArea/:idArea')
+  async findAllByArea(@Param('idArea') idArea: number) {
+
+    return await this.sucursalesAreasPuertasService.findAllByArea(idArea);
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
 

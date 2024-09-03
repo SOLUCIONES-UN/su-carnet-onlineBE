@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
 @Injectable()
 export class SucursalesAreasPuertasService {
@@ -59,6 +60,23 @@ export class SucursalesAreasPuertasService {
     });
     
     return areaSucursalesPuertas;
+  }
+
+  async findAllByArea(idArea: number) {
+
+    try {
+
+      const areaSucursal = await this.sucursalesAreasRepository.findOneBy({id:idArea});
+
+      const areaSucursalesPuertas = await this.sucursalesAreas_Puertas_Repository.find({
+        where: {idSucursalArea:areaSucursal},
+        relations: ['idSucursalArea', 'idSucursalArea.idSucursal'],
+      });
+      return new GenericResponse('200', `EXITO`, areaSucursalesPuertas);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error);
+    }
   }
 
   async findOne(id: number) {
