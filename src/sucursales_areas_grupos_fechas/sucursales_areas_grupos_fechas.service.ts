@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SucursalesAreasGruposInformacion } from '../entities/SucursalesAreasGruposInformacion';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
 @Injectable()
 export class SucursalesAreasGruposFechasService {
@@ -36,11 +37,11 @@ export class SucursalesAreasGruposFechasService {
 
       const SucursalesAreasGruposInformacion = await this.SucursalesAreasGruposInformacionRepository.findOneBy({ id: idAreaGrupo });
 
-      if (!SucursalesAreasGruposInformacion) {
-        throw new NotFoundException(`SucursalesAreasGruposInformacion con ID ${idAreaGrupo} no encontrada`);
-      }
+      if (!SucursalesAreasGruposInformacion) return new GenericResponse('400',`SucursalesAreasGruposInformacion con ID ${idAreaGrupo} no encontrada`, []);
 
-      const fechaTransformada = this.transformDate(createSucursalesAreasGruposFechaDto.fecha);
+      const existeFechaGrupo = await this.SucursalesAreasGruposFechasRepository.findOneBy({idAreaGrupo: SucursalesAreasGruposInformacion});
+
+      if(existeFechaGrupo) return new GenericResponse('401', `Ya existe una fecha para este grupo`, SucursalesAreasGruposInformacion);
 
       const Grupos_fechas = this.SucursalesAreasGruposFechasRepository.create({
         ...infoData,
@@ -49,24 +50,25 @@ export class SucursalesAreasGruposFechasService {
 
       await this.SucursalesAreasGruposFechasRepository.save(Grupos_fechas);
 
-      return Grupos_fechas;
+      return new GenericResponse('200', `EXITO`, Grupos_fechas);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error`, error.message);
     }
   }
 
-  async findAll(PaginationDto: PaginationDto) {
+  async findAll() {
 
-    const { limit = 10, offset = 0 } = PaginationDto;
+    try {
+      const sucursalesAreasGruposHorarios = await this.SucursalesAreasGruposFechasRepository.find({
+        relations: ['idAreaGrupo'],
+      });
+  
+      return new GenericResponse('200', `EXITO`, sucursalesAreasGruposHorarios);
 
-    const sucursalesAreasGruposHorarios = await this.SucursalesAreasGruposFechasRepository.find({
-      skip: offset,
-      take: limit,
-      relations: ['idAreaGrupo'],
-    });
-
-    return sucursalesAreasGruposHorarios;
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error.message);
+    }
   }
 
   async update(id: number, updateSucursalesAreasGruposFechaDto: UpdateSucursalesAreasGruposFechaDto) {
@@ -76,17 +78,11 @@ export class SucursalesAreasGruposFechasService {
 
       const sucursales_areas_grupos_fechas = await this.SucursalesAreasGruposFechasRepository.findOneBy({ id });
 
-      if (!sucursales_areas_grupos_fechas) {
-        throw new NotFoundException(`sucursales_areas_grupos_fechas con ID ${id} no encontrada`);
-      }
+      if (!sucursales_areas_grupos_fechas) return new GenericResponse('400',`sucursales_areas_grupos_fechas con ID ${id} no encontrada`, []);
 
       const SucursalesAreasGruposInformacion = await this.SucursalesAreasGruposInformacionRepository.findOneBy({ id: idAreaGrupo });
 
-      if (!SucursalesAreasGruposInformacion) {
-        throw new NotFoundException(`SucursalesAreasGruposInformacion con ID ${idAreaGrupo} no encontrada`);
-      }
-
-      const fechaTransformada = this.transformDate(updateSucursalesAreasGruposFechaDto.fecha);
+      if (!SucursalesAreasGruposInformacion) return new GenericResponse('400',`SucursalesAreasGruposInformacion con ID ${idAreaGrupo} no encontrada`, []);
 
       const update_sucursales_areas_grupos_fechas = this.SucursalesAreasGruposFechasRepository.merge(sucursales_areas_grupos_fechas, {
         ...infoData,
@@ -96,10 +92,10 @@ export class SucursalesAreasGruposFechasService {
       // Guardar los cambios en la base de datos
       await this.SucursalesAreasGruposFechasRepository.save(update_sucursales_areas_grupos_fechas);
 
-      return update_sucursales_areas_grupos_fechas;
+      return new GenericResponse('200', `EXITO`, update_sucursales_areas_grupos_fechas);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error`, error.message);
     }
   }
 
@@ -109,20 +105,16 @@ export class SucursalesAreasGruposFechasService {
 
       const sucursales_areas_grupos_fechas = await this.SucursalesAreasGruposFechasRepository.findOne({ where: { id } });
 
-      if (!sucursales_areas_grupos_fechas) {
-        throw new NotFoundException(`sucursales_areas_grupos_horario con ID ${id} not encontrado`);
-      }
-      return await this.SucursalesAreasGruposFechasRepository.remove(sucursales_areas_grupos_fechas);
+      if (!sucursales_areas_grupos_fechas) return new GenericResponse('400',`sucursales_areas_grupos_fechas con ID ${id} no encontrada`, []);
+
+      await this.SucursalesAreasGruposFechasRepository.remove(sucursales_areas_grupos_fechas);
+
+      return new GenericResponse('200', `EXITO`, sucursales_areas_grupos_fechas);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error`, error.message);
     }
   }
 
-  private handleDBException(error: any) {
-    if (error.code === '23505') throw new BadRequestException(error.detail);
-
-    this.logger.error(`Error : ${error.message}`);
-    throw new InternalServerErrorException('Error ');
-  }
+  
 }

@@ -2,8 +2,6 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpS
 import { SucursalesAreasGruposHorariosService } from './sucursales_areas_grupos_horarios.service';
 import { CreateSucursalesAreasGruposHorarioDto } from './dto/create-sucursales_areas_grupos_horario.dto';
 import { UpdateSucursalesAreasGruposHorarioDto } from './dto/update-sucursales_areas_grupos_horario.dto';
-import { GenericResponse } from '../common/dtos/genericResponse.dto';
-import { PaginationDto } from '../common/dtos/pagination.dto';
 import { horarioFechasDto } from './dto/horarioFechasDto';
 
 @Controller('sucursales-areas-grupos-horarios')
