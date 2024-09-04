@@ -12,6 +12,7 @@ import { horarioFechasDto } from './dto/horarioFechasDto';
 import { SucursalesInformacion } from '../entities/SucursalesInformacion';
 import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
 import { getDay, parseISO } from 'date-fns';
+import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
 @Injectable()
 export class SucursalesAreasGruposHorariosService {
@@ -47,9 +48,12 @@ export class SucursalesAreasGruposHorariosService {
 
       const SucursalesAreasGruposInformacion = await this.SucursalesAreasGruposInformacionRepository.findOneBy({ id: idAreaGrupo });
 
-      if (!SucursalesAreasGruposInformacion) {
-        throw new NotFoundException(`SucursalesAreasGruposInformacion con ID ${idAreaGrupo} no encontrada`);
-      }
+      if (!SucursalesAreasGruposInformacion) return new GenericResponse('400',`SucursalesAreasGruposInformacion con ID ${idAreaGrupo} no encontrada`, []);
+
+      
+      const existeHorarioGrupo = await this.SucursalesAreasGruposHorariosRepository.findOneBy({idAreaGrupo: SucursalesAreasGruposInformacion});
+
+      if(existeHorarioGrupo) return new GenericResponse('401', `Ya existe un horario apra este grupo`, SucursalesAreasGruposInformacion);
 
       const GruposHorarios = this.SucursalesAreasGruposHorariosRepository.create({
         ...infoData,
@@ -58,10 +62,10 @@ export class SucursalesAreasGruposHorariosService {
 
       await this.SucursalesAreasGruposHorariosRepository.save(GruposHorarios);
 
-      return GruposHorarios;
+      return new GenericResponse('200', `EXITO`, GruposHorarios);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error`, error);
     }
   }
 
@@ -74,143 +78,147 @@ export class SucursalesAreasGruposHorariosService {
 
   async HorariosCitas(horarioFechas: horarioFechasDto) {
 
-    const diaSemana = this.getDayOfWeek(horarioFechas.fecha);
+    try {
+      const diaSemana = this.getDayOfWeek(horarioFechas.fecha);
 
-    const sucursalGrupoArea = await this.SucursalesAreasGruposInformacionRepository.findOneBy({ id: horarioFechas.idGrupo });
+      const sucursalGrupoArea = await this.SucursalesAreasGruposInformacionRepository.findOneBy({ id: horarioFechas.idGrupo });
 
-    if (!sucursalGrupoArea) {
-      throw new Error('Grupo no encontrado');
-    }
+      if (!sucursalGrupoArea) return new GenericResponse('400',`sucursalGrupoArea con ID ${horarioFechas.idGrupo} no encontrado`, []);
 
-    const areaInformacion = await this.SucursalesAreasInformacionRepository.findOneBy({ id: horarioFechas.idArea });
+      const areaInformacion = await this.SucursalesAreasInformacionRepository.findOneBy({ id: horarioFechas.idArea });
 
-    if (!areaInformacion) {
-      throw new Error('Área información no encontrada');
-    }
+      if (!areaInformacion)  return new GenericResponse('400',`areaInformacion con ID ${horarioFechas.idArea} no encontrado`, []);
 
-    const intervaloCitasMinutos = areaInformacion.minutosProgramacion; // Intervalo de tiempo para citas en minutos
-    let horariosCitas = [];
+      const intervaloCitasMinutos = areaInformacion.minutosProgramacion; // Intervalo de tiempo para citas en minutos
+      let horariosCitas = [];
 
-    const gruposFechas = await this.SucursalesAreasGruposFechasRepository.find({
-      where: { idAreaGrupo: sucursalGrupoArea, fecha: horarioFechas.fecha }
-    });
-
-    const calcularIntervalos = (horaInicio: string, horaFinal: string) => {
-      const intervalos = [];
-      const [inicioHoras, inicioMinutos] = horaInicio.split(':').map(Number);
-      const [finalHoras, finalMinutos] = horaFinal.split(':').map(Number);
-
-      let inicio = new Date();
-      inicio.setHours(inicioHoras, inicioMinutos, 0, 0);
-
-      let fin = new Date();
-      fin.setHours(finalHoras, finalMinutos, 0, 0);
-
-      while (inicio < fin) {
-        const siguienteInicio = new Date(inicio.getTime() + intervaloCitasMinutos * 60000);
-        if (siguienteInicio <= fin) {
-          intervalos.push({
-            horaInicio: inicio.toTimeString().slice(0, 5),
-            horaFinal: siguienteInicio.toTimeString().slice(0, 5)
-          });
-        }
-        inicio = siguienteInicio;
-      }
-
-      return intervalos;
-    };
-
-    const agregarHorarios = async (horarios, fecha) => {
-      await Promise.all(horarios.map(async horario => {
-        const intervalos = calcularIntervalos(horario.horaInicio, horario.horaFinal);
-
-        for (const intervalo of intervalos) {
-          const permisosCount = await this.SucursalesAreasPermisosRepository.count({
-            where: {
-              idAreaGrupo: horario.idAreaGrupo,
-              horaInicio: intervalo.horaInicio,
-              horaFinal: intervalo.horaFinal,
-              fecha: fecha
-            }
-          });
-
-          horariosCitas.push({
-            id: horario.id,
-            diaSemana: horario.diaSemana || diaSemana,
-            fecha: fecha,
-            horaInicio: intervalo.horaInicio,
-            horaFinal: intervalo.horaFinal,
-            disponibles: Math.max(0, areaInformacion.cantidadProgramacion - permisosCount),
-            estado: permisosCount >= areaInformacion.cantidadProgramacion ? 0 : 1,
-            idAreaGrupo: sucursalGrupoArea,
-          });
-        }
-      }));
-    };
-
-    if (gruposFechas.length > 0) {
-
-      await agregarHorarios(gruposFechas, horarioFechas.fecha);
-
-    } else {
-
-      const sucursalesAreasGruposHorarios = await this.SucursalesAreasGruposHorariosRepository.find({
-        where: { idAreaGrupo: sucursalGrupoArea, diaSemana: diaSemana },
-        relations: ['idAreaGrupo'],
+      const gruposFechas = await this.SucursalesAreasGruposFechasRepository.find({
+        where: { idAreaGrupo: sucursalGrupoArea, fecha: horarioFechas.fecha }
       });
 
-      await agregarHorarios(sucursalesAreasGruposHorarios, horarioFechas.fecha);
-    }
+      const calcularIntervalos = (horaInicio: string, horaFinal: string) => {
+        const intervalos = [];
+        const [inicioHoras, inicioMinutos] = horaInicio.split(':').map(Number);
+        const [finalHoras, finalMinutos] = horaFinal.split(':').map(Number);
 
-    // Verificar si los horarios en horariosCitas están ocupados
-    const permisos = await this.SucursalesAreasPermisosRepository.find({
-      where: { idAreaGrupo: sucursalGrupoArea, fecha: horarioFechas.fecha }
-    });
+        let inicio = new Date();
+        inicio.setHours(inicioHoras, inicioMinutos, 0, 0);
 
-    horariosCitas.forEach(cita => {
-      const permisoEncontrado = permisos.find(permiso =>
-        permiso.horaInicio === cita.horaInicio &&
-        permiso.horaFinal === cita.horaFinal &&
-        permiso.fecha === cita.fecha
-      );
+        let fin = new Date();
+        fin.setHours(finalHoras, finalMinutos, 0, 0);
 
-      if (permisoEncontrado) {
-        cita.estado = 0;
-        cita.disponibles = 0;
+        while (inicio < fin) {
+          const siguienteInicio = new Date(inicio.getTime() + intervaloCitasMinutos * 60000);
+          if (siguienteInicio <= fin) {
+            intervalos.push({
+              horaInicio: inicio.toTimeString().slice(0, 5),
+              horaFinal: siguienteInicio.toTimeString().slice(0, 5)
+            });
+          }
+          inicio = siguienteInicio;
+        }
+
+        return intervalos;
+      };
+
+      const agregarHorarios = async (horarios, fecha) => {
+        await Promise.all(horarios.map(async horario => {
+          const intervalos = calcularIntervalos(horario.horaInicio, horario.horaFinal);
+
+          for (const intervalo of intervalos) {
+            const permisosCount = await this.SucursalesAreasPermisosRepository.count({
+              where: {
+                idAreaGrupo: horario.idAreaGrupo,
+                horaInicio: intervalo.horaInicio,
+                horaFinal: intervalo.horaFinal,
+                fecha: fecha
+              }
+            });
+
+            horariosCitas.push({
+              id: horario.id,
+              diaSemana: horario.diaSemana || diaSemana,
+              fecha: fecha,
+              horaInicio: intervalo.horaInicio,
+              horaFinal: intervalo.horaFinal,
+              disponibles: Math.max(0, areaInformacion.cantidadProgramacion - permisosCount),
+              estado: permisosCount >= areaInformacion.cantidadProgramacion ? 0 : 1,
+              idAreaGrupo: sucursalGrupoArea,
+            });
+          }
+        }));
+      };
+
+      if (gruposFechas.length > 0) {
+
+        await agregarHorarios(gruposFechas, horarioFechas.fecha);
+
+      } else {
+
+        const sucursalesAreasGruposHorarios = await this.SucursalesAreasGruposHorariosRepository.find({
+          where: { idAreaGrupo: sucursalGrupoArea, diaSemana: diaSemana },
+          relations: ['idAreaGrupo'],
+        });
+
+        await agregarHorarios(sucursalesAreasGruposHorarios, horarioFechas.fecha);
       }
-    });
 
-    return horariosCitas;
+      // Verificar si los horarios en horariosCitas están ocupados
+      const permisos = await this.SucursalesAreasPermisosRepository.find({
+        where: { idAreaGrupo: sucursalGrupoArea, fecha: horarioFechas.fecha }
+      });
+
+      horariosCitas.forEach(cita => {
+        const permisoEncontrado = permisos.find(permiso =>
+          permiso.horaInicio === cita.horaInicio &&
+          permiso.horaFinal === cita.horaFinal &&
+          permiso.fecha === cita.fecha
+        );
+
+        if (permisoEncontrado) {
+          cita.estado = 0;
+          cita.disponibles = 0;
+        }
+      });
+
+      return new GenericResponse('200', `EXITO`, horariosCitas);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error);
+    }
   }
 
 
-  async findAll(PaginationDto: PaginationDto) {
+  async findAll() {
 
-    const { limit = 10, offset = 0 } = PaginationDto;
+    try {
+      const sucursalesAreasGruposHorarios = await this.SucursalesAreasGruposHorariosRepository.find({
+        relations: ['idAreaGrupo.idSucursalArea'],
+      });
+  
+      return new GenericResponse('200', `EXITO`, sucursalesAreasGruposHorarios);
 
-    const sucursalesAreasGruposHorarios = await this.SucursalesAreasGruposHorariosRepository.find({
-      skip: offset,
-      take: limit,
-      relations: ['idAreaGrupo.idSucursalArea'],
-    });
-
-    return sucursalesAreasGruposHorarios;
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error);
+    }
   }
 
-  async findAllByGrupo(PaginationDto: PaginationDto, idGrupo) {
+  async findAllByGrupo(idGrupo: number) {
 
-    const grupo = await this.SucursalesAreasGruposInformacionRepository.findOneBy({id: idGrupo});
+    try {
 
-    const { limit = 10, offset = 0 } = PaginationDto;
+      const grupo = await this.SucursalesAreasGruposInformacionRepository.findOneBy({id: idGrupo});
 
-    const sucursalesAreasGruposHorarios = await this.SucursalesAreasGruposHorariosRepository.find({
-      where:{idAreaGrupo:grupo},
-      skip: offset,
-      take: limit,
-      relations: ['idAreaGrupo.idSucursalArea'],
-    });
+      const sucursalesAreasGruposHorarios = await this.SucursalesAreasGruposHorariosRepository.find({
+        where:{idAreaGrupo:grupo},
+        relations: ['idAreaGrupo.idSucursalArea'],
+      });
 
-    return sucursalesAreasGruposHorarios;
+      return new GenericResponse('200', `EXITO`, sucursalesAreasGruposHorarios);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error);
+    }
   }
 
   async update(id: number, updateSucursalesAreasGruposHorarioDto: UpdateSucursalesAreasGruposHorarioDto) {
@@ -221,15 +229,11 @@ export class SucursalesAreasGruposHorariosService {
 
       const sucursales_areas_grupos_horario = await this.SucursalesAreasGruposHorariosRepository.findOneBy({ id });
 
-      if (!sucursales_areas_grupos_horario) {
-        throw new NotFoundException(`sucursales_areas_grupos_horario con ID ${id} no encontrada`);
-      }
+      if (!sucursales_areas_grupos_horario) return new GenericResponse('400',`sucursales_areas_grupos_horario con ID ${id} no encontrado`, []);
 
       const SucursalesAreasGruposInformacion = await this.SucursalesAreasGruposInformacionRepository.findOneBy({ id: idAreaGrupo });
 
-      if (!SucursalesAreasGruposInformacion) {
-        throw new NotFoundException(`SucursalesAreasGruposInformacion con ID ${idAreaGrupo} no encontrada`);
-      }
+      if (!SucursalesAreasGruposInformacion)  return new GenericResponse('400',`SucursalesAreasGruposInformacion con ID ${idAreaGrupo} no encontrado`, []);
 
       const update_sucursales_areas_grupos_horario = this.SucursalesAreasGruposHorariosRepository.merge(sucursales_areas_grupos_horario, {
         ...infoData,
@@ -239,10 +243,10 @@ export class SucursalesAreasGruposHorariosService {
       // Guardar los cambios en la base de datos
       await this.SucursalesAreasGruposHorariosRepository.save(update_sucursales_areas_grupos_horario);
 
-      return update_sucursales_areas_grupos_horario;
+      return new GenericResponse('200', `EXITO`, update_sucursales_areas_grupos_horario);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error`, error);
     }
   }
 
@@ -252,20 +256,16 @@ export class SucursalesAreasGruposHorariosService {
 
       const sucursales_areas_grupos_horario = await this.SucursalesAreasGruposHorariosRepository.findOne({ where: { id } });
 
-      if (!sucursales_areas_grupos_horario) {
-        throw new NotFoundException(`sucursales_areas_grupos_horario con ID ${id} not encontrado`);
-      }
-      return await this.SucursalesAreasGruposHorariosRepository.remove(sucursales_areas_grupos_horario);
+      if (!sucursales_areas_grupos_horario) return new GenericResponse('400',`sucursales_areas_grupos_horario con ID ${id} no encontrado`, []);
+
+      await this.SucursalesAreasGruposHorariosRepository.remove(sucursales_areas_grupos_horario);
+
+      return new GenericResponse('200', `EXITO`, []);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error`, error);
     }
   }
 
-  private handleDBException(error: any) {
-    if (error.code === '23505') throw new BadRequestException(error.detail);
-
-    this.logger.error(`Error : ${error.message}`);
-    throw new InternalServerErrorException('Error ');
-  }
+ 
 }

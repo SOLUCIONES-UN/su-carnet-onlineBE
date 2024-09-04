@@ -12,81 +12,33 @@ export class SucursalesAreasGruposHorariosController {
 
   @Post()
   async create(@Body() createSucursalesAreasGruposHorarioDto: CreateSucursalesAreasGruposHorarioDto) {
-    
-    try {
-
-      const result = await this.sucursalesAreasGruposHorariosService.create(createSucursalesAreasGruposHorarioDto);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al agregar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.sucursalesAreasGruposHorariosService.create(createSucursalesAreasGruposHorarioDto);
   }
 
   @Get()
-  async findAll(@Query() paginationDto: PaginationDto) {
-
-    try {
-
-      const result = await this.sucursalesAreasGruposHorariosService.findAll(paginationDto);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  async findAll() {
+    return await this.sucursalesAreasGruposHorariosService.findAll();
   }
 
   @Get('findAllByGrupo/:idGrupo')
-  async findAllByGrupo(@Query() paginationDto: PaginationDto, @Param('idGrupo') idGrupo:number) {
-
-    try {
-
-      const result = await this.sucursalesAreasGruposHorariosService.findAllByGrupo(paginationDto, idGrupo);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  async findAllByGrupo(@Param('idGrupo') idGrupo:number) {
+    await this.sucursalesAreasGruposHorariosService.findAllByGrupo(idGrupo);
   }
 
 
   @Post('HorariosCitas')
   async getHorariosByGrupo(@Body() horarioFechas: horarioFechasDto) {
-
-    try {
-
-      const result = await this.sucursalesAreasGruposHorariosService.HorariosCitas(horarioFechas);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    await this.sucursalesAreasGruposHorariosService.HorariosCitas(horarioFechas);
   }
 
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateSucursalesAreasGruposHorarioDto: UpdateSucursalesAreasGruposHorarioDto) {
-    
-    try {
-
-      const result = await this.sucursalesAreasGruposHorariosService.update(+id, updateSucursalesAreasGruposHorarioDto);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al editar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.sucursalesAreasGruposHorariosService.update(+id, updateSucursalesAreasGruposHorarioDto);
   }
 
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number) {
-
-    try {
-
-      const result = await this.sucursalesAreasGruposHorariosService.remove(+id);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al eliminar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.sucursalesAreasGruposHorariosService.remove(+id);
   }
 
 }
