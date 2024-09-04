@@ -10,29 +10,18 @@ export class OutsoursingDocumentosController {
 
   @Post()
   async create(@Body() createOutsoursingDocumentoDto: CreateOutsoursingDocumentoDto) {
-    
-    try {
-
-      const result = await this.outsoursingDocumentosService.create(createOutsoursingDocumentoDto);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al agregar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
+   return  this.outsoursingDocumentosService.create(createOutsoursingDocumentoDto);
   }
 
   @Get()
-  async findAll(@Query() paginationDto: PaginationDto) {
+  async findAll() {
+    return this.outsoursingDocumentosService.findAll();
+  }
 
-    try {
-
-      const result = await this.outsoursingDocumentosService.findAll(paginationDto);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.outsoursingDocumentosService.remove(+id);
   }
 
 }

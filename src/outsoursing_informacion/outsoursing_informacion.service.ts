@@ -87,6 +87,7 @@ export class OutsoursingInformacionService {
     const OutsoursingInformacion = await this.OutsoursingInformacionRepository.find({
       skip: offset,
       take: limit,
+      where: {estado: 'ACT'},
       relations: ['idEmpresa', 'idEmpresaRelacionada', 'idTipoRelacion'],
     });
 
