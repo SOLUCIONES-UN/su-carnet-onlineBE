@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, Query, ParseIntPipe } from '@nestjs/common';
 import { RegistroDispositivosService } from './registro_dispositivos.service';
 import { CreateRegistroDispositivoDto } from './dto/create-registro_dispositivo.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
@@ -58,6 +58,11 @@ export class RegistroDispositivosController {
     } catch (error) {
       throw new HttpException(new GenericResponse('500', 'Error al eliminar', error), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  @Delete(':id')
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return await this.registroDispositivosService.remove(+id);
   }
 
 }
