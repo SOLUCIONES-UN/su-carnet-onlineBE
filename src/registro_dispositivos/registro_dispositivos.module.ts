@@ -4,11 +4,12 @@ import { RegistroDispositivosController } from './registro_dispositivos.controll
 import { RegistroInformacion } from '../entities/RegistroInformacion';
 import { RegistroDispositivos } from '../entities/RegistroDispositivos';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { Usuarios } from '../entities/Usuarios';
 
 @Module({
 
   imports:[
-    TypeOrmModule.forFeature([RegistroDispositivos, RegistroInformacion]),
+    TypeOrmModule.forFeature([RegistroDispositivos, RegistroInformacion, Usuarios]),
   ],
 
   controllers: [RegistroDispositivosController],

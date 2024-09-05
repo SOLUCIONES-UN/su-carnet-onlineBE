@@ -39,10 +39,10 @@ export class UsuariosController {
   }
 
   @Get()
-  async findAll(@Query() paginationDto: PaginationDto) {
+  async findAll() {
     
     try {
-      const result = await this.usuariosService.findAll(paginationDto);
+      const result = await this.usuariosService.findAll();
       return new GenericResponse('200', 'EXITO', result);
     } catch (error) {
       console.error('Error:', error); // Para depuración

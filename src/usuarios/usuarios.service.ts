@@ -266,15 +266,12 @@ export class UsuariosService {
     return count > 0;
   }
 
-  async findAll(paginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = paginationDto;
+  async findAll() {
 
     const users = await this.usuariosRepository.find({
       where: {
         estado: In([1, 2]),
       },
-      skip: offset * limit,
-      take: limit,
       select: {
         id: true,
         nombres: true,

@@ -5,6 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RegistroInformacion } from '../entities/RegistroInformacion';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { GenericResponse } from '../common/dtos/genericResponse.dto';
+import { Usuarios } from '../entities/Usuarios';
 
 @Injectable()
 export class RegistroDispositivosService {
@@ -16,20 +18,25 @@ export class RegistroDispositivosService {
     private RegistroDispositivosRepository: Repository<RegistroDispositivos>,
 
     @InjectRepository(RegistroInformacion)
-    private RegistroInformacionRepository: Repository<RegistroInformacion>
+    private RegistroInformacionRepository: Repository<RegistroInformacion>,
+
+    @InjectRepository(Usuarios)
+    private UsuariosRepository: Repository<Usuarios>
 
   ) { }
 
   async create(createRegistroDispositivoDto: CreateRegistroDispositivoDto) {
     
     try {
-      const { idRegistroInformacion, ...infoData } = createRegistroDispositivoDto;
+      const { idUsuario, ...infoData } = createRegistroDispositivoDto;
 
-      const registro_informacion = await this.RegistroInformacionRepository.findOneBy({ id: idRegistroInformacion });
+      const usuario = await this.UsuariosRepository.findOneBy({id:idUsuario});
 
-      if (!registro_informacion) {
-        throw new NotFoundException(`registro_informacion con ID ${idRegistroInformacion} no encontrada`);
-      } 
+      if(!usuario) return new GenericResponse('401', `usuario con id ${idUsuario} no existe `, []); 
+
+      const registro_informacion = await this.RegistroInformacionRepository.findOneBy({ idUsuario: usuario });
+
+      if (!registro_informacion) return new GenericResponse('401', `registro_informacion con usuario ${usuario} no existe `, []); 
 
       const RegistroDispositivos = this.RegistroDispositivosRepository.create({
         ...infoData,
@@ -40,24 +47,44 @@ export class RegistroDispositivosService {
 
       await this.RegistroDispositivosRepository.save(RegistroDispositivos);
 
-      return RegistroDispositivos;
+      return new GenericResponse('200', `EXITO`, RegistroDispositivos);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error`, error);
     }
   }
 
-  async findAll(PaginationDto: PaginationDto) {
+  async findAll() {
 
-    const { limit = 10, offset = 0 } = PaginationDto;
+    try {
 
-    const RegistroDispositivos = await this.RegistroDispositivosRepository.find({
-      skip: offset,
-      take: limit,
-      relations: ['idRegistroInformacion'],
-    });
+      const RegistroDispositivos = await this.RegistroDispositivosRepository.find({
+        relations: ['idRegistroInformacion.idUsuario'],
+      });
 
-    return RegistroDispositivos;
+      return new GenericResponse('200', `EXITO`, RegistroDispositivos);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error);
+    }
+  }
+
+  async findAllByUser(idUsuario:number) {
+
+    try {
+
+      const registroInformacion = await this.RegistroInformacionRepository.findOneBy({id:idUsuario});
+
+      const RegistroDispositivos = await this.RegistroDispositivosRepository.find({
+        where:{idRegistroInformacion: registroInformacion},
+        relations: ['idRegistroInformacion.idUsuario'],
+      });
+
+      return new GenericResponse('200', `EXITO`, RegistroDispositivos);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error);
+    }
   }
 
   async DispositivoEnvio(id: number) {
@@ -66,22 +93,32 @@ export class RegistroDispositivosService {
 
       const RegistroDispositivos = await this.RegistroDispositivosRepository.findOneBy({ id });
 
-      if (!RegistroDispositivos) {
-        throw new NotFoundException(`RegistroDispositivos con ID ${id} not encontrado`);
-      }
+      if (!RegistroDispositivos) return new GenericResponse('401', `RegistroDispositivos con id ${id} no econtrado `, []); 
 
       RegistroDispositivos.estado = 'ENV';
-      return await this.RegistroDispositivosRepository.save(RegistroDispositivos);
+      await this.RegistroDispositivosRepository.save(RegistroDispositivos);
+
+      return new GenericResponse('200', `EXITO`, RegistroDispositivos);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error`, error);
     }
   }
 
-  private handleDBException(error: any) {
-    if (error.code === '23505') throw new BadRequestException(error.detail);
+  async remove(id: number) {
+    
+    try {
+      
+      const RegistroDispositivos = await this.RegistroDispositivosRepository.findOne({ where: { id } });
 
-    this.logger.error(`Error : ${error.message}`);
-    throw new InternalServerErrorException('Error ');
+      if(!RegistroDispositivos) return new GenericResponse('400', `RegistroDispositivos con id ${id} no contrado `, []);
+      await this.RegistroDispositivosRepository.remove(RegistroDispositivos);
+
+      return new GenericResponse('200', `EXITO`, RegistroDispositivos);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error);
+    }
   }
+
 }

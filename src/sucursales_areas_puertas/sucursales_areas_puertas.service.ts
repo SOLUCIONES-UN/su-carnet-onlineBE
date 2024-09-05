@@ -11,8 +11,6 @@ import { GenericResponse } from '../common/dtos/genericResponse.dto';
 @Injectable()
 export class SucursalesAreasPuertasService {
 
-  private readonly logger = new Logger("SucursalesAreasPuertasService");
-
   constructor(
     @InjectRepository(SucursalesAreasPuertas)
     private sucursalesAreas_Puertas_Repository: Repository<SucursalesAreasPuertas>,
@@ -30,9 +28,11 @@ export class SucursalesAreasPuertasService {
   
       const sucursalArea = await this.sucursalesAreasRepository.findOneBy({ id: idSucursalArea });
   
-      if (!sucursalArea) {
-        throw new NotFoundException(`sucursalArea con ID ${idSucursalArea} no encontrada`);
-      }
+      if (!sucursalArea) return new GenericResponse('400', `No se encontro sucursalArea con id $${idSucursalArea}`, null);
+
+      const existeAreaSucursalPuerta = await this.sucursalesAreas_Puertas_Repository.findOneBy({idSucursalArea:sucursalArea});
+
+      if(existeAreaSucursalPuerta) return new GenericResponse('401', `Ya existe esta asignacion `, []); 
   
       const areaSucursalPuerta = this.sucursalesAreas_Puertas_Repository.create({
         ...infoData,
@@ -41,25 +41,25 @@ export class SucursalesAreasPuertasService {
   
       await this.sucursalesAreas_Puertas_Repository.save(areaSucursalPuerta);
   
-      return areaSucursalPuerta; 
+      return new GenericResponse('401', `EXITO`, areaSucursalPuerta); 
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error`, error); 
     }
 
   }
 
-  async findAll(PaginationDto: PaginationDto) {
+  async findAll() {
 
-    const { limit = 10, offset = 0 } = PaginationDto;
-
-    const areaSucursalesPuertas = await this.sucursalesAreas_Puertas_Repository.find({
-      skip: offset,
-      take: limit,
-      relations: ['idSucursalArea', 'idSucursalArea.idSucursal', 'idSucursalArea.idSucursal.idEmpresa'],
-    });
-    
-    return areaSucursalesPuertas;
+    try {
+      const areaSucursalesPuertas = await this.sucursalesAreas_Puertas_Repository.find({
+        relations: ['idSucursalArea', 'idSucursalArea.idSucursal', 'idSucursalArea.idSucursal.idEmpresa'],
+      });
+      
+      return new GenericResponse('200', `EXITO`, areaSucursalesPuertas);
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error); 
+    }
   }
 
   async findAllByArea(idArea: number) {
@@ -106,7 +106,7 @@ export class SucursalesAreasPuertasService {
         relations: ['idSucursalArea', 'idSucursalArea.idSucursal'],
       });
   
-      return new GenericResponse('200', `Éxito`, areaSucursalesPuertas);
+      return new GenericResponse('200', `EXITO`, areaSucursalesPuertas);
   
     } catch (error) {
       return new GenericResponse('500', `Error`, error.message);
@@ -124,15 +124,11 @@ export class SucursalesAreasPuertasService {
   
       const areaSucursalPuerta = await this.sucursalesAreas_Puertas_Repository.findOneBy({ id });
 
-      if (!areaSucursalPuerta) {
-        throw new NotFoundException(`areaSucursalPuerta con ID ${id} no encontrada`);
-      }
+      if (!areaSucursalPuerta) return new GenericResponse('400', `No se encontro areaSucursalPuerta con id $${id}`, null); 
   
       const sucursalArea = await this.sucursalesAreasRepository.findOneBy({ id: idSucursalArea });
 
-      if (!sucursalArea) {
-        throw new NotFoundException(`sucursalArea con ID ${idSucursalArea} no encontrada`);
-      }
+      if (!sucursalArea) return new GenericResponse('400', `No se encontro sucursalArea con id $${idSucursalArea}`, null); 
   
       const updateAreaSucursalPuerta = this.sucursalesAreas_Puertas_Repository.merge(areaSucursalPuerta, {
         ...infoData,
@@ -142,10 +138,10 @@ export class SucursalesAreasPuertasService {
       // Guardar los cambios en la base de datos
       await this.sucursalesAreas_Puertas_Repository.save(updateAreaSucursalPuerta);
   
-      return updateAreaSucursalPuerta;
+      return new GenericResponse('200', `EXITO`, updateAreaSucursalPuerta);
   
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error`, error.message);
     }
 
   }
@@ -156,23 +152,15 @@ export class SucursalesAreasPuertasService {
       
       const areaSucursalPuerta = await this.sucursalesAreas_Puertas_Repository.findOneBy({ id });
 
-      if(!areaSucursalPuerta){
-        throw new NotFoundException(`areaSucursalPuerta con ID ${id} no encontrada`);
-      }
+      if(!areaSucursalPuerta) return new GenericResponse('400', `No se encontro areaSucursalPuerta con id $${id}`, null); 
 
-      return await this.sucursalesAreas_Puertas_Repository.remove(areaSucursalPuerta);
+      await this.sucursalesAreas_Puertas_Repository.remove(areaSucursalPuerta);
+
+      return new GenericResponse('200', `EXITO`, areaSucursalPuerta);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error`, error.message);
     }
   }
-
-  private handleDBException(error: any) {
-    if (error.code === '23505') throw new BadRequestException(error.detail);
-
-    this.logger.error(`Error : ${error.message}`);
-    throw new InternalServerErrorException('Error ');
-  }
-
   
 }

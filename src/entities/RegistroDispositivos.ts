@@ -23,6 +23,19 @@ export class RegistroDispositivos {
   @Column("character varying", { name: "estado", length: 4 })
   estado: string;
 
+  @Column("character varying", {
+    name: "idDispositivo",
+    nullable: true,
+    length: 20,
+  })
+  idDispositivo: string | null;
+
+  @Column("character varying", { name: "modelo", nullable: true, length: 20 })
+  modelo: string | null;
+
+  @Column("character varying", { name: "locacion", nullable: true, length: 20 })
+  locacion: string | null;
+
   @ManyToOne(
     () => RegistroInformacion,
     (registroInformacion) => registroInformacion.registroDispositivos
