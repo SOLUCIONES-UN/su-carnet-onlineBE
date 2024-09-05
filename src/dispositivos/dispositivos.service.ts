@@ -9,8 +9,6 @@ import { GenericResponse } from '../common/dtos/genericResponse.dto';
 @Injectable()
 export class DispositivosService {
 
-  private readonly logger = new Logger("DispositivosService");
-
   constructor(
 
     @InjectRepository(Dispositivos)
@@ -37,6 +35,7 @@ export class DispositivosService {
         tokendispositivo: createDispositivoDto.tokendispositivo
       });
       await this.DispositivosRepository.save(dispositivos);
+
       return new GenericResponse('200', `Dispositivo creado con éxito`, dispositivos);
     } catch (error) {
       return new GenericResponse('500', `Error al guardar`, error);

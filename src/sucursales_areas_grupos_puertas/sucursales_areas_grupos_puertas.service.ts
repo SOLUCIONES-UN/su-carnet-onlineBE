@@ -7,11 +7,10 @@ import { SucursalesAreasGruposInformacion } from '../entities/SucursalesAreasGru
 import { SucursalesAreasPuertas } from '../entities/SucursalesAreasPuertas';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
+import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 
 @Injectable()
 export class SucursalesAreasGruposPuertasService {
-
-  private readonly logger = new Logger("SucursalesAreasGruposPuertasService");
 
   constructor(
 
@@ -21,8 +20,11 @@ export class SucursalesAreasGruposPuertasService {
     @InjectRepository(SucursalesAreasGruposPuertas)
     private puertasRepository: Repository<SucursalesAreasGruposPuertas>,
 
-    @InjectRepository(SucursalesAreasGruposInformacion)
+    @InjectRepository(EmpresasInformacion)
     private AreasGruposInformacionRepository: Repository<SucursalesAreasGruposInformacion>,
+
+    @InjectRepository(SucursalesAreasGruposInformacion)
+    private EmpresasInformacionRepository: Repository<EmpresasInformacion>,
 
   ) { }
 
@@ -61,18 +63,30 @@ export class SucursalesAreasGruposPuertasService {
     }
   }
 
-  async findAll(PaginationDto: PaginationDto) {
+  async findAll(idEmpresa: number) {
 
-    const { limit = 10, offset = 0 } = PaginationDto;
+    try {
 
-    const SucursalesAreasGruposPuertas = await this.puertasRepository.find({
-      skip: offset,
-      take: limit,
-      relations: ['idAreaGrupo', 'idPuerta'],
-    });
-    
-    return SucursalesAreasGruposPuertas;
+      const empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idEmpresa });
+  
+      if (!empresa) {
+        return new GenericResponse('400', `Empresa no encontrada`, []);
+      }
+  
+      const SucursalesAreasGruposPuertas = await this.puertasRepository
+        .createQueryBuilder('puerta')
+        .innerJoinAndSelect('puerta.idAreaGrupo', 'areaGrupo')
+        .innerJoinAndSelect('areaGrupo.idSucursalArea', 'sucursalArea')
+        .innerJoinAndSelect('sucursalArea.idSucursal', 'sucursal')
+        .where('sucursal.idEmpresa = :idEmpresa', { idEmpresa })
+        .getMany();
+  
+      return new GenericResponse('200', `EXITO`, SucursalesAreasGruposPuertas);
+    } catch (error) {
+      return new GenericResponse('500', `Error en el servidor`, error);
+    }
   }
+
 
   async remove(id: number) {
     
@@ -80,20 +94,14 @@ export class SucursalesAreasGruposPuertasService {
       
       const SucursalesAreasGruposPuertas = await this.puertasRepository.findOne({ where: { id } });
 
-      if(!SucursalesAreasGruposPuertas){
-        throw new NotFoundException(`SucursalesAreasGruposPuertas con ID ${id} not encontrado`);
-      }
-      return await this.puertasRepository.remove(SucursalesAreasGruposPuertas);
+      if(!SucursalesAreasGruposPuertas) return new GenericResponse('400', `SucursalesAreasGruposPuertas con id ${id} no contrado `, []);
+      await this.puertasRepository.remove(SucursalesAreasGruposPuertas);
+
+      return new GenericResponse('200', `EXITO`, SucursalesAreasGruposPuertas);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error`, error);
     }
   }
 
-  private handleDBException(error: any) {
-    if (error.code === '23505') throw new BadRequestException(error.detail);
-
-    this.logger.error(`Error : ${error.message}`);
-    throw new InternalServerErrorException('Error ');
-  }
 }
