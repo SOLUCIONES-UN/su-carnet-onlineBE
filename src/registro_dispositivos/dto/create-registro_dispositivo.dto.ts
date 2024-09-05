@@ -14,4 +14,8 @@ export class CreateRegistroDispositivoDto {
     @IsNotEmpty({ message: 'El campo idDispositivo es requerido' })
     locacion: string;
 
+    @IsString()
+    @IsNotEmpty({ message: 'El campo modelo es requerido' })
+    modelo: string;
+
 }
