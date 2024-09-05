@@ -10,54 +10,22 @@ export class RegistroDispositivosController {
 
   @Post()
   async create(@Body() createRegistroDispositivoDto: CreateRegistroDispositivoDto) {
-    
-    try {
-
-      const result = await this.registroDispositivosService.create(createRegistroDispositivoDto);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al agregar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.registroDispositivosService.create(createRegistroDispositivoDto);
   }
 
   @Get()
   async findAll() {
-
-    try {
-
-      const result = await this.registroDispositivosService.findAll();
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.registroDispositivosService.findAll();
   }
 
   @Get(':idUsuario')
   async findAllByUsuario(@Param('idUsuario') idUsuario: number) {
-
-    try {
-
-      const result = await this.registroDispositivosService.findAllByUser(idUsuario);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.registroDispositivosService.findAllByUser(idUsuario);
   }
 
   @Patch(':id')
   async DispositivoEnvio(@Param('id') id: string) {
-
-    try {
-
-      const result = await this.registroDispositivosService.DispositivoEnvio(+id);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al eliminar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.registroDispositivosService.DispositivoEnvio(+id);
   }
 
   @Delete(':id')
