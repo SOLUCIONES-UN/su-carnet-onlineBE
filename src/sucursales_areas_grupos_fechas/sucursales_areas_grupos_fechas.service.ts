@@ -61,7 +61,7 @@ export class SucursalesAreasGruposFechasService {
 
     try {
       const sucursalesAreasGruposHorarios = await this.SucursalesAreasGruposFechasRepository.find({
-        relations: ['idAreaGrupo'],
+        relations: ['idAreaGrupo.idSucursalArea.idSucursal.idEmpresa'],
       });
   
       return new GenericResponse('200', `EXITO`, sucursalesAreasGruposHorarios);
