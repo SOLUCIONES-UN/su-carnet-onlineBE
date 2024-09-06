@@ -54,6 +54,27 @@ export class RegistroDispositivosService {
     }
   }
 
+  async VerificarDispositivo(idDispositivo: string){
+
+    try {
+      
+      const dispositivoActivo = await this.RegistroDispositivosRepository.findOne({
+        where:{idDispositivo:idDispositivo, estado:'ACT'}
+      });
+
+      if(dispositivoActivo) return new GenericResponse('200', `Dispositivo ya existe y esta activo`, []);
+
+      const existeDispositivo = await this.RegistroDispositivosRepository.findOneBy({idDispositivo:idDispositivo});
+
+      if(existeDispositivo) return new GenericResponse('409', `Dispositivo ya existe pero esta inactivo`, []);
+
+      return new GenericResponse('404', `Dispositivo no existe`, []);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error);
+    }
+  }
+
   async findAll() {
 
     try {
@@ -73,7 +94,13 @@ export class RegistroDispositivosService {
 
     try {
 
-      const registroInformacion = await this.RegistroInformacionRepository.findOneBy({id:idUsuario});
+      const usuario = await this.UsuariosRepository.findOneBy({id:idUsuario});
+
+      if(!usuario) return new GenericResponse('400', `No existe usuario con id ${idUsuario}  `, usuario);
+
+      const registroInformacion = await this.RegistroInformacionRepository.findOneBy({idUsuario:usuario});
+
+      if(!registroInformacion)  return new GenericResponse('400', `No existe registroInforamcion para  el usuario  `, usuario);
 
       const RegistroDispositivos = await this.RegistroDispositivosRepository.find({
         where:{idRegistroInformacion: registroInformacion},

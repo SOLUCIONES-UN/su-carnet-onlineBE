@@ -21,6 +21,11 @@ export class RegistroDispositivosController {
     return await this.registroDispositivosService.findAllByUser(idUsuario);
   }
 
+  @Get('verificarDispositivo/:idDispositivo')
+  async verificarDispositivo(@Param('idDispositivo') idDispositivo: string) {
+    return await this.registroDispositivosService.VerificarDispositivo(idDispositivo);
+  }
+
   @Patch(':id')
   async DispositivoEnvio(@Param('id') id: string) {
     return await this.registroDispositivosService.DispositivoEnvio(+id);
