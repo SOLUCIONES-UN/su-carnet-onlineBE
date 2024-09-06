@@ -39,7 +39,7 @@ export class UpdateRegistroInformacionDto{
 
     @IsNumber()
     @IsNotEmpty({ message: 'El campo idPais es requerido' })
-    idPais: number;
+    idMunicipio: number;
 
     @IsNumber()
     @IsNotEmpty({ message: 'El campo idUsuario es requerido' })

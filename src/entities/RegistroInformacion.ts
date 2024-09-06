@@ -10,7 +10,7 @@ import {
 import { OutsoursingAfiliaciones } from "./OutsoursingAfiliaciones";
 import { RegistroDispositivos } from "./RegistroDispositivos";
 import { RegistroDocumentos } from "./RegistroDocumentos";
-import { TipoPaises } from "./TipoPaises";
+import { Municipios } from "./Municipios";
 import { Usuarios } from "./Usuarios";
 import { RegistroMembresia } from "./RegistroMembresia";
 import { RegistroMensajes } from "./RegistroMensajes";
@@ -57,6 +57,13 @@ export class RegistroInformacion {
   @Column("character varying", { name: "estado", nullable: true, length: 4 })
   estado: string | null;
 
+  @Column("character varying", {
+    name: "direccionRecidencia",
+    nullable: true,
+    length: 10,
+  })
+  direccionRecidencia: string | null;
+
   @OneToMany(
     () => OutsoursingAfiliaciones,
     (outsoursingAfiliaciones) => outsoursingAfiliaciones.idRegistroInformacion
@@ -75,9 +82,9 @@ export class RegistroInformacion {
   )
   registroDocumentos: RegistroDocumentos[];
 
-  @ManyToOne(() => TipoPaises, (tipoPaises) => tipoPaises.registroInformacions)
-  @JoinColumn([{ name: "id_pais", referencedColumnName: "id" }])
-  idPais: TipoPaises;
+  @ManyToOne(() => Municipios, (municipios) => municipios.registroInformacions)
+  @JoinColumn([{ name: "idMunicipio", referencedColumnName: "id" }])
+  idMunicipio: Municipios;
 
   @ManyToOne(() => Usuarios, (usuarios) => usuarios.registroInformacions)
   @JoinColumn([{ name: "id_usuario", referencedColumnName: "id" }])

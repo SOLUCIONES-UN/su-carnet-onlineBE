@@ -37,7 +37,7 @@ export class CreateRegistroInformacionDto {
 
     @IsNumber()
     @IsNotEmpty({ message: 'El campo idPais es requerido' })
-    idPais: number;
+    idMunicipio: number;
 
     @IsString()
     @IsNotEmpty({ message: 'El campo password es requerido' })

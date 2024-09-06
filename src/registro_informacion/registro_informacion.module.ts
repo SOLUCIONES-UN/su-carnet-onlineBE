@@ -11,10 +11,12 @@ import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
 import { SucursalesInformacion } from '../entities/SucursalesInformacion';
 import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
+import { Municipios } from '../entities/Municipios';
 
 @Module({
   imports:[
-    TypeOrmModule.forFeature([RegistroInformacion, TipoPaises, Usuarios, TipoUsuario, EmpresasInformacion, UsuariosRelacionEmpresas, SucursalesInformacion, SucursalesAreasInformacion]),
+    TypeOrmModule.forFeature([RegistroInformacion, TipoPaises, Usuarios, TipoUsuario, Municipios, EmpresasInformacion, UsuariosRelacionEmpresas,
+     SucursalesInformacion, SucursalesAreasInformacion]),
   ],
   controllers: [RegistroInformacionController],
   providers: [RegistroInformacionService, UsuariosService],

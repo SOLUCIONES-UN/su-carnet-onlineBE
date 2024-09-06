@@ -77,11 +77,11 @@ export class RegistroInformacionController {
   }
 
   @Get()
-  async findAll(@Query() paginationDto: PaginationDto) {
+  async findAll() {
 
     try {
 
-      const result = await this.registroInformacionService.findAll(paginationDto);
+      const result = await this.registroInformacionService.findAll();
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {

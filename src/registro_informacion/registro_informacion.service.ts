@@ -10,6 +10,7 @@ import { Usuarios } from '../entities/Usuarios';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
+import { Municipios } from '../entities/Municipios';
 
 @Injectable()
 export class RegistroInformacionService {
@@ -20,8 +21,8 @@ export class RegistroInformacionService {
     @InjectRepository(RegistroInformacion)
     private RegistroInformacionRepository: Repository<RegistroInformacion>,
 
-    @InjectRepository(TipoPaises)
-    private TipoPaisesRepository: Repository<TipoPaises>,
+    @InjectRepository(Municipios)
+    private MunicipiosRepository: Repository<Municipios>,
 
     @InjectRepository(Usuarios)
     private UsuariosRepository: Repository<Usuarios>,
@@ -51,17 +52,17 @@ export class RegistroInformacionService {
 
     try {
 
-      const { idPais, nombres, apellidos, documento, telefono, correo, fechaNacimiento, ...infoData } = createRegistroInformacionDto;
+      const { idMunicipio, nombres, apellidos, documento, telefono, correo, fechaNacimiento, ...infoData } = createRegistroInformacionDto;
 
-      const TipoPaises = await this.TipoPaisesRepository.findOneBy({ id: idPais });
+      const municipio = await this.MunicipiosRepository.findOneBy({ id: idMunicipio });
 
       if (!TipoPaises) {
-        return new GenericResponse('401', `TipoPaises ${idPais} not encontrado`, usuario);
+        return new GenericResponse('401', `Municipios ${idMunicipio} not encontrado`, usuario);
       }
 
       const RegistroInformacion = this.RegistroInformacionRepository.create({
         ...infoData,
-        idPais: TipoPaises,
+        idMunicipio: municipio,
         nombres: nombres,
         apellidos: apellidos,
         documento: documento,
@@ -88,14 +89,10 @@ export class RegistroInformacionService {
   }
 
   
-  async findAll(paginationDto: PaginationDto) {
-
-    const { limit = 10, offset = 0 } = paginationDto;
+  async findAll() {
 
     const RegistroInformacion = await this.RegistroInformacionRepository.find({
-      skip: offset,
-      take: limit,
-      relations: ['idPais', 'idUsuario.idTipo','idUsuario.usuariosRelacionEmpresas', 'idUsuario.usuariosRelacionEmpresas.idEmpresa', 
+      relations: ['idMunicipio', 'idUsuario.idTipo','idUsuario.usuariosRelacionEmpresas', 'idUsuario.usuariosRelacionEmpresas.idEmpresa', 
         'idUsuario.usuariosRelacionEmpresas.idSucursal', 'idUsuario.usuariosRelacionEmpresas.idAreaSucursal'],
     });
 
@@ -121,7 +118,7 @@ export class RegistroInformacionService {
       .leftJoinAndSelect('relacion.idEmpresa', 'empresa')
       .leftJoinAndSelect('relacion.idSucursal', 'sucursal')
       .leftJoinAndSelect('relacion.idAreaSucursal', 'areaSucursal')
-      .leftJoinAndSelect('registro.idPais', 'pais')
+      .leftJoinAndSelect('registro.idMunicipio', 'pais')
       .where('relacion.idEmpresa = :idEmpresa', { idEmpresa })
       .andWhere('relacion.estado = :estado', { estado: 1 })
       .andWhere('empresa.estado = :empresaEstado', { empresaEstado: 1 })
@@ -141,7 +138,7 @@ export class RegistroInformacionService {
 
     try {
 
-      const { idPais, idUsuario, nombres, apellidos, documento, telefono, correo, fechaNacimiento, ...infoData } = updateRegistroInformacionDto;
+      const { idMunicipio, idUsuario, nombres, apellidos, documento, telefono, correo, fechaNacimiento, ...infoData } = updateRegistroInformacionDto;
 
       const registro_informacion = await this.RegistroInformacionRepository.findOneBy({ id });
 
@@ -149,10 +146,10 @@ export class RegistroInformacionService {
         throw new NotFoundException(`registro_informacion con ID ${id} no encontrado`);
       }
 
-      const TipoPaises = await this.TipoPaisesRepository.findOneBy({ id: idPais });
+      const municipio = await this.MunicipiosRepository.findOneBy({ id: idMunicipio });
 
       if (!TipoPaises) {
-        throw new NotFoundException(`TipoPaises con ID ${idPais} no encontrado`);
+        throw new NotFoundException(`Municipio con ID ${idMunicipio} no encontrado`);
       }
 
       const usuario = await this.UsuariosRepository.findOneBy({ id: idUsuario });
@@ -163,7 +160,7 @@ export class RegistroInformacionService {
 
       const update_registro_informacion = this.RegistroInformacionRepository.merge(registro_informacion, {
         ...infoData,
-        idPais: TipoPaises,
+        idMunicipio: municipio,
         idUsuario: usuario
       });
 

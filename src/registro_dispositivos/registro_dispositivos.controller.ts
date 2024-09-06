@@ -1,8 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, Query, ParseIntPipe } from '@nestjs/common';
 import { RegistroDispositivosService } from './registro_dispositivos.service';
 import { CreateRegistroDispositivoDto } from './dto/create-registro_dispositivo.dto';
-import { GenericResponse } from '../common/dtos/genericResponse.dto';
-import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Controller('registro-dispositivos')
 export class RegistroDispositivosController {

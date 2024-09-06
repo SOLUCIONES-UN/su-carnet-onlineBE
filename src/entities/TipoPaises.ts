@@ -6,7 +6,6 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Departamentos } from "./Departamentos";
-import { RegistroInformacion } from "./RegistroInformacion";
 
 @Index("tipo_paises_pkey", ["id"], { unique: true })
 @Entity("tipo_paises", { schema: "public" })
@@ -22,10 +21,4 @@ export class TipoPaises {
 
   @OneToMany(() => Departamentos, (departamentos) => departamentos.idpais)
   departamentos: Departamentos[];
-
-  @OneToMany(
-    () => RegistroInformacion,
-    (registroInformacion) => registroInformacion.idPais
-  )
-  registroInformacions: RegistroInformacion[];
 }
