@@ -30,6 +30,14 @@ export class UpdateRegistroInformacionDto{
     correo: string;
 
     @IsString()
+    @IsNotEmpty({ message: 'El campo direccionRecidencia es requerido' })
+    direccionRecidencia: string;
+
+    @IsString()
+    @IsNotEmpty({ message: 'El campo genero es requerido' })
+    genero: string;
+
+    @IsString()
     @IsNotEmpty({ message: 'El campo contactoEmergenciaNombre es requerido' })
     contactoEmergenciaNombre: string;
 
@@ -38,7 +46,7 @@ export class UpdateRegistroInformacionDto{
     contactoEmergenciaTelefono: string;
 
     @IsNumber()
-    @IsNotEmpty({ message: 'El campo idPais es requerido' })
+    @IsNotEmpty({ message: 'El campo idMunicipio es requerido' })
     idMunicipio: number;
 
     @IsNumber()

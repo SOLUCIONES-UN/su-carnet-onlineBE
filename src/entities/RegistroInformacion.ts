@@ -22,22 +22,26 @@ export class RegistroInformacion {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;
 
-  @Column("character varying", { name: "documento", nullable: true })
+  @Column("character varying", {
+    name: "documento",
+    nullable: true,
+    length: 20,
+  })
   documento: string | null;
 
-  @Column("character varying", { name: "nombres" })
+  @Column("character varying", { name: "nombres", length: 50 })
   nombres: string;
 
-  @Column("character varying", { name: "apellidos" })
+  @Column("character varying", { name: "apellidos", length: 50 })
   apellidos: string;
 
   @Column("date", { name: "fecha_nacimiento", nullable: true })
   fechaNacimiento: string | null;
 
-  @Column("character varying", { name: "telefono" })
+  @Column("character varying", { name: "telefono", length: 15 })
   telefono: string;
 
-  @Column("character varying", { name: "correo" })
+  @Column("character varying", { name: "correo", length: 50 })
   correo: string;
 
   @Column("character varying", {
@@ -60,9 +64,12 @@ export class RegistroInformacion {
   @Column("character varying", {
     name: "direccionRecidencia",
     nullable: true,
-    length: 10,
+    length: 100,
   })
   direccionRecidencia: string | null;
+
+  @Column("character varying", { name: "genero", nullable: true, length: 10 })
+  genero: string | null;
 
   @OneToMany(
     () => OutsoursingAfiliaciones,

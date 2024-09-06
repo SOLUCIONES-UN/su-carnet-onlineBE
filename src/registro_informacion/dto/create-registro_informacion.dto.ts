@@ -28,12 +28,21 @@ export class CreateRegistroInformacionDto {
     correo: string;
 
     @IsString()
+    @IsNotEmpty({ message: 'El campo direccionRecidencia es requerido' })
+    direccionRecidencia: string;
+
+    @IsString()
+    @IsNotEmpty({ message: 'El campo genero es requerido' })
+    genero: string;
+
+    @IsString()
     @IsNotEmpty({ message: 'El campo contactoEmergenciaNombre es requerido' })
     contactoEmergenciaNombre: string;
 
     @IsString()
     @IsNotEmpty({ message: 'El campo contactoEmergenciaTelefono es requerido' })
     contactoEmergenciaTelefono: string;
+    
 
     @IsNumber()
     @IsNotEmpty({ message: 'El campo idPais es requerido' })

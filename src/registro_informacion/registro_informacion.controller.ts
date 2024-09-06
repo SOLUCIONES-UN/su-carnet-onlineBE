@@ -6,7 +6,6 @@ import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { UsuariosService } from '../usuarios/usuarios.service';
 import { CreateUsuarioDto } from '../usuarios/dto/create-usuario.dto';
-import { UpdateUsuarioDto } from '../usuarios/dto/update-usuario.dto';
 import { updateUsuarioEmpresaDto } from '../usuarios/dto/update-usuario-empresa.dto';
 
 @Controller('registro-informacion')
@@ -69,7 +68,7 @@ export class RegistroInformacionController {
       if (!result) {
         return new GenericResponse('401', 'Error al registrar la información', result);
       }
-      return new GenericResponse('200', 'EXITO', result);
+      return result;
   
     } catch (error) {
       throw new HttpException(new GenericResponse('500', 'Error al agregar', error), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -90,11 +89,11 @@ export class RegistroInformacionController {
   }
 
   @Get('findAllByEmpresa/:idEmpresa')
-  async findAllByEmpresa(@Query() paginationDto: PaginationDto, @Param('idEmpresa') idEmpresa:number) {
+  async findAllByEmpresa(@Param('idEmpresa') idEmpresa:number) {
 
     try {
 
-      const result = await this.registroInformacionService.findAllByEmpresa(paginationDto, idEmpresa);
+      const result = await this.registroInformacionService.findAllByEmpresa(idEmpresa);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
