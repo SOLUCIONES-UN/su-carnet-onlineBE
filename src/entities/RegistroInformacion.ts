@@ -29,20 +29,24 @@ export class RegistroInformacion {
   })
   documento: string | null;
 
-  @Column("character varying", { name: "nombres", length: 50 })
-  nombres: string;
+  @Column("character varying", { name: "nombres", nullable: true, length: 50 })
+  nombres: string | null;
 
-  @Column("character varying", { name: "apellidos", length: 50 })
-  apellidos: string;
+  @Column("character varying", {
+    name: "apellidos",
+    nullable: true,
+    length: 50,
+  })
+  apellidos: string | null;
 
   @Column("date", { name: "fecha_nacimiento", nullable: true })
   fechaNacimiento: string | null;
 
-  @Column("character varying", { name: "telefono", length: 15 })
-  telefono: string;
+  @Column("character varying", { name: "telefono", nullable: true, length: 15 })
+  telefono: string | null;
 
-  @Column("character varying", { name: "correo", length: 50 })
-  correo: string;
+  @Column("character varying", { name: "correo", nullable: true, length: 50 })
+  correo: string | null;
 
   @Column("character varying", {
     name: "contacto_emergencia_nombre",
@@ -58,7 +62,7 @@ export class RegistroInformacion {
   })
   contactoEmergenciaTelefono: string | null;
 
-  @Column("character varying", { name: "estado", nullable: true, length: 4 })
+  @Column("character varying", { name: "estado", nullable: true, length: 10 })
   estado: string | null;
 
   @Column("character varying", {

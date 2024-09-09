@@ -7,11 +7,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { Usuarios } from '../entities/Usuarios';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
 @Injectable()
 export class TarjetaPresentacionService {
-
-  private readonly logger = new Logger("TarjetaPresentacionService");
 
   constructor(
     @InjectRepository(TarjetaPresentacion)
@@ -34,14 +33,14 @@ export class TarjetaPresentacionService {
       if (idEmpresa !== null && idEmpresa !== undefined) {
         empresa = await this.empresaRepository.findOneBy({ id: idEmpresa });
         if (!empresa) {
-          throw new NotFoundException(`Empresa con ID ${idEmpresa} no encontrada`);
+          return new GenericResponse('400', 'Empresa no encontrada', []);
         }
       }
   
       const usuario = await this.UsuariosRepository.findOneBy({ id: idUsuario });
 
       if (!usuario) {
-        throw new NotFoundException(`Usuario con ID ${idUsuario} no encontrado`);
+        return new GenericResponse('400', 'Usuario no encontrado', []);
       }
   
       const tarjeta_presentacion = this.TarjetaPresentacionRepository.create({
@@ -52,36 +51,41 @@ export class TarjetaPresentacionService {
   
       await this.TarjetaPresentacionRepository.save(tarjeta_presentacion);
   
-      return tarjeta_presentacion;
+      return new GenericResponse('200', 'EXITO', tarjeta_presentacion);
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('400', 'Error', error);
     }
   }
 
-  async findAll(PaginationDto: PaginationDto) {
+  async findAll() {
 
-    const { limit = 10, offset = 0 } = PaginationDto;
+    try {
 
-    const tarjetas_presentacion = await this.TarjetaPresentacionRepository.find({
-      where: { estado: 1 },
-      skip: offset,
-      take: limit,
-      relations: ['idEmpresa', 'idUsuario'],
-    });
-    
-    return tarjetas_presentacion;
+      const tarjetas_presentacion = await this.TarjetaPresentacionRepository.find({
+        where: { estado: 1 },
+        relations: ['idEmpresa', 'idUsuario'],
+      });
+      
+      return new GenericResponse('200', 'EXITO', tarjetas_presentacion);
+    } catch (error) {
+      return new GenericResponse('400', 'Error', error);
+    }
   }
 
   async findAllByUsers(idUsuario:number) {
 
-    const usuario = { id: idUsuario } as Usuarios;
+    try {
+      const usuario = { id: idUsuario } as Usuarios;
 
-    const tarjetasPresentacion = await this.TarjetaPresentacionRepository.find({
-      where: { idUsuario: usuario, estado:1 },
-      relations: ['idEmpresa', 'idUsuario'],
-    });
-    
-    return tarjetasPresentacion;
+      const tarjetasPresentacion = await this.TarjetaPresentacionRepository.find({
+        where: { idUsuario: usuario, estado:1 },
+        relations: ['idEmpresa', 'idUsuario'],
+      });
+      
+      return new GenericResponse('200', 'EXITO', tarjetasPresentacion);
+    } catch (error) {
+      
+    }
   }
 
   async findOne(id: number) {
@@ -103,17 +107,19 @@ export class TarjetaPresentacionService {
         empresa = await this.empresaRepository.findOneBy({ id: idEmpresa });
 
         if (!empresa) {
-          throw new NotFoundException(`Empresa con ID ${idEmpresa} no encontrada`);
+          return new GenericResponse('400', 'Empresa no encontrada', []);
         }
       }
   
       const tarjeta_presentacion = await this.TarjetaPresentacionRepository.findOneBy({ id });
 
       if (!tarjeta_presentacion) {
-        throw new NotFoundException(`sucursal con ID ${id} no encontrada`);
+        return new GenericResponse('400', 'tarjeta_presentacion no encontrada', []);
       }
   
-      const usuario = await this.UsuariosRepository.findOneBy({ id: idEmpresa });
+      const usuario = await this.UsuariosRepository.findOneBy({ id: idUsuario });
+
+      if(!usuario) return new GenericResponse('400', 'usuario no encontrado', []);
   
       const updateTarjetaPresentacion = this.TarjetaPresentacionRepository.merge(tarjeta_presentacion, {
         ...infoData,
@@ -123,10 +129,10 @@ export class TarjetaPresentacionService {
   
       await this.TarjetaPresentacionRepository.save(updateTarjetaPresentacion);
   
-      return updateTarjetaPresentacion;
+      return new GenericResponse('200', 'EXITO', updateTarjetaPresentacion);
   
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', 'Error', error);
     }
   }
 
@@ -137,22 +143,17 @@ export class TarjetaPresentacionService {
       const tarjeta_presentacion = await this.TarjetaPresentacionRepository.findOneBy({id});
 
       if(!tarjeta_presentacion){
-        throw new NotFoundException(`tarjeta_presentacion con ID ${id} not encontrada`);
+        return new GenericResponse('400', `tarjeta_presentacion con ID ${id} not encontrada`, []);
       }
 
       tarjeta_presentacion.estado = 0;
-      return await this.TarjetaPresentacionRepository.save(tarjeta_presentacion);
+      await this.TarjetaPresentacionRepository.save(tarjeta_presentacion);
+
+      return new GenericResponse('200', 'EXITO', tarjeta_presentacion);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', 'Error', error);
     }
-  }
-
-  private handleDBException(error: any) {
-    if (error.code === '23505') throw new BadRequestException(error.detail);
-
-    this.logger.error(`Error : ${error.message}`);
-    throw new InternalServerErrorException('Error ');
   }
   
 }

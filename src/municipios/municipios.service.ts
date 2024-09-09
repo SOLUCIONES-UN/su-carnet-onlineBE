@@ -30,7 +30,8 @@ export class MunicipiosService {
 
       const municipio = this.MunicipiosRepository.create({
         iddepartamento: departamento,
-        description: createMunicipioDto.descripcion
+        description: createMunicipioDto.descripcion,
+        codigoMunicipio: createMunicipioDto.codigoMunicipio
       });
 
       await this.MunicipiosRepository.save(municipio);
@@ -69,7 +70,8 @@ export class MunicipiosService {
   
       const updateMunicipio = this.MunicipiosRepository.merge(municipio, {
         iddepartamento: departamento,
-        description: updateMunicipioDto.descripcion
+        description: updateMunicipioDto.descripcion,
+        codigoMunicipio: updateMunicipioDto.codigoMunicipio
       });
   
       await this.MunicipiosRepository.save(updateMunicipio);

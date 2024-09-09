@@ -26,6 +26,13 @@ export class Municipios {
   @Column("integer", { name: "estado", default: () => "1" })
   estado: number;
 
+  @Column("character varying", {
+    name: "codigoMunicipio",
+    nullable: true,
+    length: 10,
+  })
+  codigoMunicipio: string | null;
+
   @ManyToOne(() => Departamentos, (departamentos) => departamentos.municipios)
   @JoinColumn([{ name: "iddepartamento", referencedColumnName: "id" }])
   iddepartamento: Departamentos;
