@@ -14,7 +14,7 @@ export class TarjetaPresentacionController {
 
   @Get()
   async findAll() {
-    await this.tarjetaPresentacionService.findAll();
+    return await this.tarjetaPresentacionService.findAll();
   }
 
   @Get('findAllByUser/:id_usuario')
