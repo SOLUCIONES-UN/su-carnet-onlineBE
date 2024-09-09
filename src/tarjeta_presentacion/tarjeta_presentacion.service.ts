@@ -77,7 +77,7 @@ export class TarjetaPresentacionService {
     const usuario = { id: idUsuario } as Usuarios;
 
     const tarjetasPresentacion = await this.TarjetaPresentacionRepository.find({
-      where: { idUsuario: usuario },
+      where: { idUsuario: usuario, estado:1 },
       relations: ['idEmpresa', 'idUsuario'],
     });
     

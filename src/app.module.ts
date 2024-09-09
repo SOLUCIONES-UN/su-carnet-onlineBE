@@ -49,6 +49,7 @@ import { AreasSucursalesDocumentosModule } from './areas_sucursales_documentos/a
 import { DepartamentosModule } from './departamentos/departamentos.module';
 import { MunicipiosModule } from './municipios/municipios.module';
 import { RegistroColaboradoresModule } from './registro-colaboradores/registro-colaboradores.module';
+import { VisitasSinCitasModule } from './visitas-sin-citas/visitas-sin-citas.module';
 
 @Module({
   imports: [
@@ -164,6 +165,8 @@ import { RegistroColaboradoresModule } from './registro-colaboradores/registro-c
     MunicipiosModule,
 
     RegistroColaboradoresModule,
+
+    VisitasSinCitasModule,
   ],
 })
 export class AppModule {}
