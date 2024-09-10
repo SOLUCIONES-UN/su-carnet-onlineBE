@@ -17,6 +17,12 @@ export class MunicipiosController {
     return this.municipiosService.findAll();
   }
 
+
+  @Get('findAllByDepartamento/:idDepartamento')
+  findAllByDepartamento(@Param('idDepartamento') idDepartamento: number) {
+    return this.municipiosService.findAllByDepartamento(idDepartamento);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.municipiosService.findOne(+id);

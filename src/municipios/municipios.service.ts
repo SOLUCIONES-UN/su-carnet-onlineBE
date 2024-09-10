@@ -52,6 +52,18 @@ export class MunicipiosService {
     return new GenericResponse('200', `EXITO`, municipios);
   }
 
+  async findAllByDepartamento(iddepartamento:number) {
+
+    const Departamento = await this.DepartamentosRepository.findOneBy({id:iddepartamento});
+
+    const municipios = await this.MunicipiosRepository.find({
+      where: { estado: 1, iddepartamento: Departamento},
+      relations: ['iddepartamento', 'iddepartamento.idpais']
+    });
+    
+    return new GenericResponse('200', `EXITO`, municipios);
+  }
+
   async findOne(id: number) {
     return this.MunicipiosRepository.findOneBy({ id });
   }
