@@ -23,8 +23,8 @@ export class TarjetaPresentacionController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return await this.tarjetaPresentacionService.findOne(+id);
+  async findOne(@Param('id') id: number) {
+    return await this.tarjetaPresentacionService.findOne(id);
   }
 
   @Patch(':id')

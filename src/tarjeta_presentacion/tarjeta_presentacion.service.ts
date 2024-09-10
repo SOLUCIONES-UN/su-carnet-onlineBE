@@ -88,16 +88,15 @@ export class TarjetaPresentacionService {
   }
 
   async findOne(id: number) {
-    
+   
     try {
-
-      const tarjetasPresentacion = this.TarjetaPresentacionRepository.findOne({
+      
+      const tarjetasPresentacion = await this.TarjetaPresentacionRepository.find({
         where: {id:id},
         relations: ['idEmpresa', 'idUsuario'],
-      });
+      })
 
       return new GenericResponse('200', 'EXITO', tarjetasPresentacion);
-
     } catch (error) {
       return new GenericResponse('500', 'Error', error);
     }
