@@ -83,15 +83,24 @@ export class TarjetaPresentacionService {
       
       return new GenericResponse('200', 'EXITO', tarjetasPresentacion);
     } catch (error) {
-      
+      return new GenericResponse('500', 'Error', error);
     }
   }
 
   async findOne(id: number) {
-    return this.TarjetaPresentacionRepository.findOne({
-      where: {id:id},
-      relations: ['idEmpresa', 'idUsuario'],
-    })
+    
+    try {
+
+      const tarjetasPresentacion = this.TarjetaPresentacionRepository.findOne({
+        where: {id:id},
+        relations: ['idEmpresa', 'idUsuario'],
+      });
+
+      return new GenericResponse('200', 'EXITO', tarjetasPresentacion);
+
+    } catch (error) {
+      return new GenericResponse('500', 'Error', error);
+    }
   }
 
   async update(id: number, updateTarjetaPresentacionDto: UpdateTarjetaPresentacionDto) {

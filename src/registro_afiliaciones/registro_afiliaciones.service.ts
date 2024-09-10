@@ -228,6 +228,28 @@ export class RegistroAfiliacionesService {
     return registroAfiliaciones;
   }
 
+  async findAllByEmpresa(idEmpresa: number) {
+
+    const whereCondition: any = {};
+  
+    if (idEmpresa !== 0) {
+      whereCondition.idEmpresa = await this.empresaRepository.findOneBy({
+        id: idEmpresa,
+      });
+    }
+  
+    const registroAfiliaciones = await this.RegistroAfiliacionesRepository.find({
+      where: whereCondition,
+      relations: [
+        'idEmpresa', 
+        'idUsuario', 
+        'idUsuario.registroInformacions'  
+      ],
+    });
+  
+    return registroAfiliaciones;
+  }
+
   async afiliacionByUsuario(idUsuario: number) {
    
     const usuario = await this.UsuariosRepository.findOneBy({ id: idUsuario });

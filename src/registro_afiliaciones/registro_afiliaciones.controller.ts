@@ -43,6 +43,19 @@ export class RegistroAfiliacionesController {
     }
   }
 
+  @Get('findAllByEmpresa/:idEmpresa')
+  async findAllByEmpresa(@Param('idEmpresa') idEmpresa: number) {
+
+    try {
+
+      const result = await this.registroAfiliacionesService.findAllByEmpresa(idEmpresa);
+      return new GenericResponse('200', 'EXITO', result);
+
+    } catch (error) {
+      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @Get('afiliacionVencida/:idEmpresa')
   async afiliacionVencida(@Param('idEmpresa') idEmpresa: number) {
 
