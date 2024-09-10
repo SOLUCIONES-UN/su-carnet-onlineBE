@@ -45,6 +45,19 @@ export class SucursalesAreasGruposFechasService {
 
       if(existeFechaGrupo) return new GenericResponse('401', `Ya existe este horario en esa fecha ${createSucursalesAreasGruposFechaDto.fecha}`, SucursalesAreasGruposInformacion);
 
+      const existeHorarioInicio = await this.SucursalesAreasGruposFechasRepository.findOne({
+        where: {horaInicio: createSucursalesAreasGruposFechaDto.horaInicio}
+      });
+
+      if(existeHorarioInicio) return new GenericResponse('401', `Ya existe este horario en esa fecha ${createSucursalesAreasGruposFechaDto.fecha}`, SucursalesAreasGruposInformacion);
+
+
+      const existeHorarioFinal = await this.SucursalesAreasGruposFechasRepository.findOne({
+        where: {horaFinal: createSucursalesAreasGruposFechaDto.horaFinal}
+      });
+
+      if(existeHorarioFinal) return new GenericResponse('401', `Ya existe este horario en esa fecha ${createSucursalesAreasGruposFechaDto.fecha}`, SucursalesAreasGruposInformacion);
+
       const Grupos_fechas = this.SucursalesAreasGruposFechasRepository.create({
         ...infoData,
         idAreaGrupo: SucursalesAreasGruposInformacion
