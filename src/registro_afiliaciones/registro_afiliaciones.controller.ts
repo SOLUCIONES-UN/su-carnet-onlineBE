@@ -43,7 +43,7 @@ export class RegistroAfiliacionesController {
     }
   }
 
-  @Get('findAllByEmpresa/:idEmpresa')
+  @Get(':idEmpresa')
   async findAllByEmpresa(@Param('idEmpresa') idEmpresa: number) {
 
     try {
