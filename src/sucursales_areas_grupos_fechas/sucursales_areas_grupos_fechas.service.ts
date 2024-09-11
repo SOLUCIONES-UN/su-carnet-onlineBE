@@ -7,11 +7,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { SucursalesAreasGruposInformacion } from '../entities/SucursalesAreasGruposInformacion';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
+import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 
 @Injectable()
 export class SucursalesAreasGruposFechasService {
-
-  private readonly logger = new Logger("SucursalesAreasGruposFechasService");
 
   constructor(
     @InjectRepository(SucursalesAreasGruposFechas)
@@ -19,6 +18,9 @@ export class SucursalesAreasGruposFechasService {
 
     @InjectRepository(SucursalesAreasGruposInformacion)
     private SucursalesAreasGruposInformacionRepository: Repository<SucursalesAreasGruposInformacion>,
+
+    @InjectRepository(EmpresasInformacion)
+    private EmpresasInformacionRepository: Repository<EmpresasInformacion>,
 
   ) { }
 
@@ -85,6 +87,37 @@ export class SucursalesAreasGruposFechasService {
       return new GenericResponse('500', `Error`, error.message);
     }
   }
+
+  async findAllByEmpresa(idEmpresa: number) {
+
+    try {
+  
+      const empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idEmpresa, estado: 1 });
+  
+      if (!empresa) {
+        return new GenericResponse('400', `Empresa no encontrada o inactiva`, []);
+      }
+  
+      const sucursalesAreasGruposHorarios = await this.SucursalesAreasGruposFechasRepository
+        .createQueryBuilder('sucursalesAreasGruposFechas')
+        .innerJoinAndSelect('sucursalesAreasGruposFechas.idAreaGrupo', 'areaGrupo')
+        .innerJoinAndSelect('areaGrupo.idSucursalArea', 'sucursalArea')
+        .innerJoinAndSelect('sucursalArea.idSucursal', 'sucursal')
+        .innerJoinAndSelect('sucursal.idEmpresa', 'empresa')  
+        .where('empresa.id = :idEmpresa', { idEmpresa })      
+        .andWhere('empresa.estado = 1')                        
+        .andWhere('sucursal.estado = 1')                       
+        .andWhere('sucursalArea.estado = 1')                  
+        .andWhere('areaGrupo.estado = 1')                      
+        .getMany();
+  
+      return new GenericResponse('200', `EXITO`, sucursalesAreasGruposHorarios);
+  
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error.message);
+    }
+  }
+
 
   async update(id: number, updateSucursalesAreasGruposFechaDto: UpdateSucursalesAreasGruposFechaDto) {
 
