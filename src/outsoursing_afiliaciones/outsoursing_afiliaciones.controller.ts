@@ -2,7 +2,6 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpS
 import { OutsoursingAfiliacionesService } from './outsoursing_afiliaciones.service';
 import { CreateOutsoursingAfiliacioneDto } from './dto/create-outsoursing_afiliacione.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
-import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Controller('outsoursing-afiliaciones')
 export class OutsoursingAfiliacionesController {
@@ -10,53 +9,22 @@ export class OutsoursingAfiliacionesController {
 
   @Post()
   async create(@Body() createOutsoursingAfiliacioneDto: CreateOutsoursingAfiliacioneDto) {
-    
-    try {
-
-      const result = await this.outsoursingAfiliacionesService.create(createOutsoursingAfiliacioneDto);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al agregar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.outsoursingAfiliacionesService.create(createOutsoursingAfiliacioneDto);
   }
 
   @Get()
-  async findAll(@Query() paginationDto: PaginationDto) {
-
-    try {
-
-      const result = await this.outsoursingAfiliacionesService.findAll(paginationDto);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  async findAll() {
+    return await this.outsoursingAfiliacionesService.findAll();
   }
 
-  @Patch('solicitud/:id')
-  async solicitud(@Param('id') id: string) {
-
-    try {
-
-      const result = await this.outsoursingAfiliacionesService.solicitud(+id);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al eliminar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+  @Get(':idOutsoursing')
+  async findAllByOutsoursingInformacion(@Param('idOutsoursing') idOutsoursing: number) {
+    return await this.outsoursingAfiliacionesService.findAllByOutsoursingInformacion(idOutsoursing);
   }
+
 
   @Patch('aceptacion/:id')
   async aceptacion(@Param('id') id: string) {
-    
-    try {
-
-      const result = await this.outsoursingAfiliacionesService.aceptacion(+id);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al eliminar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.outsoursingAfiliacionesService.aceptacion(+id);
   }
 }

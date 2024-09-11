@@ -5,13 +5,10 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { RegistroDocumentos } from '../entities/RegistroDocumentos';
 import { OutsoursingInformacion } from '../entities/OutsoursingInformacion';
-import { PaginationDto } from '../common/dtos/pagination.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
 @Injectable()
 export class OutsoursingDocumentosService {
-
-  private readonly logger = new Logger("OutsoursingDocumentosService");
 
   constructor(
     @InjectRepository(OutsoursingDocumentos)
@@ -84,6 +81,25 @@ export class OutsoursingDocumentosService {
     return new GenericResponse('500', `Error `, error); 
    }
   }
+
+  async findAllByOutsoursingInformacion(idOutsoursing: number) {
+
+    try {
+
+      const outsoursingInformacion = await this.OutsoursingInformacionRepository.findOneBy({id: idOutsoursing});
+
+      if(!outsoursingInformacion)  return new GenericResponse('404', `outsoursingInformacion no encontrado `, []); 
+ 
+     const outsoursingDocumentos = await this.OutsoursingDocumentosRepository.find({
+       where: {estado:1, idOutsoursing:outsoursingInformacion},
+       relations: ['idOutsoursing', 'idDocumento'],
+     });
+     
+     return new GenericResponse('200', `EXITO `, outsoursingDocumentos); 
+    } catch (error) {
+     return new GenericResponse('500', `Error `, error); 
+    }
+   }
 
   async remove(id: number) {
 

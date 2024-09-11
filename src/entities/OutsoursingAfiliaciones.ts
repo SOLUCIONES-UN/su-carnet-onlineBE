@@ -17,11 +17,14 @@ export class OutsoursingAfiliaciones {
   @PrimaryGeneratedColumn({ type: "integer", name: "id" })
   id: number;
 
-  @Column("date", { name: "fecha_solicitud" })
-  fechaSolicitud: string;
+  @Column("timestamp without time zone", { name: "fecha_solicitud" })
+  fechaSolicitud: Date;
 
-  @Column("date", { name: "fecha_inicio" })
-  fechaInicio: string;
+  @Column("timestamp without time zone", {
+    name: "fecha_inicio",
+    nullable: true,
+  })
+  fechaInicio: Date | null;
 
   @Column("character varying", { name: "estado", nullable: true, length: 4 })
   estado: string | null;

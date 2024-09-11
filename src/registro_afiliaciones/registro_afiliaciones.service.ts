@@ -72,23 +72,6 @@ export class RegistroAfiliacionesService {
         estado: createRegistroAfiliacioneDto.estado,
       });
 
-      // const usuarios 
-
-      // const createNotificacioneDto: CreateNotificacioneDto = {
-      //   token: element.tokendispositivo,
-      //   payload: {
-      //     notification: {
-      //       title: 'Confirmacion de Cita',
-      //       body: 'Acceso confirmado puede continuar' 
-      //     },
-      //     data: {
-      //       customDataKey: 'customDataValue'
-      //     }
-      //   }
-      // };
-
-      // await this.notificacionesService.sendNotification(createNotificacioneDto);
-
       await this.RegistroAfiliacionesRepository.save(RegistroAfiliaciones);
 
       return new GenericResponse('200', `EXITO`, RegistroAfiliaciones);

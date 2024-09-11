@@ -6,11 +6,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { OutsoursingInformacion } from '../entities/OutsoursingInformacion';
 import { TipoServicios } from '../entities/TipoServicios';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
 @Injectable()
 export class OutsoursingServiciosService {
-
-  private readonly logger = new Logger("OutsoursingServiciosService");
 
   constructor(
 
@@ -31,15 +30,11 @@ export class OutsoursingServiciosService {
   
       const outsoursingInformacion = await this.OutsoursingInformacionRepository.findOneBy({ id: createOutsoursingServicioDto.idOutsoursing });
   
-      if (!outsoursingInformacion) {
-        throw new NotFoundException(`sucursalesAreasPuertas con ID ${createOutsoursingServicioDto.idOutsoursing} no encontrada`);
-      }
+      if (!outsoursingInformacion)  return new GenericResponse('400', `outsoursingInformacion con id ${createOutsoursingServicioDto.idOutsoursing} no encontrado`, []);
 
       const tipoServicios = await this.TipoServiciosRepository.findOneBy({id:createOutsoursingServicioDto.idServicio});
 
-      if(!tipoServicios){
-        throw new NotFoundException(`tipoServicios con ID ${createOutsoursingServicioDto.idServicio} no encontrado`);
-      }
+      if(!tipoServicios) return new GenericResponse('400', `tipoServicios con id ${createOutsoursingServicioDto.idServicio} no encontrado`, []);
   
       const outsoursingServicios = this.OutsoursingServiciosRepository.create({
         idOutsoursing: outsoursingInformacion,
@@ -48,24 +43,48 @@ export class OutsoursingServiciosService {
   
       await this.OutsoursingServiciosRepository.save(outsoursingServicios);
   
-      return outsoursingServicios; 
+      return new GenericResponse('200', `EXITO`, outsoursingServicios);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error`, error);
     }
   }
 
-  async findAll(PaginationDto: PaginationDto) {
+  async findAll() {
 
-    const { limit = 10, offset = 0 } = PaginationDto;
+    try {
 
-    const outsoursingServicios = await this.OutsoursingServiciosRepository.find({
-      skip: offset,
-      take: limit,
-      relations: ['idOutsoursing', 'idServicio'],
-    });
-    
-    return outsoursingServicios;
+      const outsoursingServicios = await this.OutsoursingServiciosRepository.find({
+        relations: ['idOutsoursing', 'idServicio'],
+      });
+
+      return new GenericResponse('200', `EXITO`, outsoursingServicios);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error);
+    }
+  
+  }
+
+
+  async findAllByOutsoursingInformacion(idOutsoursingInformacion:number) {
+
+    try {
+
+      const OutsoursingInformacion = await this.OutsoursingInformacionRepository.findOneBy({id:idOutsoursingInformacion});
+
+      if(!OutsoursingInformacion)  return new GenericResponse('400', `OutsoursingInformacion con id ${idOutsoursingInformacion} no encontrado`, []);
+
+      const outsoursingServicios = await this.OutsoursingServiciosRepository.find({
+        where: {idOutsoursing: OutsoursingInformacion},
+        relations: ['idOutsoursing', 'idServicio'],
+      });
+      
+      return new GenericResponse('200', `EXITO`, outsoursingServicios);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error);
+    }
   }
 
   async remove(id: number) {
@@ -74,20 +93,15 @@ export class OutsoursingServiciosService {
       
       const outsoursingServicios = await this.OutsoursingServiciosRepository.findOne({ where: { id } });
 
-      if(!outsoursingServicios){
-        throw new NotFoundException(`outsoursingServicios con ID ${id} not encontrado`);
-      }
-      return await this.OutsoursingServiciosRepository.remove(outsoursingServicios);
+      if(!outsoursingServicios)  return new GenericResponse('400', `outsoursingServicios con ID ${id} not encontrado`, []);
+
+      await this.OutsoursingServiciosRepository.remove(outsoursingServicios);
+
+      return new GenericResponse('200', `EXITO`, outsoursingServicios);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error`, error);
     }
   }
 
-  private handleDBException(error: any) {
-    if (error.code === '23505') throw new BadRequestException(error.detail);
-
-    this.logger.error(`Error : ${error.message}`);
-    throw new InternalServerErrorException('Error ');
-  }
 }

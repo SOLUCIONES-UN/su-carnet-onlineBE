@@ -1,16 +1,15 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { CreateOutsoursingAfiliacioneDto } from './dto/create-outsoursing_afiliacione.dto';
 import { OutsoursingAfiliaciones } from '../entities/OutsoursingAfiliaciones';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { OutsoursingInformacion } from '../entities/OutsoursingInformacion';
 import { RegistroInformacion } from '../entities/RegistroInformacion';
-import { PaginationDto } from '../common/dtos/pagination.dto';
+import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
 @Injectable()
 export class OutsoursingAfiliacionesService {
 
-  private readonly logger = new Logger("OutsoursingAfiliacionesService");
 
   constructor(
     @InjectRepository(OutsoursingAfiliaciones)
@@ -24,11 +23,6 @@ export class OutsoursingAfiliacionesService {
 
   ) { }
 
-  // Función para transformar la fecha
-  transformDate(dateString: string): string {
-    const [day, month, year] = dateString.split("/");
-    return `${year}-${month}-${day}`;
-  }
 
   async create(createOutsoursingAfiliacioneDto: CreateOutsoursingAfiliacioneDto) {
 
@@ -40,21 +34,13 @@ export class OutsoursingAfiliacionesService {
 
       const RegistroInformacion = await this.RegistroInformacionRepository.findOneBy({ id: idRegistroInformacion });
 
-      if (!OutsoursingInformacion) {
-        throw new NotFoundException(`OutsoursingInformacion con ID ${idOutsoursing} no encontrada`);
-      }
+      if (!OutsoursingInformacion)  return new GenericResponse('400', `OutsoursingInformacion con ID ${idOutsoursing} no encontrada`, []);
 
-      if (!RegistroInformacion) {
-        throw new NotFoundException(`RegistroInformacion con ID ${idRegistroInformacion} no encontrada`);
-      }
-
-      const fechaSolicitudTransformada = this.transformDate(createOutsoursingAfiliacioneDto.fechaSolicitud);
-      const fechaInicioTransformada = this.transformDate(createOutsoursingAfiliacioneDto.fechaInicio);
+      if (!RegistroInformacion) return new GenericResponse('400', `RegistroInformacion con ID ${idRegistroInformacion} no encontrada`, []);
 
       const OutsoursingAfiliaciones = this.OutsoursingAfiliacionesRepository.create({
         ...infoData,
-        fechaSolicitud: fechaSolicitudTransformada,
-        fechaInicio: fechaInicioTransformada,
+        fechaSolicitud: new Date(),
         idOutsoursing: OutsoursingInformacion,
         idRegistroInformacion: RegistroInformacion,
         estado: 'PEN'
@@ -62,44 +48,48 @@ export class OutsoursingAfiliacionesService {
 
       await this.OutsoursingAfiliacionesRepository.save(OutsoursingAfiliaciones);
 
-      return OutsoursingAfiliaciones;
+      return new GenericResponse('200', `EXITO`, OutsoursingAfiliaciones);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error al crear `, error);
     }
   }
 
-  async findAll(PaginationDto: PaginationDto) {
-
-    const { limit = 10, offset = 0 } = PaginationDto;
-
-    const OutsoursingAfiliaciones = await this.OutsoursingAfiliacionesRepository.find({
-      skip: offset,
-      take: limit,
-      relations: ['idOutsoursing', 'idRegistroInformacion'],
-    });
-
-    return OutsoursingAfiliaciones;
-  }
-
-
-  async solicitud(id: number) {
+  async findAllByOutsoursingInformacion(idOutsoursing:number) {
 
     try {
 
-      const OutsoursingAfiliaciones = await this.OutsoursingAfiliacionesRepository.findOneBy({ id });
+      const outsoursingInformacion = await this.OutsoursingInformacionRepository.findOneBy({id: idOutsoursing});
 
-      if (!OutsoursingAfiliaciones) {
-        throw new NotFoundException(`OutsoursingAfiliaciones con ID ${id} not encontrado`);
-      }
-
-      OutsoursingAfiliaciones.estado = 'SOLI';
-      return await this.OutsoursingAfiliacionesRepository.save(OutsoursingAfiliaciones);
+      if(!outsoursingInformacion) return new GenericResponse('404', `No se encontro outsoursingInformacion`, []);
+      
+      const OutsoursingAfiliaciones = await this.OutsoursingAfiliacionesRepository.find({
+        where: {idOutsoursing: outsoursingInformacion},
+        relations: ['idOutsoursing', 'idRegistroInformacion'],
+      });
+  
+      return new GenericResponse('200', `EXITO`, OutsoursingAfiliaciones);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error al crear `, error);
     }
   }
+
+  async findAll() {
+
+    try {
+      
+      const OutsoursingAfiliaciones = await this.OutsoursingAfiliacionesRepository.find({
+        relations: ['idOutsoursing', 'idRegistroInformacion'],
+      });
+  
+      return new GenericResponse('200', `EXITO`, OutsoursingAfiliaciones);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error al crear `, error);
+    }
+  }
+
 
   async aceptacion(id: number) {
 
@@ -107,22 +97,17 @@ export class OutsoursingAfiliacionesService {
 
       const OutsoursingAfiliaciones = await this.OutsoursingAfiliacionesRepository.findOneBy({ id });
 
-      if (!OutsoursingAfiliaciones) {
-        throw new NotFoundException(`OutsoursingAfiliaciones con ID ${id} not encontrado`);
-      }
+      if (!OutsoursingAfiliaciones) return new GenericResponse('400', `OutsoursingAfiliaciones con ID ${id} not encontrado`, []);
 
       OutsoursingAfiliaciones.estado = 'ACEP';
-      return await this.OutsoursingAfiliacionesRepository.save(OutsoursingAfiliaciones);
+      OutsoursingAfiliaciones.fechaInicio =  new Date(),
+      await this.OutsoursingAfiliacionesRepository.save(OutsoursingAfiliaciones);
+
+      return new GenericResponse('200', `EXITO`, OutsoursingAfiliaciones);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error al crear `, error);
     }
   }
 
-  private handleDBException(error: any) {
-    if (error.code === '23505') throw new BadRequestException(error.detail);
-
-    this.logger.error(`Error : ${error.message}`);
-    throw new InternalServerErrorException('Error ');
-  }
 }

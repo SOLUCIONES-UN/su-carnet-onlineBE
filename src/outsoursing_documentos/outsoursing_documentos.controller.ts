@@ -1,8 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, Query } from '@nestjs/common';
 import { OutsoursingDocumentosService } from './outsoursing_documentos.service';
 import { CreateOutsoursingDocumentoDto } from './dto/create-outsoursing_documento.dto';
-import { GenericResponse } from '../common/dtos/genericResponse.dto';
-import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Controller('outsoursing-documentos')
 export class OutsoursingDocumentosController {
@@ -16,6 +14,11 @@ export class OutsoursingDocumentosController {
   @Get()
   async findAll() {
     return this.outsoursingDocumentosService.findAll();
+  }
+
+  @Get(':idOutsoursing')
+  async findAllByOutsoursingInformacion(@Param('idOutsoursing') idOutsoursing: number) {
+    return this.outsoursingDocumentosService.findAllByOutsoursingInformacion(idOutsoursing);
   }
 
   
