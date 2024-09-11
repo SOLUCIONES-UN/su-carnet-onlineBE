@@ -34,45 +34,44 @@ export class SucursalesAreasGruposFechasService {
   async create(createSucursalesAreasGruposFechaDto: CreateSucursalesAreasGruposFechaDto) {
 
     try {
-
-      const { idAreaGrupo, ...infoData } = createSucursalesAreasGruposFechaDto;
-
+  
+      const { idAreaGrupo, fecha, horaInicio, horaFinal, ...infoData } = createSucursalesAreasGruposFechaDto;
+  
       const SucursalesAreasGruposInformacion = await this.SucursalesAreasGruposInformacionRepository.findOneBy({ id: idAreaGrupo });
-
-      if (!SucursalesAreasGruposInformacion) return new GenericResponse('400',`SucursalesAreasGruposInformacion con ID ${idAreaGrupo} no encontrada`, []);
-
-      const existeFechaGrupo = await this.SucursalesAreasGruposFechasRepository.findOne({
-        where: {horaInicio: createSucursalesAreasGruposFechaDto.horaInicio, horaFinal: createSucursalesAreasGruposFechaDto.horaFinal}
-      });
-
-      if(existeFechaGrupo) return new GenericResponse('401', `Ya existe este horario en esa fecha ${createSucursalesAreasGruposFechaDto.fecha}`, SucursalesAreasGruposInformacion);
-
-      const existeHorarioInicio = await this.SucursalesAreasGruposFechasRepository.findOne({
-        where: {horaInicio: createSucursalesAreasGruposFechaDto.horaInicio}
-      });
-
-      if(existeHorarioInicio) return new GenericResponse('401', `Ya existe este horario en esa fecha ${createSucursalesAreasGruposFechaDto.fecha}`, SucursalesAreasGruposInformacion);
-
-
-      const existeHorarioFinal = await this.SucursalesAreasGruposFechasRepository.findOne({
-        where: {horaFinal: createSucursalesAreasGruposFechaDto.horaFinal}
-      });
-
-      if(existeHorarioFinal) return new GenericResponse('401', `Ya existe este horario en esa fecha ${createSucursalesAreasGruposFechaDto.fecha}`, SucursalesAreasGruposInformacion);
-
+  
+      if (!SucursalesAreasGruposInformacion) {
+        return new GenericResponse('400', `SucursalesAreasGruposInformacion con ID ${idAreaGrupo} no encontrada`, []);
+      }
+  
+      // Verificamos si ya existe un horario en esa fecha que se solape
+      const existeHorarioSolapado = await this.SucursalesAreasGruposFechasRepository
+        .createQueryBuilder('gruposFechas')
+        .where('gruposFechas.idAreaGrupo = :idAreaGrupo', { idAreaGrupo })
+        .andWhere('gruposFechas.fecha = :fecha', { fecha })
+        .andWhere('(gruposFechas.horaInicio <= :horaFinal AND gruposFechas.horaFinal >= :horaInicio)', { horaInicio, horaFinal })
+        .getOne();
+  
+      if (existeHorarioSolapado) {
+        return new GenericResponse('401', `El horario ingresado se solapa con un horario existente de ${existeHorarioSolapado.horaInicio} a ${existeHorarioSolapado.horaFinal} en la fecha ${fecha}`, existeHorarioSolapado);
+      }
+      
       const Grupos_fechas = this.SucursalesAreasGruposFechasRepository.create({
         ...infoData,
-        idAreaGrupo: SucursalesAreasGruposInformacion
+        idAreaGrupo: SucursalesAreasGruposInformacion,
+        fecha,
+        horaInicio,
+        horaFinal
       });
-
+  
       await this.SucursalesAreasGruposFechasRepository.save(Grupos_fechas);
-
+  
       return new GenericResponse('200', `EXITO`, Grupos_fechas);
-
+  
     } catch (error) {
       return new GenericResponse('500', `Error`, error.message);
     }
   }
+  
 
   async findAll() {
 
