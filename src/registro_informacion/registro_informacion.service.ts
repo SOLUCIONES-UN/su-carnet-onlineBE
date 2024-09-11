@@ -2,15 +2,14 @@ import { BadRequestException, Injectable, InternalServerErrorException, Logger, 
 import { CreateRegistroInformacionDto } from './dto/create-registro_informacion.dto';
 import { UpdateRegistroInformacionDto } from './dto/update-registro_informacion.dto';
 import { RegistroInformacion } from '../entities/RegistroInformacion';
-import { TipoPaises } from '../entities/TipoPaises';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { PaginationDto } from '../common/dtos/pagination.dto';
 import { Usuarios } from '../entities/Usuarios';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { Municipios } from '../entities/Municipios';
+import { instanceToPlain } from 'class-transformer';
 
 @Injectable()
 export class RegistroInformacionService {
@@ -40,9 +39,11 @@ export class RegistroInformacionService {
   }
 
 
-  async existRegistro(Dpi: string) {
+  async existRegistro(Dpi: string, correo:string) {
 
-    return await this.RegistroInformacionRepository.findOneBy({ documento: Dpi });
+    return await this.RegistroInformacionRepository.findOne({ 
+      where: {documento: Dpi, correo:correo}
+    });
   }
 
 
@@ -105,30 +106,38 @@ export class RegistroInformacionService {
   }
 
   async findAllByEmpresa(idEmpresa: number) {
-
-    // Verificar que la empresa exista
-    const empresa = await this.EmpresasInformacionRepository.findOne({ where: { id: idEmpresa } });
-    if (!empresa) {
-      return new GenericResponse('4400', `Empresa no econtrada `, []);
+    try {
+      // Verificar que la empresa exista
+      const empresa = await this.EmpresasInformacionRepository.findOne({ where: { id: idEmpresa } });
+      if (!empresa) {
+        return new GenericResponse('400', `Empresa no encontrada`, []);
+      }
+  
+      // Realizar la consulta con joins
+      const registroInformacion = await this.RegistroInformacionRepository.createQueryBuilder('registro')
+        .leftJoinAndSelect('registro.idUsuario', 'usuario')
+        .leftJoinAndSelect('usuario.idTipo', 'tipo')
+        .leftJoinAndSelect('usuario.usuariosRelacionEmpresas', 'relacion')
+        .leftJoinAndSelect('relacion.idEmpresa', 'empresa')
+        .leftJoinAndSelect('relacion.idSucursal', 'sucursal')
+        .leftJoinAndSelect('relacion.idAreaSucursal', 'areaSucursal')
+        .leftJoinAndSelect('registro.idMunicipio', 'pais')
+        .where('relacion.idEmpresa = :idEmpresa', { idEmpresa })
+        .andWhere('relacion.estado = :estado', { estado: 1 })
+        .andWhere('empresa.estado = :empresaEstado', { empresaEstado: 1 })
+        .andWhere('relacion.idSucursal IS NOT NULL')
+        .andWhere('relacion.idAreaSucursal IS NOT NULL')
+        .andWhere('registro.estado = :registroEstado', { registroEstado: 'ACT' })
+        .orderBy('usuario.id')
+        .getMany();
+  
+      // Convertir a objeto plano para evitar referencias circulares
+      const plainResult = instanceToPlain(registroInformacion);
+  
+      return new GenericResponse('200', `ÉXITO`, plainResult);
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error.message);
     }
-
-    const registroInformacion = await this.RegistroInformacionRepository.createQueryBuilder('registro')
-      .leftJoinAndSelect('registro.idUsuario', 'usuario')
-      .leftJoinAndSelect('usuario.idTipo', 'tipo')
-      .leftJoinAndSelect('usuario.usuariosRelacionEmpresas', 'relacion')
-      .leftJoinAndSelect('relacion.idEmpresa', 'empresa')
-      .leftJoinAndSelect('relacion.idSucursal', 'sucursal')
-      .leftJoinAndSelect('relacion.idAreaSucursal', 'areaSucursal')
-      .leftJoinAndSelect('registro.idMunicipio', 'pais')
-      .where('relacion.idEmpresa = :idEmpresa', { idEmpresa })
-      .andWhere('relacion.estado = :estado', { estado: 1 })
-      .andWhere('empresa.estado = :empresaEstado', { empresaEstado: 1 })
-      .andWhere('relacion.idSucursal IS NOT NULL')
-      .andWhere('relacion.idAreaSucursal IS NOT NULL')
-      .andWhere('registro.estado = :registroEstado', { registroEstado: 'ACT' })
-      .orderBy('usuario.id')
-
-    return new GenericResponse('200', `EXITO`, registroInformacion);
   }
 
 

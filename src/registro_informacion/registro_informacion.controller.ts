@@ -18,7 +18,7 @@ export class RegistroInformacionController {
   async create(@Body() createRegistroInformacionDto: CreateRegistroInformacionDto) {
 
     try {
-      const registroInformacion = await this.registroInformacionService.existRegistro(createRegistroInformacionDto.documento);
+      const registroInformacion = await this.registroInformacionService.existRegistro(createRegistroInformacionDto.documento, createRegistroInformacionDto.correo);
   
       if (registroInformacion) {
         return new GenericResponse('401', `Ya existe un registro con el DPI ${createRegistroInformacionDto.documento}`, null);
@@ -77,41 +77,17 @@ export class RegistroInformacionController {
 
   @Get()
   async findAll() {
-
-    try {
-
-      const result = await this.registroInformacionService.findAll();
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.registroInformacionService.findAll();
   }
 
   @Get('findAllByEmpresa/:idEmpresa')
   async findAllByEmpresa(@Param('idEmpresa') idEmpresa:number) {
-
-    try {
-
-      const result = await this.registroInformacionService.findAllByEmpresa(idEmpresa);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return  await this.registroInformacionService.findAllByEmpresa(idEmpresa);
   }
 
   @Get('findAllByUsuario/:idUsuario')
   async findAllByUsuario(@Param('idUsuario') idUsuario: number) {
-
-    try {
-
-      const result = await this.registroInformacionService.findAllByUsuario(idUsuario);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.registroInformacionService.findAllByUsuario(idUsuario);
   }
 
 

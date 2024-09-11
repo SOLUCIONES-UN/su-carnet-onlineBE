@@ -86,7 +86,16 @@ export class VisitasSinCitasService {
   }
 
   async findOne(id: number) {
-    return `This action returns a #${id} visitasSinCita`;
+    
+    try {
+
+      const RegistrosInformacion = await this.RegistroInformacionRepository.findOneBy({id:id});
+      
+      return new GenericResponse('200', `EXITO`, RegistrosInformacion);
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error);
+    }
+
   }
 
   async update(id: number, updateVisitasSinCitaDto: UpdateVisitasSinCitaDto) {
