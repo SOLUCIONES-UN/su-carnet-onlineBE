@@ -82,7 +82,7 @@ export class TiposCuentasService {
 
     try {
 
-      const tiposCuenta = await this.findOne(id);
+      const tiposCuenta = await this.TiposcuentasRepository.findOneBy({id:id});
 
       if (!tiposCuenta) {
         return new GenericResponse('400', `No se encontro tipo cuenta`, tiposCuenta);

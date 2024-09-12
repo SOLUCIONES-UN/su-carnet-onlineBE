@@ -4,10 +4,12 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { EmpresasInformacion } from "./EmpresasInformacion";
 import { Usuarios } from "./Usuarios";
+import { Tarjetascompartidas } from "./Tarjetascompartidas";
 
 @Index("tarjeta_presentacion_pkey", ["id"], { unique: true })
 @Entity("tarjeta_presentacion", { schema: "public" })
@@ -83,4 +85,10 @@ export class TarjetaPresentacion {
   @ManyToOne(() => Usuarios, (usuarios) => usuarios.tarjetaPresentacions)
   @JoinColumn([{ name: "id_usuario", referencedColumnName: "id" }])
   idUsuario: Usuarios;
+
+  @OneToMany(
+    () => Tarjetascompartidas,
+    (tarjetascompartidas) => tarjetascompartidas.idtarjetaleida
+  )
+  tarjetascompartidas: Tarjetascompartidas[];
 }

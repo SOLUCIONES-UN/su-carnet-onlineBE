@@ -50,6 +50,7 @@ import { DepartamentosModule } from './departamentos/departamentos.module';
 import { MunicipiosModule } from './municipios/municipios.module';
 import { RegistroColaboradoresModule } from './registro-colaboradores/registro-colaboradores.module';
 import { VisitasSinCitasModule } from './visitas-sin-citas/visitas-sin-citas.module';
+import { TarjetasCompartidasModule } from './tarjetas_compartidas/tarjetas_compartidas.module';
 
 @Module({
   imports: [
@@ -167,6 +168,8 @@ import { VisitasSinCitasModule } from './visitas-sin-citas/visitas-sin-citas.mod
     RegistroColaboradoresModule,
 
     VisitasSinCitasModule,
+
+    TarjetasCompartidasModule,
   ],
 })
 export class AppModule {}

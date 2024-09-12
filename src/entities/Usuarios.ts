@@ -12,6 +12,7 @@ import { RegistroAfiliaciones } from "./RegistroAfiliaciones";
 import { RegistroColaboradores } from "./RegistroColaboradores";
 import { RegistroInformacion } from "./RegistroInformacion";
 import { TarjetaPresentacion } from "./TarjetaPresentacion";
+import { Tarjetascompartidas } from "./Tarjetascompartidas";
 import { TipoUsuario } from "./TipoUsuario";
 import { UsuariosRelacionEmpresas } from "./UsuariosRelacionEmpresas";
 
@@ -78,6 +79,12 @@ export class Usuarios {
     (tarjetaPresentacion) => tarjetaPresentacion.idUsuario
   )
   tarjetaPresentacions: TarjetaPresentacion[];
+
+  @OneToMany(
+    () => Tarjetascompartidas,
+    (tarjetascompartidas) => tarjetascompartidas.idusuario
+  )
+  tarjetascompartidas: Tarjetascompartidas[];
 
   @ManyToOne(() => TipoUsuario, (tipoUsuario) => tipoUsuario.usuarios)
   @JoinColumn([{ name: "id_tipo", referencedColumnName: "id" }])
