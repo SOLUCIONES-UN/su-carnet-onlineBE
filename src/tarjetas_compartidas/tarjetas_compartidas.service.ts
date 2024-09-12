@@ -111,7 +111,9 @@ export class TarjetasCompartidasService {
 
       tarjetaCompartida.estado = 0;
 
-      return await this.TarjetascompartidasRepository.save(tarjetaCompartida);
+      await this.TarjetascompartidasRepository.save(tarjetaCompartida);
+
+      return new GenericResponse('200', `EXITO`, tarjetaCompartida);
 
     } catch (error) {
       return new GenericResponse('500', `Error al eliminar`, error);
