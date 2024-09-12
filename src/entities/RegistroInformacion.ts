@@ -15,6 +15,7 @@ import { Usuarios } from "./Usuarios";
 import { RegistroMembresia } from "./RegistroMembresia";
 import { RegistroMensajes } from "./RegistroMensajes";
 import { SucursalesAreasPermisos } from "./SucursalesAreasPermisos";
+import { Tarjetascompartidas } from "./Tarjetascompartidas";
 
 @Index("registro_informacion_pkey", ["id"], { unique: true })
 @Entity("registro_informacion", { schema: "public" })
@@ -118,4 +119,10 @@ export class RegistroInformacion {
     (sucursalesAreasPermisos) => sucursalesAreasPermisos.idRegistro
   )
   sucursalesAreasPermisos: SucursalesAreasPermisos[];
+
+  @OneToMany(
+    () => Tarjetascompartidas,
+    (tarjetascompartidas) => tarjetascompartidas.idRegistroInformacion
+  )
+  tarjetascompartidas: Tarjetascompartidas[];
 }

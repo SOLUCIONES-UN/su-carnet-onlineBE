@@ -3,10 +3,10 @@ import { RegistroInformacionService } from './registro_informacion.service';
 import { CreateRegistroInformacionDto } from './dto/create-registro_informacion.dto';
 import { UpdateRegistroInformacionDto } from './dto/update-registro_informacion.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
-import { PaginationDto } from '../common/dtos/pagination.dto';
 import { UsuariosService } from '../usuarios/usuarios.service';
 import { CreateUsuarioDto } from '../usuarios/dto/create-usuario.dto';
 import { updateUsuarioEmpresaDto } from '../usuarios/dto/update-usuario-empresa.dto';
+import { RecordingInstance } from 'twilio/lib/rest/video/v1/recording';
 
 @Controller('registro-informacion')
 export class RegistroInformacionController {
@@ -18,7 +18,17 @@ export class RegistroInformacionController {
   async create(@Body() createRegistroInformacionDto: CreateRegistroInformacionDto) {
 
     try {
-      const registroInformacion = await this.registroInformacionService.existRegistro(createRegistroInformacionDto.documento, createRegistroInformacionDto.correo);
+
+      const registroVisita = await this.registroInformacionService.esRegistroVisita(createRegistroInformacionDto.documento);
+
+      if(registroVisita) {
+
+        
+
+      }
+
+
+      const registroInformacion = await this.registroInformacionService.existRegistro(createRegistroInformacionDto.documento);
   
       if (registroInformacion) {
         return new GenericResponse('401', `Ya existe un registro con el DPI ${createRegistroInformacionDto.documento}`, null);

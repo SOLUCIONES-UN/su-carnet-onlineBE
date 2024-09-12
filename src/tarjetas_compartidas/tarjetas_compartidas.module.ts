@@ -5,11 +5,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Tarjetascompartidas } from '../entities/Tarjetascompartidas';
 import { TarjetaPresentacion } from '../entities/TarjetaPresentacion';
 import { Usuarios } from '../entities/Usuarios';
+import { RegistroInformacion } from '../entities/RegistroInformacion';
 
 @Module({
 
   imports:[
-    TypeOrmModule.forFeature([Tarjetascompartidas, TarjetaPresentacion, Usuarios]),
+    TypeOrmModule.forFeature([Tarjetascompartidas, TarjetaPresentacion, Usuarios, RegistroInformacion]),
   ],
 
   controllers: [TarjetasCompartidasController],

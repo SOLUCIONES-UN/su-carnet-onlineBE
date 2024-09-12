@@ -47,7 +47,7 @@ export class VisitasSinCitasService {
         idTipo: tipoUsuario,
         estado: 3
       });
-
+ 
       await this.UsuariosRepository.save(usuario);
   
       if (!usuario) {

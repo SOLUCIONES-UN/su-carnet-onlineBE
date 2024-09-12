@@ -6,8 +6,8 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { RegistroInformacion } from "./RegistroInformacion";
 import { TarjetaPresentacion } from "./TarjetaPresentacion";
-import { Usuarios } from "./Usuarios";
 
 @Index("tarjetascompartidas_pkey", ["id"], { unique: true })
 @Entity("tarjetascompartidas", { schema: "public" })
@@ -19,13 +19,16 @@ export class Tarjetascompartidas {
   estado: number;
 
   @ManyToOne(
+    () => RegistroInformacion,
+    (registroInformacion) => registroInformacion.tarjetascompartidas
+  )
+  @JoinColumn([{ name: "idRegistroInformacion", referencedColumnName: "id" }])
+  idRegistroInformacion: RegistroInformacion;
+
+  @ManyToOne(
     () => TarjetaPresentacion,
     (tarjetaPresentacion) => tarjetaPresentacion.tarjetascompartidas
   )
   @JoinColumn([{ name: "idtarjetaleida", referencedColumnName: "id" }])
   idtarjetaleida: TarjetaPresentacion;
-
-  @ManyToOne(() => Usuarios, (usuarios) => usuarios.tarjetascompartidas)
-  @JoinColumn([{ name: "idusuario", referencedColumnName: "id" }])
-  idusuario: Usuarios;
 }

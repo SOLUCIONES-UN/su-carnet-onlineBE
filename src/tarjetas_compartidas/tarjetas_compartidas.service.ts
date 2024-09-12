@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { TarjetaPresentacion } from '../entities/TarjetaPresentacion';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { Usuarios } from '../entities/Usuarios';
+import { RegistroInformacion } from '../entities/RegistroInformacion';
 
 @Injectable()
 export class TarjetasCompartidasService {
@@ -21,23 +22,28 @@ export class TarjetasCompartidasService {
     @InjectRepository(Usuarios)
     private UsuariosRepository: Repository<Usuarios>,
 
+    @InjectRepository(RegistroInformacion)
+    private RegistroInformacionRepository: Repository<RegistroInformacion>,
+
   ) { }
 
   async create(createTarjetasCompartidaDto: CreateTarjetasCompartidaDto) {
-    
+
     try {
-      
-      const tarjetaPresentacion = await this.TarjetaPresentacionRepository.findOneBy({id:createTarjetasCompartidaDto.idtarjetaleida});
 
-      if(!tarjetaPresentacion) return new GenericResponse('400', 'tarjeta no encontrada no encontrada', []);
+      const tarjetaPresentacion = await this.TarjetaPresentacionRepository.findOneBy({ id: createTarjetasCompartidaDto.idtarjetaleida });
 
-      const usuario = await this.UsuariosRepository.findOneBy({id:createTarjetasCompartidaDto.idusuario});
+      if (!tarjetaPresentacion) return new GenericResponse('400', 'tarjeta no encontrada no encontrada', []);
 
-      if(!usuario) return new GenericResponse('400', 'usuario no encontrado', []);
+      const usuario = await this.UsuariosRepository.findOneBy({ id: createTarjetasCompartidaDto.idusuario });
+
+      const registroInformacion = await this.RegistroInformacionRepository.findOneBy({idUsuario:usuario});
+
+      if (!usuario) return new GenericResponse('400', 'usuario no encontrado', []);
 
       const tarjetaCompartida = this.TarjetascompartidasRepository.create({
         idtarjetaleida: tarjetaPresentacion,
-        idusuario: usuario
+        idRegistroInformacion: registroInformacion
       });
 
       await this.TarjetascompartidasRepository.save(tarjetaCompartida);
@@ -54,31 +60,34 @@ export class TarjetasCompartidasService {
 
       const tarjetasCompartida = await this.TarjetascompartidasRepository.find({
         where: { estado: 1 },
-        relations: ['idtarjetaleida','idusuario']
+        relations: ['idtarjetaleida.idEmpresa', 'idtarjetaleida.idUsuario']
       });
-      
+
       return new GenericResponse('200', `EXITO`, tarjetasCompartida);
     } catch (error) {
-      return new GenericResponse('500', `Error`, error);
+      return new GenericResponse('500', `Error`, error.message);
     }
+
   }
 
-  async findAllByUsuario(idusuario:number) {
+  async findAllByUsuario(idusuario: number) {
 
     try {
 
-      const usuario = await this.UsuariosRepository.findOneBy({id:idusuario});
+      const usuario = await this.UsuariosRepository.findOneBy({ id: idusuario });
 
-      if(!usuario) return new GenericResponse('400', `Usuario no encontrado`, []);
+      if (!usuario) return new GenericResponse('400', `Usuario no encontrado`, []);
+
+      const registroInformacion = await this.RegistroInformacionRepository.findOneBy({idUsuario: usuario});
 
       const tarjetasCompartida = await this.TarjetascompartidasRepository.find({
-        where: { estado: 1, idusuario:usuario},
-        relations: ['idtarjetaleida','idusuario']
+        where: { estado: 1, idRegistroInformacion: registroInformacion },
+        relations: ['idtarjetaleida.idEmpresa', 'idtarjetaleida.idUsuario']
       });
-      
+
       return new GenericResponse('200', `EXITO`, tarjetasCompartida);
     } catch (error) {
-      return new GenericResponse('500', `Error`, error);
+      return new GenericResponse('500', `Error`, error.message);
     }
   }
 
@@ -94,7 +103,7 @@ export class TarjetasCompartidasService {
 
     try {
 
-      const tarjetaCompartida = await this.TarjetascompartidasRepository.findOneBy({id:id});
+      const tarjetaCompartida = await this.TarjetascompartidasRepository.findOneBy({ id: id });
 
       if (!tarjetaCompartida) {
         return new GenericResponse('400', `tarjetaCompartida no encontrada`, []);
