@@ -39,18 +39,10 @@ export class RegistroInformacionService {
   }
 
 
-  async existRegistro(Dpi: string) {
+  async existRegistro(Dpi: string, correo:string) {
 
     return await this.RegistroInformacionRepository.findOne({ 
-      where: {documento: Dpi}
-    });
-  }
-
-
-  async esRegistroVisita(Dpi: string) {
-
-    return await this.RegistroInformacionRepository.findOne({ 
-      where: {documento: Dpi, estado: 'VISIT'}
+      where: {documento: Dpi, correo:correo}
     });
   }
 
