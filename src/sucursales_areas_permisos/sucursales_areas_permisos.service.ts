@@ -11,6 +11,7 @@ import { PaginationDto } from '../common/dtos/pagination.dto';
 import { OutsoursingAfiliaciones } from '../entities/OutsoursingAfiliaciones';
 import { Usuarios } from '../entities/Usuarios';
 import { SucursalesAreasLogs } from '../entities/SucursalesAreasLogs';
+import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
 @Injectable()
 export class SucursalesAreasPermisosService {
@@ -55,21 +56,19 @@ export class SucursalesAreasPermisosService {
 
       const areaGrupo = await this.SucursalesAreasGruposInformacionRepository.findOneBy({ id: idAreaGrupo });
 
+      if (!areaGrupo) return new GenericResponse('400', `areaGrupo con id ${idAreaGrupo} no encontrado `, []);
+
       const usuario = await this.UsuariosRepository.findOneBy({id: idUsuario});
 
+      if (!usuario) return new GenericResponse('400', `usuario con id ${idUsuario} no encontrado `, []);
+
       const RegistroInformacion = await this.RegistroInformacionRepository.findOneBy({ idUsuario: usuario });
+
+      if (!RegistroInformacion) return new GenericResponse('400', `RegistroInformacion de usuario con ID  ${idUsuario} no encontrado `, []);
 
       const TipoPermisos = await this.TipoPermisosRepository.findOneBy({ id: idPermiso });
 
       const OutsoursingAfiliaciones = await this.OutsoursingAfiliacionesRepository.findOneBy({id: idOutsoursingAfiliaciones});
-
-      if (!areaGrupo) {
-        throw new NotFoundException(`areaGrupo con ID ${idAreaGrupo} no encontrada`);
-      }
-
-      if (!RegistroInformacion) {
-        throw new NotFoundException(`RegistroInformacion con ID ${usuario.registroInformacions} no encontrada`);
-      }
 
       const areaSucursalPermisos = this.SucursalesAreasPermisosRepository.create({
         ...infoData,
@@ -83,75 +82,88 @@ export class SucursalesAreasPermisosService {
 
       await this.SucursalesAreasPermisosRepository.save(areaSucursalPermisos);
 
-      return areaSucursalPermisos;
+      return new GenericResponse('200', `EXITO`, areaSucursalPermisos);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error`, error);
     }
   }
 
-  async findAll(PaginationDto: PaginationDto) {
+  async findAll() {
 
-    const { limit = 10, offset = 0 } = PaginationDto;
+    try {
+      
+      const areaSucursalPermisos = await this.SucursalesAreasPermisosRepository.find({
+        relations: ['idAreaGrupo', 'idRegistro.idUsuario'],
+      });
+  
+      return new GenericResponse('200', `EXITO`, areaSucursalPermisos);
 
-    const areaSucursalPermisos = await this.SucursalesAreasPermisosRepository.find({
-      skip: offset,
-      take: limit,
-      relations: ['idAreaGrupo', 'idRegistro.idUsuario'],
-    });
-
-    return areaSucursalPermisos;
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error);
+    }
   }
 
   async citasArea(idAreaGrupo: number){
 
-    const areaGrupo = await this.SucursalesAreasGruposInformacionRepository.findOneBy({id: idAreaGrupo});
+    try {
+      
+      const areaGrupo = await this.SucursalesAreasGruposInformacionRepository.findOneBy({id: idAreaGrupo});
 
-    const areaSucursalPermisos = await this.SucursalesAreasPermisosRepository.find({
-      where: {idAreaGrupo:areaGrupo},
-      relations: ['idRegistro']
-    });
+      if(!areaGrupo) return new GenericResponse('400', `areaGrupo con id ${idAreaGrupo} no encontrada `, []);
 
-    return areaSucursalPermisos;
+      const areaSucursalPermisos = await this.SucursalesAreasPermisosRepository.find({
+        where: {idAreaGrupo:areaGrupo},
+        relations: ['idRegistro']
+      });
+
+      return new GenericResponse('200', `EXITO`, areaSucursalPermisos);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error);
+    }
   }
 
   async citasUsuario(idUsuario: number) {
-    const usuario = await this.UsuariosRepository.findOne({
-      where: { id: idUsuario, estado: 2 }
-    });
-  
-    if (!usuario) {
-      throw new NotFoundException(`usuario con ID ${idUsuario} no encontrada`);
-    }
-  
-    const registro_informacion = await this.RegistroInformacionRepository.findOne({
-      where: { idUsuario: usuario, estado: 'ACT' }
-    });
-  
-    if (!registro_informacion) {
-      throw new NotFoundException(`registro_informacion con usuario ${usuario} no encontrada`);
-    }
-  
-    const sucursalesAreasPermisos = await this.SucursalesAreasPermisosRepository.find({
-      where: { idRegistro: registro_informacion },
-      relations: ['idAreaGrupo.idSucursalArea.idSucursal.idEmpresa', 'idRegistro.idUsuario'],
-    });
-  
-    const resultadosConInstrucciones = sucursalesAreasPermisos.map(item => {
-      const informacion = item.idAreaGrupo.idSucursalArea.informacion;
-      const instruccionesGenerales = informacion ? informacion : [];
+
+    try {
       
-      const instruccionesQr = item.idAreaGrupo.idSucursalArea.instruccionesQr;
-      const instruccionesQrArray = instruccionesQr ? instruccionesQr : [];
-  
-      return {
-        ...item,
-        instruccionesGenerales,
-        instruccionesQr: instruccionesQrArray,
-      };
-    });
-  
-    return resultadosConInstrucciones;
+      const usuario = await this.UsuariosRepository.findOne({
+        where: { id: idUsuario, estado: 2 }
+      });
+    
+      if (!usuario) return new GenericResponse('400', `usuario con id ${idUsuario} no encontrado `, []);
+    
+      const registro_informacion = await this.RegistroInformacionRepository.findOne({
+        where: { idUsuario: usuario, estado: 'ACT' }
+      });
+    
+      if (!registro_informacion) return new GenericResponse('400', `registro_informacion con id  de usuario ${idUsuario} no encontrado `, []);
+    
+      const sucursalesAreasPermisos = await this.SucursalesAreasPermisosRepository.find({
+        where: { idRegistro: registro_informacion },
+        relations: ['idAreaGrupo.idSucursalArea.idSucursal.idEmpresa', 'idRegistro.idUsuario'],
+      });
+    
+      const resultadosConInstrucciones = sucursalesAreasPermisos.map(item => {
+        const informacion = item.idAreaGrupo.idSucursalArea.informacion;
+        const instruccionesGenerales = informacion ? informacion : [];
+        
+        const instruccionesQr = item.idAreaGrupo.idSucursalArea.instruccionesQr;
+        const instruccionesQrArray = instruccionesQr ? instruccionesQr : [];
+    
+        return {
+          ...item,
+          instruccionesGenerales,
+          instruccionesQr: instruccionesQrArray,
+        };
+      });
+    
+      return new GenericResponse('200', `EXITO`, resultadosConInstrucciones);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error);
+    }
   }
 
   async update(id: number, updateSucursalesAreasPermisoDto: UpdateSucursalesAreasPermisoDto) {
@@ -161,23 +173,21 @@ export class SucursalesAreasPermisosService {
 
       const areaSucursalPermisos = await this.SucursalesAreasPermisosRepository.findOneBy({ id });
 
-      if (!areaSucursalPermisos) {
-        throw new NotFoundException(`areaSucursalPermisos con ID ${id} no encontrada`);
-      }
+      if (!areaSucursalPermisos) return new GenericResponse('400', `areaSucursalPermisos con id  de usuario ${id} no encontrada `, []);
 
       const areaGrupo = await this.SucursalesAreasGruposInformacionRepository.findOneBy({ id: idAreaGrupo });
 
-      const RegistroInformacion = await this.RegistroInformacionRepository.findOneBy({id: updateSucursalesAreasPermisoDto.idUsuario });
+      const usuario = await this.UsuariosRepository.findOneBy({id: idUsuario});
+
+      if (!usuario) return new GenericResponse('400', `usuario con id ${idUsuario} no encontrado `, []);
+
+      const RegistroInformacion = await this.RegistroInformacionRepository.findOneBy({idUsuario: usuario });
 
       const TipoPermisos = await this.TipoPermisosRepository.findOneBy({ id: idPermiso });
 
-      if (!areaGrupo) {
-        throw new NotFoundException(`areaGrupo con ID ${idAreaGrupo} no encontrada`);
-      }
+      if (!areaGrupo) return new GenericResponse('400', `areaGrupo con id  de usuario ${idAreaGrupo} no encontrada `, []);
 
-      if (!RegistroInformacion) {
-        throw new NotFoundException(`RegistroInformacion con ID ${updateSucursalesAreasPermisoDto.idUsuario} no encontrada`);
-      }
+      if (!RegistroInformacion) return new GenericResponse('400', `RegistroInformacion con idUsuario ${idUsuario} no encontrado `, []);
 
       const OutsoursingAfiliaciones = await this.OutsoursingAfiliacionesRepository.findOneBy({id: idOutsoursingAfiliaciones});
 
@@ -203,10 +213,10 @@ export class SucursalesAreasPermisosService {
         }
       }
 
-      return updateAreaSucursalPermisos;
+      return new GenericResponse('200', `EXITO`, updateAreaSucursalPermisos);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error`, error);
     }
   }
 
@@ -214,24 +224,20 @@ export class SucursalesAreasPermisosService {
 
     try {
 
-      const RegistroInformacion = await this.SucursalesAreasPermisosRepository.findOneBy({ id });
+      const areaSucursalPermisos = await this.SucursalesAreasPermisosRepository.findOneBy({ id });
 
-      if (!RegistroInformacion) {
-        throw new NotFoundException(`RegistroInformacion con ID ${id} not encontrado`);
+      if (!areaSucursalPermisos) {
+        throw new NotFoundException(`areaSucursalPermisos con ID ${id} not encontrado`);
       }
 
-      RegistroInformacion.estado = 'INA';
-      return await this.SucursalesAreasPermisosRepository.save(RegistroInformacion);
+      areaSucursalPermisos.estado = 'INA';
+      await this.SucursalesAreasPermisosRepository.save(areaSucursalPermisos);
+
+      return new GenericResponse('200', `EXITO`, areaSucursalPermisos);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error`, error);
     }
   }
 
-  private handleDBException(error: any) {
-    if (error.code === '23505') throw new BadRequestException(error.detail);
-
-    this.logger.error(`Error : ${error.message}`);
-    throw new InternalServerErrorException('Error ');
-  }
 }
