@@ -209,6 +209,8 @@ export class SucursalesAreasGruposHorariosService {
 
       const grupo = await this.SucursalesAreasGruposInformacionRepository.findOneBy({id: idGrupo});
 
+      if(!grupo) return new GenericResponse('400', `No se encontro grupo`, []);
+
       const sucursalesAreasGruposHorarios = await this.SucursalesAreasGruposHorariosRepository.find({
         where:{idAreaGrupo:grupo},
         relations: ['idAreaGrupo.idSucursalArea'],

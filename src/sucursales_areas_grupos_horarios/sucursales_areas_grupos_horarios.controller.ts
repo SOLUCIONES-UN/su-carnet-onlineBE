@@ -20,13 +20,13 @@ export class SucursalesAreasGruposHorariosController {
 
   @Get('findAllByGrupo/:idGrupo')
   async findAllByGrupo(@Param('idGrupo') idGrupo:number) {
-    await this.sucursalesAreasGruposHorariosService.findAllByGrupo(idGrupo);
+    return await this.sucursalesAreasGruposHorariosService.findAllByGrupo(idGrupo);
   }
 
 
   @Post('HorariosCitas')
   async getHorariosByGrupo(@Body() horarioFechas: horarioFechasDto) {
-    await this.sucursalesAreasGruposHorariosService.HorariosCitas(horarioFechas);
+    return await this.sucursalesAreasGruposHorariosService.HorariosCitas(horarioFechas);
   }
 
   @Patch(':id')
