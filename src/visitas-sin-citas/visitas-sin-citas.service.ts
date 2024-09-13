@@ -76,7 +76,8 @@ export class VisitasSinCitasService {
     try {
 
       const RegistrosInformacion = await this.RegistroInformacionRepository.find({
-        where: { estado: 'VISIT' }
+        where: { estado: 'VISIT' },
+        relations: ['idUsuario']
       });
       
       return new GenericResponse('200', `EXITO`, RegistrosInformacion);

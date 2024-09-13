@@ -1,9 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus, Query, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpStatus } from '@nestjs/common';
 import { RegistroInformacionService } from './registro_informacion.service';
 import { CreateRegistroInformacionDto } from './dto/create-registro_informacion.dto';
 import { UpdateRegistroInformacionDto } from './dto/update-registro_informacion.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
-import { PaginationDto } from '../common/dtos/pagination.dto';
 import { UsuariosService } from '../usuarios/usuarios.service';
 import { CreateUsuarioDto } from '../usuarios/dto/create-usuario.dto';
 import { updateUsuarioEmpresaDto } from '../usuarios/dto/update-usuario-empresa.dto';
@@ -18,7 +17,17 @@ export class RegistroInformacionController {
   async create(@Body() createRegistroInformacionDto: CreateRegistroInformacionDto) {
 
     try {
-      const registroInformacion = await this.registroInformacionService.existRegistro(createRegistroInformacionDto.documento, createRegistroInformacionDto.correo);
+
+      const existeRegistroVisita = await this.registroInformacionService.existRegistroVisita(createRegistroInformacionDto.documento);
+
+      if(existeRegistroVisita) {
+
+        const result = await this.registroInformacionService.UpdateUserVisita(createRegistroInformacionDto, existeRegistroVisita.idUsuario);
+
+        return result;
+      }
+
+      const registroInformacion = await this.registroInformacionService.existRegistro(createRegistroInformacionDto.documento);
   
       if (registroInformacion) {
         return new GenericResponse('401', `Ya existe un registro con el DPI ${createRegistroInformacionDto.documento}`, null);
@@ -71,7 +80,7 @@ export class RegistroInformacionController {
       return result;
   
     } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al agregar', error), HttpStatus.INTERNAL_SERVER_ERROR);
+      return new GenericResponse('401', 'Error al registrar la información', error.message);
     }
   }
 

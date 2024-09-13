@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateRegistroInformacionDto } from './dto/create-registro_informacion.dto';
 import { UpdateRegistroInformacionDto } from './dto/update-registro_informacion.dto';
 import { RegistroInformacion } from '../entities/RegistroInformacion';
@@ -10,6 +10,7 @@ import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { Municipios } from '../entities/Municipios';
 import { instanceToPlain } from 'class-transformer';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class RegistroInformacionService {
@@ -39,11 +40,84 @@ export class RegistroInformacionService {
   }
 
 
-  async existRegistro(Dpi: string, correo:string) {
+  async existRegistro(Dpi: string) {
 
     return await this.RegistroInformacionRepository.findOne({ 
-      where: {documento: Dpi, correo:correo}
+      where: {documento: Dpi}
     });
+  }
+
+  async existRegistroVisita(Dpi: string) {
+
+    return await this.RegistroInformacionRepository.findOne({ 
+      where: {documento: Dpi, estado: 'VISIT'},
+      relations: ['idUsuario']
+    });
+  }
+
+
+  async UpdateUserVisita(createRegistroInformacionDto: CreateRegistroInformacionDto, usuario:Usuarios){
+
+    try {
+
+      console.log(createRegistroInformacionDto)
+
+      const registro_informacion = await this.RegistroInformacionRepository.findOneBy({ documento: createRegistroInformacionDto.documento });
+
+      if (!registro_informacion) return new GenericResponse('400', `registro_informacion con documento ${createRegistroInformacionDto.documento} no encontrado `, []);
+
+      const municipio = await this.MunicipiosRepository.findOneBy({ id: createRegistroInformacionDto.idMunicipio });
+
+      if (!municipio) return new GenericResponse('400', `municipio con id ${createRegistroInformacionDto.idMunicipio} no encontrado `, []);
+
+      // Generar la passwordSalt
+      const passwordSalt = bcrypt.genSaltSync(10);
+
+      // Hashear la contraseña con passwordSalt generada
+      const passwordHash = bcrypt.hashSync(createRegistroInformacionDto.password, passwordSalt);
+
+      // Convertir hash y sal a Buffer
+      const passwordHashBuffer = Buffer.from(passwordHash, 'utf-8');
+      const saltBuffer = Buffer.from(passwordSalt, 'utf-8');
+
+      const updateUsuario = this.UsuariosRepository.merge(usuario,{
+        nombres: createRegistroInformacionDto.nombres,
+        apellidos:createRegistroInformacionDto.apellidos,
+        telefono: createRegistroInformacionDto.telefono,
+        email: createRegistroInformacionDto.correo,
+        passwordhash: passwordHashBuffer,
+        passwordsalt: saltBuffer,
+        estado: 1
+      });
+
+      const usuarioGuardado = await this.UsuariosRepository.save(updateUsuario);
+
+      if(!usuarioGuardado) return new GenericResponse('404', `No se pudo crear el usuario`, []);
+
+      const update_registro_informacion = this.RegistroInformacionRepository.merge(registro_informacion, {
+        nombres: createRegistroInformacionDto.nombres,
+        apellidos: createRegistroInformacionDto.apellidos,
+        contactoEmergenciaNombre: createRegistroInformacionDto.contactoEmergenciaNombre,
+        contactoEmergenciaTelefono: createRegistroInformacionDto.contactoEmergenciaTelefono,
+        direccionRecidencia: createRegistroInformacionDto.direccionRecidencia,
+        documento: createRegistroInformacionDto.documento,
+        fechaNacimiento: createRegistroInformacionDto.fechaNacimiento,
+        genero: createRegistroInformacionDto.genero,
+        telefono: createRegistroInformacionDto.telefono,
+        correo: createRegistroInformacionDto.telefono,
+        idMunicipio: municipio,
+        idUsuario: usuarioGuardado,
+        estado: 'ACT'
+      })
+
+      await this.RegistroInformacionRepository.save(update_registro_informacion);
+
+      return new GenericResponse('200', `EXITO`, update_registro_informacion);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error.message);
+    }
+
   }
 
 
