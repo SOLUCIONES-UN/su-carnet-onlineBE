@@ -80,39 +80,25 @@ export class RegistroAfiliacionesService {
     }
   }
 
-  async AceptarAfiliacion(
-    id: number,
-    updateRegistroAfiliacioneDto: UpdateRegistroAfiliacioneDto,
-  ) {
+  async AceptarAfiliacion( id: number, updateRegistroAfiliacioneDto: UpdateRegistroAfiliacioneDto) {
+
     try {
       const usuario = await this.UsuariosRepository.findOneBy({
         id: updateRegistroAfiliacioneDto.idUsuario,
       });
 
-      if (!usuario) {
-        throw new NotFoundException(
-          `usuario con ID ${updateRegistroAfiliacioneDto.idUsuario} no encontrado`,
-        );
-      }
+      if (!usuario)  return new GenericResponse('400', `usuario con id ${updateRegistroAfiliacioneDto.idUsuario} no encontrado`, []);
 
       const empresaInformacion = await this.empresaRepository.findOneBy({
         id: updateRegistroAfiliacioneDto.idEmpresa,
       });
 
-      if (!empresaInformacion) {
-        throw new NotFoundException(
-          `empresaInformacion con ID ${updateRegistroAfiliacioneDto.idEmpresa} no encontrada`,
-        );
-      }
+      if (!empresaInformacion) return new GenericResponse('400', `Empresa con id ${updateRegistroAfiliacioneDto.idEmpresa} no encontrada`, []);
 
-      const RegistroAfiliacion =
-        await this.RegistroAfiliacionesRepository.findOneBy({ id });
+      const RegistroAfiliacion = await this.RegistroAfiliacionesRepository.findOneBy({ id });
 
-      if (!RegistroAfiliacion) {
-        throw new NotFoundException(
-          `RegistroAfiliacion con ID ${id} not encontrado`,
-        );
-      }
+      if (!RegistroAfiliacion)  return new GenericResponse('400', `RegistroAfiliacion con id ${id} no encontrado`, []);
+
       const updateRegistroAfiliacion =
         this.RegistroAfiliacionesRepository.merge(RegistroAfiliacion, {
           idEmpresa: empresaInformacion,
@@ -121,39 +107,41 @@ export class RegistroAfiliacionesService {
           estado: updateRegistroAfiliacioneDto.estado,
         });
 
-      return await this.RegistroAfiliacionesRepository.save(
-        updateRegistroAfiliacion,
-      );
+      await this.RegistroAfiliacionesRepository.save(updateRegistroAfiliacion);
+
+      return new GenericResponse('200', `EXITO`, updateRegistroAfiliacion);
+
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error al crear `, error);
     }
   }
 
-  async verificarAfiliacion(
-    createRegistroAfiliacioneDto: CreateRegistroAfiliacioneDto,
-  ) {
-    const { idEmpresa, idUsuario } = createRegistroAfiliacioneDto;
+  async verificarAfiliacion(createRegistroAfiliacioneDto: CreateRegistroAfiliacioneDto) {
 
-    const empresaInformacion = await this.empresaRepository.findOneBy({
-      id: idEmpresa,
-    });
+    try {
+      const { idEmpresa, idUsuario } = createRegistroAfiliacioneDto;
 
-    if (!empresaInformacion) {
-      throw new NotFoundException(
-        `empresaInformacion con ID ${idEmpresa} no encontrada`,
-      );
+      const empresaInformacion = await this.empresaRepository.findOneBy({
+        id: idEmpresa,
+      });
+
+      if (!empresaInformacion)  return new GenericResponse('400', `Empresa con id ${createRegistroAfiliacioneDto.idEmpresa} no encontrada`, []);
+
+      const usuario = await this.UsuariosRepository.findOneBy({ id: idUsuario });
+
+      if (!usuario) return new GenericResponse('400', `usuario con id ${createRegistroAfiliacioneDto.idUsuario} no encontrado`, []);
+
+      const registro_afiliacione = await this.RegistroAfiliacionesRepository.findOne({
+        where: { idEmpresa: empresaInformacion, idUsuario: usuario },
+        relations: ['idEmpresa', 'idUsuario'],
+      });
+
+      return new GenericResponse('200', `EXITO`, registro_afiliacione);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error al crear `, error);
     }
-
-    const usuario = await this.UsuariosRepository.findOneBy({ id: idUsuario });
-
-    if (!usuario) {
-      throw new NotFoundException(`usuario con ID ${idUsuario} no encontrado`);
-    }
-
-    return await this.RegistroAfiliacionesRepository.findOne({
-      where: { idEmpresa: empresaInformacion, idUsuario: usuario },
-      relations: ['idEmpresa', 'idUsuario'],
-    });
+      
   }
 
   async afiliacionVencida(idEmpresa: number): Promise<boolean> {
@@ -187,103 +175,102 @@ export class RegistroAfiliacionesService {
 
   async findAll(idEmpresa: number, estado: string) {
 
-    const whereCondition: any = {};
+    try {
+      
+      const whereCondition: any = {};
   
-    if (idEmpresa !== 0) {
-      whereCondition.idEmpresa = await this.empresaRepository.findOneBy({
-        id: idEmpresa,
+      if (idEmpresa !== 0) {
+        whereCondition.idEmpresa = await this.empresaRepository.findOneBy({
+          id: idEmpresa,
+        });
+      }
+    
+      if (estado !== 'TODOS') {
+        whereCondition.estado = estado;
+      }
+    
+      const registroAfiliaciones = await this.RegistroAfiliacionesRepository.find({
+        where: whereCondition,
+        relations: [
+          'idEmpresa', 
+          'idUsuario', 
+          'idUsuario.registroInformacions'  
+        ],
       });
+    
+      return new GenericResponse('200', `EXITO`, registroAfiliaciones);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error al crear `, error);
     }
-  
-    if (estado !== 'TODOS') {
-      whereCondition.estado = estado;
-    }
-  
-    const registroAfiliaciones = await this.RegistroAfiliacionesRepository.find({
-      where: whereCondition,
-      relations: [
-        'idEmpresa', 
-        'idUsuario', 
-        'idUsuario.registroInformacions'  
-      ],
-    });
-  
-    return registroAfiliaciones;
   }
 
   async findAllByEmpresa(idEmpresa: number) {
 
-    const whereCondition: any = {};
+    try {
+      
+      const whereCondition: any = {};
   
-    if (idEmpresa !== 0) {
-      whereCondition.idEmpresa = await this.empresaRepository.findOneBy({
-        id: idEmpresa,
+      if (idEmpresa !== 0) {
+        whereCondition.idEmpresa = await this.empresaRepository.findOneBy({
+          id: idEmpresa,
+        });
+      }
+    
+      const registroAfiliaciones = await this.RegistroAfiliacionesRepository.find({
+        where: whereCondition,
+        relations: [
+          'idEmpresa', 
+          'idUsuario', 
+          'idUsuario.registroInformacions'  
+        ],
       });
+    
+      return new GenericResponse('200', `EXITO`, registroAfiliaciones);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error al crear `, error);
     }
-  
-    const registroAfiliaciones = await this.RegistroAfiliacionesRepository.find({
-      where: whereCondition,
-      relations: [
-        'idEmpresa', 
-        'idUsuario', 
-        'idUsuario.registroInformacions'  
-      ],
-    });
-  
-    return registroAfiliaciones;
   }
 
   async afiliacionByUsuario(idUsuario: number) {
    
-    const usuario = await this.UsuariosRepository.findOneBy({ id: idUsuario });
+    try {
+      
+      const usuario = await this.UsuariosRepository.findOneBy({ id: idUsuario });
 
-    if (!usuario) {
-      throw new Error('Usuario no encontrado');
+      if (!usuario) return new GenericResponse('400', `El usuario con id ${idUsuario} no existe`, []);
+
+      const registroAfiliaciones = await this.RegistroAfiliacionesRepository.find(
+        {
+          where: { idUsuario: usuario, estado: 'ACEP' },
+          relations: ['idEmpresa', 'idUsuario'],
+        },
+      );
+
+      return new GenericResponse('200', `EXITO`, registroAfiliaciones);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error al al consultar `, error);
     }
-
-    const registroAfiliaciones = await this.RegistroAfiliacionesRepository.find(
-      {
-        where: { idUsuario: usuario, estado: 'ACEP' },
-        relations: ['idEmpresa', 'idUsuario'],
-      },
-    );
-
-    if (registroAfiliaciones.length === 0) {
-      throw new Error('No se encontraron afiliaciones para este usuario');
-    }
-
-    // Verificar que cada registro tenga un idEmpresa válido
-    for (const registro of registroAfiliaciones) {
-      if (!registro.idEmpresa) {
-        throw new Error('Registro de afiliación con idEmpresa inválido');
-      }
-    }
-
-    return registroAfiliaciones;
   }
 
   async remove(id: number) {
+
     try {
       const RegistroAfiliacion =
         await this.RegistroAfiliacionesRepository.findOneBy({ id });
 
-      if (!RegistroAfiliacion) {
-        throw new NotFoundException(
-          `RegistroAfiliacion con ID ${id} not encontrado`,
-        );
-      }
+      if (!RegistroAfiliacion) return new GenericResponse('400', `El RegistroAfiliacion con id ${id} no existe`, []);
 
       RegistroAfiliacion.estado = 'INA';
-      return await this.RegistroAfiliacionesRepository.save(RegistroAfiliacion);
+      await this.RegistroAfiliacionesRepository.save(RegistroAfiliacion);
+
+      return new GenericResponse('200', `EXITO`, RegistroAfiliacion);
+
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error al crear `, error);
     }
   }
 
-  private handleDBException(error: any) {
-    if (error.code === '23505') throw new BadRequestException(error.detail);
-
-    this.logger.error(`Error : ${error.message}`);
-    throw new InternalServerErrorException('Error ');
-  }
 }
