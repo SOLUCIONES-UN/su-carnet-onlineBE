@@ -206,30 +206,27 @@ export class RegistroAfiliacionesService {
   }
 
   async findAllByEmpresa(idEmpresa: number) {
-
     try {
-      
-      const whereCondition: any = {};
+      const whereCondition: any = { estado: 'ACEP' };  
   
       if (idEmpresa !== 0) {
         whereCondition.idEmpresa = await this.empresaRepository.findOneBy({
           id: idEmpresa,
         });
       }
-    
+  
       const registroAfiliaciones = await this.RegistroAfiliacionesRepository.find({
         where: whereCondition,
         relations: [
-          'idEmpresa', 
-          'idUsuario', 
-          'idUsuario.registroInformacions'  
+          'idEmpresa',
+          'idUsuario',
+          'idUsuario.registroInformacions'
         ],
       });
-    
+  
       return new GenericResponse('200', `EXITO`, registroAfiliaciones);
-
     } catch (error) {
-      return new GenericResponse('500', `Error al crear `, error);
+      return new GenericResponse('500', `Error al crear`, error);
     }
   }
 
@@ -264,6 +261,25 @@ export class RegistroAfiliacionesService {
       if (!RegistroAfiliacion) return new GenericResponse('400', `El RegistroAfiliacion con id ${id} no existe`, []);
 
       RegistroAfiliacion.estado = 'INA';
+      await this.RegistroAfiliacionesRepository.save(RegistroAfiliacion);
+
+      return new GenericResponse('200', `EXITO`, RegistroAfiliacion);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error al crear `, error);
+    }
+  }
+
+
+  async desAfiliar(id: number) {
+
+    try {
+      const RegistroAfiliacion =
+        await this.RegistroAfiliacionesRepository.findOneBy({ id });
+
+      if (!RegistroAfiliacion) return new GenericResponse('400', `El RegistroAfiliacion con id ${id} no existe`, []);
+
+      RegistroAfiliacion.estado = 'DESA';
       await this.RegistroAfiliacionesRepository.save(RegistroAfiliacion);
 
       return new GenericResponse('200', `EXITO`, RegistroAfiliacion);

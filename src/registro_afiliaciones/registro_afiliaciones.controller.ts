@@ -20,6 +20,13 @@ export class RegistroAfiliacionesController {
     return await this.registroAfiliacionesService.AceptarAfiliacion(+id, updateRegistroAfiliacioneDto);
   }
 
+  @Patch('desAfiliar/:id')
+  async desAfiliar(@Param('id') id: number) {
+
+    return await this.registroAfiliacionesService.desAfiliar(id);
+  }
+
+
   @Get(':idEmpresa/:estado')
   async findAll(@Param('idEmpresa') idEmpresa: number, @Param('estado') estado: string) {
 
