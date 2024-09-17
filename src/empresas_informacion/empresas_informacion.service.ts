@@ -190,7 +190,10 @@ export class EmpresasInformacionService {
   }
 
   async findOne(id: number) {
-    return this.empresaRepository.findOneBy({ id });
+    return this.empresaRepository.findOne({
+      where: {id: id},
+      relations: ['empresasDocumentos.idTipoDocumento']
+    })
   }
 
   async GetEmpresaByDisclaimer(disclaimer: string) {
