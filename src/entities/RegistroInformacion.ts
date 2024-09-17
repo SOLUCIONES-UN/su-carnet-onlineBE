@@ -7,6 +7,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { LogVisitasSinCitas } from "./LogVisitasSinCitas";
 import { OutsoursingAfiliaciones } from "./OutsoursingAfiliaciones";
 import { RegistroDispositivos } from "./RegistroDispositivos";
 import { RegistroDocumentos } from "./RegistroDocumentos";
@@ -75,6 +76,12 @@ export class RegistroInformacion {
 
   @Column("character varying", { name: "genero", nullable: true, length: 10 })
   genero: string | null;
+
+  @OneToMany(
+    () => LogVisitasSinCitas,
+    (logVisitasSinCitas) => logVisitasSinCitas.idregistroinformacion
+  )
+  logVisitasSinCitas: LogVisitasSinCitas[];
 
   @OneToMany(
     () => OutsoursingAfiliaciones,

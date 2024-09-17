@@ -6,10 +6,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Municipios } from '../entities/Municipios';
 import { Usuarios } from '../entities/Usuarios';
 import { TipoUsuario } from '../entities/TipoUsuario';
+import { LogVisitasSinCitas } from '../entities/LogVisitasSinCitas';
 
 @Module({
   imports:[
-    TypeOrmModule.forFeature([RegistroInformacion, Municipios, Usuarios, TipoUsuario]),
+    TypeOrmModule.forFeature([RegistroInformacion, Municipios, Usuarios, TipoUsuario, LogVisitasSinCitas]),
   ],
 
   controllers: [VisitasSinCitasController],

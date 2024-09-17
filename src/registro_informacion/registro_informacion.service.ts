@@ -60,8 +60,6 @@ export class RegistroInformacionService {
 
     try {
 
-      console.log(createRegistroInformacionDto)
-
       const registro_informacion = await this.RegistroInformacionRepository.findOneBy({ documento: createRegistroInformacionDto.documento });
 
       if (!registro_informacion) return new GenericResponse('400', `registro_informacion con documento ${createRegistroInformacionDto.documento} no encontrado `, []);
@@ -119,7 +117,7 @@ export class RegistroInformacionService {
     }
 
   }
-
+  
 
   async create(createRegistroInformacionDto: CreateRegistroInformacionDto, usuario: Usuarios) {
 

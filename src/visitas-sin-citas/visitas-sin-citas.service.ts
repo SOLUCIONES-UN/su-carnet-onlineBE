@@ -9,6 +9,7 @@ import { Municipios } from '../entities/Municipios';
 import { Usuarios } from '../entities/Usuarios';
 import { CreateUsuarioDto } from '../usuarios/dto/create-usuario.dto';
 import { TipoUsuario } from '../entities/TipoUsuario';
+import { LogVisitasSinCitas } from '../entities/LogVisitasSinCitas';
 
 @Injectable()
 export class VisitasSinCitasService {
@@ -26,48 +27,79 @@ export class VisitasSinCitasService {
 
     @InjectRepository(TipoUsuario)
     private TipoUsuarioRepository: Repository<TipoUsuario>,
+    
+    @InjectRepository(LogVisitasSinCitas)
+    private LogVisitasSinCitasRepository: Repository<LogVisitasSinCitas>,
 
   ) { }
 
   async create(createVisitasSinCitaDto: CreateVisitasSinCitaDto) {
-    
+
     try {
 
-      const codigoMunicipio = createVisitasSinCitaDto.documentoIdentificacion.slice(-4);
-
-      const municipio = await this.MunicipiosRepository.findOneBy({codigoMunicipio: codigoMunicipio});
-
-      const tipoUsuario = await this.TipoUsuarioRepository.findOneBy({descripcion: 'aplicacion'});
-
-      if(!tipoUsuario)  return new GenericResponse('400', 'tipo usuario aplicacion no encontrado', []);
-  
-      const usuario = this.UsuariosRepository.create({
-        nombres: createVisitasSinCitaDto.nombre,
-        apellidos: createVisitasSinCitaDto.apellido,
-        idTipo: tipoUsuario,
-        estado: 3
-      });
- 
-      await this.UsuariosRepository.save(usuario);
-  
-      if (!usuario) {
-        return new GenericResponse('401', 'Error al crear el usuario', usuario);
-      }
-
-      const RegistroInformacion = this.RegistroInformacionRepository.create({
-        nombres: createVisitasSinCitaDto.nombre,
-        apellidos: createVisitasSinCitaDto.apellido,
+      const existRegistro = await this.RegistroInformacionRepository.findOneBy({
         documento: createVisitasSinCitaDto.documentoIdentificacion,
-        idMunicipio: municipio,
-        idUsuario: usuario,
-        estado: 'VISIT'
       });
+  
+      let RegistroInformacion;
+  
+      const codigoMunicipio = createVisitasSinCitaDto.documentoIdentificacion.slice(-4);
+      const municipio = await this.MunicipiosRepository.findOneBy({
+        codigoMunicipio: codigoMunicipio,
+      });
+  
+      const tipoUsuario = await this.TipoUsuarioRepository.findOneBy({
+        descripcion: 'aplicacion',
+      });
+  
+      if (!tipoUsuario) {
+        return new GenericResponse('400', 'tipo usuario aplicacion no encontrado', []);
+      }
+  
+      if (existRegistro) {
+        existRegistro.nombres = createVisitasSinCitaDto.nombre;
+        existRegistro.apellidos = createVisitasSinCitaDto.apellido;
+        existRegistro.idMunicipio = municipio;
+        existRegistro.estado = 'VISIT';
+  
+        RegistroInformacion = await this.RegistroInformacionRepository.save(existRegistro); 
 
-      await this.RegistroInformacionRepository.save(RegistroInformacion);
-      return new GenericResponse('200', `EXITO`, RegistroInformacion);
-      
+      } else {
+        const usuario = this.UsuariosRepository.create({
+          nombres: createVisitasSinCitaDto.nombre,
+          apellidos: createVisitasSinCitaDto.apellido,
+          idTipo: tipoUsuario,
+          estado: 3,
+        });
+  
+        await this.UsuariosRepository.save(usuario);
+  
+        if (!usuario) {
+          return new GenericResponse('401', 'Error al crear el usuario', usuario);
+        }
+  
+        RegistroInformacion = this.RegistroInformacionRepository.create({
+          nombres: createVisitasSinCitaDto.nombre,
+          apellidos: createVisitasSinCitaDto.apellido,
+          documento: createVisitasSinCitaDto.documentoIdentificacion,
+          idMunicipio: municipio,
+          idUsuario: usuario,
+          estado: 'VISIT',
+        });
+  
+        await this.RegistroInformacionRepository.save(RegistroInformacion);
+      }
+  
+      const LogVisitasSinCita = this.LogVisitasSinCitasRepository.create({
+        idregistroinformacion: RegistroInformacion,
+        fechaHoraGeneracion: new Date(),
+      });
+  
+      await this.LogVisitasSinCitasRepository.save(LogVisitasSinCita);
+  
+      return new GenericResponse('200', 'EXITO', RegistroInformacion);
     } catch (error) {
-      return new GenericResponse('500', `Error al guardar`, error);
+      return new GenericResponse('500', 'Error al guardar', error);
     }
   }
 
