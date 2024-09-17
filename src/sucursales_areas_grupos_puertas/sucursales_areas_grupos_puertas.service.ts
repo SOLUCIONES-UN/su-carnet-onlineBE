@@ -75,6 +75,7 @@ export class SucursalesAreasGruposPuertasService {
   
       const SucursalesAreasGruposPuertas = await this.puertasRepository
         .createQueryBuilder('puerta')
+        .innerJoinAndSelect('puerta.idPuerta', 'puertaArea')
         .innerJoinAndSelect('puerta.idAreaGrupo', 'areaGrupo')
         .innerJoinAndSelect('areaGrupo.idSucursalArea', 'sucursalArea')
         .innerJoinAndSelect('sucursalArea.idSucursal', 'sucursal')

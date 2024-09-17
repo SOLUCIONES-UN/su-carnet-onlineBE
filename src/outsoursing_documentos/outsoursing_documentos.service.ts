@@ -6,6 +6,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { RegistroDocumentos } from '../entities/RegistroDocumentos';
 import { OutsoursingInformacion } from '../entities/OutsoursingInformacion';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
+import { EmpresasInformacion } from '../entities/EmpresasInformacion';
+import { EmpresasDocumentos } from '../entities/EmpresasDocumentos';
 
 @Injectable()
 export class OutsoursingDocumentosService {
@@ -14,11 +16,14 @@ export class OutsoursingDocumentosService {
     @InjectRepository(OutsoursingDocumentos)
     private OutsoursingDocumentosRepository: Repository<OutsoursingDocumentos>,
 
-    @InjectRepository(RegistroDocumentos)
-    private RegistroDocumentosRepository: Repository<RegistroDocumentos>,
+    @InjectRepository(EmpresasDocumentos)
+    private EmpresasDocumentosRepository: Repository<EmpresasDocumentos>,
 
     @InjectRepository(OutsoursingInformacion)
-    private OutsoursingInformacionRepository: Repository<OutsoursingInformacion>
+    private OutsoursingInformacionRepository: Repository<OutsoursingInformacion>,
+
+    @InjectRepository(EmpresasInformacion)
+    private EmpresasInformacionRepository: Repository<EmpresasInformacion>
 
   ) { }
 
@@ -32,19 +37,19 @@ export class OutsoursingDocumentosService {
         return new GenericResponse('400', `outsoursingInformacion con id ${createOutsoursingDocumentoDto.idOutsoursing} no encontrado `, []);
       }
 
-      const RegistroDocumentos = await this.RegistroDocumentosRepository.findOneBy({id:createOutsoursingDocumentoDto.idDocumento});
+      const empresaDocumentos = await this.EmpresasDocumentosRepository.findOneBy({id:createOutsoursingDocumentoDto.idDocumento});
 
       if(!RegistroDocumentos){
         return new GenericResponse('400', `RegistroDocumentos con id ${createOutsoursingDocumentoDto.idDocumento} no encontrado `, []);
       }
   
       const existeDocumento = await this.OutsoursingDocumentosRepository.findOne({
-        where: { idDocumento: RegistroDocumentos, idOutsoursing: outsoursingInformacion }
+        where: { idDocumento: empresaDocumentos, idOutsoursing: outsoursingInformacion }
       });
   
       if (!existeDocumento) {
         const OutsoursingDocumentos = this.OutsoursingDocumentosRepository.create({
-          idDocumento: RegistroDocumentos,
+          idDocumento: empresaDocumentos,
           idOutsoursing: outsoursingInformacion,
           estado: 1  
         });
@@ -73,7 +78,7 @@ export class OutsoursingDocumentosService {
 
     const outsoursingDocumentos = await this.OutsoursingDocumentosRepository.find({
       where: {estado:1},
-      relations: ['idOutsoursing', 'idDocumento'],
+      relations: ['idOutsoursing', 'idDocumento', 'idDocumento.idEmpresa'],
     });
     
     return new GenericResponse('200', `EXITO `, outsoursingDocumentos); 
@@ -81,6 +86,31 @@ export class OutsoursingDocumentosService {
     return new GenericResponse('500', `Error `, error); 
    }
   }
+
+  async findAllByEmpresa(idEmpresa: number) {
+    try {
+      const empresa = await this.EmpresasInformacionRepository.findOne({ where: { id: idEmpresa } });
+      
+      if (!empresa) {
+        return new GenericResponse('404', 'Empresa no encontrada', null);
+      }
+  
+      const outsoursingDocumentos = await this.OutsoursingDocumentosRepository
+        .createQueryBuilder('outsoursingDocumentos')
+        .innerJoinAndSelect('outsoursingDocumentos.idDocumento', 'empresasDocumentos')
+        .innerJoinAndSelect('outsoursingDocumentos.idOutsoursing', 'outsoursingInformacion')
+        .innerJoinAndSelect('empresasDocumentos.idEmpresa', 'empresa') // Une con la empresa
+        .innerJoinAndSelect('empresasDocumentos.idTipoDocumento', 'tipoDocumentos') // Une con el tipo de documento
+        .where('empresa.id = :idEmpresa', { idEmpresa }) // Filtra por la empresa
+        .andWhere('outsoursingDocumentos.estado = :estado', { estado: 1 }) // Filtra por documentos activos
+        .getMany();
+  
+      return new GenericResponse('200', 'EXITO', outsoursingDocumentos);
+    } catch (error) {
+      return new GenericResponse('500', 'Error en la consulta', error.message);
+    }
+  }
+
 
   async findAllByOutsoursingInformacion(idOutsoursing: number) {
 

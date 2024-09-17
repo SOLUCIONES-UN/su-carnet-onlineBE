@@ -206,6 +206,7 @@ export class RegistroAfiliacionesService {
   }
 
   async findAllByEmpresa(idEmpresa: number) {
+    
     try {
       const whereCondition: any = { estado: 'ACEP' };  
   

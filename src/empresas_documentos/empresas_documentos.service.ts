@@ -6,6 +6,7 @@ import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { Repository } from 'typeorm';
 import { TipoDocumentos } from '../entities/TipoDocumentos';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
 @Injectable()
 export class EmpresasDocumentosService {
@@ -33,13 +34,13 @@ export class EmpresasDocumentosService {
       const empresaInformacion = await this.empresaRepository.findOneBy({ id: idEmpresa });
   
       if (!empresaInformacion) {
-        throw new NotFoundException(`empresaInformacion con ID ${idEmpresa} no encontrada`);
+        return new GenericResponse('400', `empresaInformacion con id ${createEmpresasDocumentoDto.idEmpresa} no encontrada `, []);
       }
 
       const TipoDocumentos = await this.tiposDocumentosRepository.findOneBy({id:idTipoDocumento});
 
       if(!TipoDocumentos){
-        throw new NotFoundException(`TipoDocumentos con ID ${idTipoDocumento} no encontrado`);
+        return new GenericResponse('400', `TipoDocumentos con id ${createEmpresasDocumentoDto.idTipoDocumento} no encontrado `, []);
       }
   
       const empresaDocumentos = this.empresaDocumentosRepository.create({
@@ -50,24 +51,47 @@ export class EmpresasDocumentosService {
   
       await this.empresaDocumentosRepository.save(empresaDocumentos);
   
-      return empresaDocumentos; 
+      return new GenericResponse('200', `EXITO`, empresaDocumentos);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error`, error);
     }
   }
 
-  async findAll(PaginationDto: PaginationDto) {
+  async findAll() {
 
-    const { limit = 10, offset = 0 } = PaginationDto;
+    try {
+      
+      const empresaDocumentos = await this.empresaDocumentosRepository.find({
+        relations: ['idEmpresa', 'idTipoDocumento'],  
+      });
+      
+      return new GenericResponse('200', `EXITO`, empresaDocumentos);
 
-    const empresaDocumentos = await this.empresaDocumentosRepository.find({
-      skip: offset,
-      take: limit,
-      relations: ['idEmpresa', 'idTipoDocumento'],  
-    });
-    
-    return empresaDocumentos;
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error);
+    }
+  }
+
+
+  async findAllByEmpresa(idEmpresa:number) {
+
+    try {
+      
+      const empresa = await this.empresaRepository.findOneBy({id:idEmpresa});
+
+      if(!empresa) return new GenericResponse('400', `Empresa no encontrada`, []);
+
+      const empresaDocumentos = await this.empresaDocumentosRepository.find({
+        where: {idEmpresa:empresa},
+        relations: ['idEmpresa', 'idTipoDocumento'],  
+      });
+      
+      return new GenericResponse('200', `EXITO`, empresaDocumentos);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error);
+    }
   }
 
   async remove(id: number) {
@@ -77,19 +101,16 @@ export class EmpresasDocumentosService {
       const empresaDocumentos = await this.empresaDocumentosRepository.findOne({ where: { id } });
 
       if(!empresaDocumentos){
-        throw new NotFoundException(`empresaDocumentos con ID ${id} not encontrado`);
+        return new GenericResponse('400', `empresaDocumentos con id ${id} no encontrado `, []);
       }
-      return await this.empresaDocumentosRepository.remove(empresaDocumentos);
+      await this.empresaDocumentosRepository.remove(empresaDocumentos);
+
+      return new GenericResponse('200', `EXITO`, empresaDocumentos);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error`, error);
     }
   }
 
-  private handleDBException(error: any) {
-    if (error.code === '23505') throw new BadRequestException(error.detail);
-
-    this.logger.error(`Error : ${error.message}`);
-    throw new InternalServerErrorException('Error ');
-  }
+ 
 }

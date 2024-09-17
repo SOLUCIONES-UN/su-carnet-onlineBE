@@ -16,6 +16,11 @@ export class OutsoursingDocumentosController {
     return this.outsoursingDocumentosService.findAll();
   }
 
+  @Get('findAllByEmpresa/:idEmpresa')
+  async findAllByEmpresa(@Param('idEmpresa') idEmpresa:number) {
+    return this.outsoursingDocumentosService.findAllByEmpresa(idEmpresa);
+  }
+
   @Get(':idOutsoursing')
   async findAllByOutsoursingInformacion(@Param('idOutsoursing') idOutsoursing: number) {
     return this.outsoursingDocumentosService.findAllByOutsoursingInformacion(idOutsoursing);

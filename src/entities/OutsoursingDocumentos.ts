@@ -6,7 +6,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { RegistroDocumentos } from "./RegistroDocumentos";
+import { EmpresasDocumentos } from "./EmpresasDocumentos";
 import { OutsoursingInformacion } from "./OutsoursingInformacion";
 
 @Index("outsoursing_documentos_pkey", ["id"], { unique: true })
@@ -19,11 +19,11 @@ export class OutsoursingDocumentos {
   estado: number | null;
 
   @ManyToOne(
-    () => RegistroDocumentos,
-    (registroDocumentos) => registroDocumentos.outsoursingDocumentos
+    () => EmpresasDocumentos,
+    (empresasDocumentos) => empresasDocumentos.outsoursingDocumentos
   )
   @JoinColumn([{ name: "id_documento", referencedColumnName: "id" }])
-  idDocumento: RegistroDocumentos;
+  idDocumento: EmpresasDocumentos;
 
   @ManyToOne(
     () => OutsoursingInformacion,

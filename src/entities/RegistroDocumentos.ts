@@ -4,10 +4,8 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
-  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
-import { OutsoursingDocumentos } from "./OutsoursingDocumentos";
 import { RegistroInformacion } from "./RegistroInformacion";
 import { TipoDocumentos } from "./TipoDocumentos";
 
@@ -28,12 +26,6 @@ export class RegistroDocumentos {
 
   @Column("integer", { name: "foto_inicial", nullable: true })
   fotoInicial: number | null;
-
-  @OneToMany(
-    () => OutsoursingDocumentos,
-    (outsoursingDocumentos) => outsoursingDocumentos.idDocumento
-  )
-  outsoursingDocumentos: OutsoursingDocumentos[];
 
   @ManyToOne(
     () => RegistroInformacion,
