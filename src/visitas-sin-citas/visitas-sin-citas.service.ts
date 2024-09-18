@@ -65,18 +65,29 @@ export class VisitasSinCitasService {
         RegistroInformacion = await this.RegistroInformacionRepository.save(existRegistro); 
 
       } else {
-        const usuario = this.UsuariosRepository.create({
-          nombres: createVisitasSinCitaDto.nombre,
-          apellidos: createVisitasSinCitaDto.apellido,
-          idTipo: tipoUsuario,
-          estado: 3,
-        });
-  
-        await this.UsuariosRepository.save(usuario);
-  
-        if (!usuario) {
-          return new GenericResponse('401', 'Error al crear el usuario', usuario);
+
+        const existUser = await this.UsuariosRepository.findOneBy({id: existRegistro.idUsuario.id});
+
+        let usuario: Usuarios;
+
+        if(!existUser){
+          
+          usuario = this.UsuariosRepository.create({
+            nombres: createVisitasSinCitaDto.nombre,
+            apellidos: createVisitasSinCitaDto.apellido,
+            idTipo: tipoUsuario,
+            estado: 3,
+          });
+    
+          await this.UsuariosRepository.save(usuario);
+
+          if (!usuario) {
+            return new GenericResponse('401', 'Error al crear el usuario', usuario);
+          }
+    
         }
+
+        usuario = existUser;
   
         RegistroInformacion = this.RegistroInformacionRepository.create({
           nombres: createVisitasSinCitaDto.nombre,
