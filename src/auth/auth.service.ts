@@ -101,10 +101,6 @@ export class AuthService {
 
       }
 
-      if(usuario.idTipo.descripcion != 'aplicacion'){
-        return new GenericResponse('400', `usuario tampoco es tipo aplicacion`, null);
-      }
-
       const hashToCompare = bcrypt.hashSync(password, usuario.passwordsalt.toString('utf-8'));
 
       if (hashToCompare !== usuario.passwordhash.toString('utf-8')) {
@@ -180,7 +176,7 @@ export class AuthService {
             empresa = await this.empresasRepository.findOneBy({ codigoEmpresa: companyCode });
 
             if (!empresa) {
-                return new GenericResponse('400', `La empresa con código ${companyCode} no encontrada`, empresa);
+              return new GenericResponse('400', `La empresa con código ${companyCode} no encontrada`, empresa);
             }
         }
 
