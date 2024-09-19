@@ -21,9 +21,9 @@ export class RegistroDispositivosController {
     return await this.registroDispositivosService.findAllByUser(idUsuario);
   }
 
-  @Get('verificarDispositivo/:idDispositivo')
-  async verificarDispositivo(@Param('idDispositivo') idDispositivo: string) {
-    return await this.registroDispositivosService.VerificarDispositivo(idDispositivo);
+  @Get('verificarDispositivo/:idDispositivo/:idUsuario')
+  async verificarDispositivo(@Param('idDispositivo') idDispositivo: string, @Param('idUsuario') idUsuario:number) {
+    return await this.registroDispositivosService.VerificarDispositivo(idDispositivo, idUsuario);
   }
 
   @Patch(':id')

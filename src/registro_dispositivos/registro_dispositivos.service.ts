@@ -54,12 +54,18 @@ export class RegistroDispositivosService {
     }
   }
 
-  async VerificarDispositivo(idDispositivo: string){
+  async VerificarDispositivo(idDispositivo: string, idUsuario: number){
 
     try {
+
+      const usuario = await this.UsuariosRepository.findOneBy({id:idUsuario});
+
+      if(!usuario)  return new GenericResponse('404', `usuario no encontrado `, []);
+
+      const registroInformacion = await this.RegistroInformacionRepository.findOneBy({idUsuario: usuario});
       
       const dispositivoActivo = await this.RegistroDispositivosRepository.findOne({
-        where:{idDispositivo:idDispositivo, estado:'ACT'}
+        where:{idDispositivo:idDispositivo, estado:'ACT', idRegistroInformacion: registroInformacion}
       });
 
       if(dispositivoActivo) return new GenericResponse('200', `Dispositivo ya existe y esta activo`, []);
