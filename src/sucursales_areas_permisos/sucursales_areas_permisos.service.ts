@@ -114,7 +114,7 @@ export class SucursalesAreasPermisosService {
 
       const areaSucursalPermisos = await this.SucursalesAreasPermisosRepository.find({
         where: {idAreaGrupo:areaGrupo},
-        relations: ['idRegistro']
+        relations: ['idRegistro.idUsuario']
       });
 
       return new GenericResponse('200', `EXITO`, areaSucursalPermisos);
