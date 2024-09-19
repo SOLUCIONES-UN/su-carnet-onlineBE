@@ -157,8 +157,22 @@ export class RegistroInformacionService {
 
   async findAllByUsuario(idUsuario: number) {
 
+   try {
+    
     const usuario = await this.UsuariosRepository.findOneBy({ id: idUsuario });
-    return await this.RegistroInformacionRepository.findOneBy({ idUsuario: usuario });
+
+    if(!usuario) return new GenericResponse('400', `Usuario no encontrado`, []);
+    
+    const registroInformacion = await this.RegistroInformacionRepository.findOne({
+      where:{idUsuario: usuario},
+      relations:['idMunicipio.iddepartamento.idpais']
+    })
+
+    return new GenericResponse('200', `EXITO`, registroInformacion);
+
+   } catch (error) {
+    return new GenericResponse('500', `Error`, error);
+   }
   }
 
 
