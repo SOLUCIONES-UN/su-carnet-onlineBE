@@ -339,21 +339,21 @@ export class UsuariosService {
 
       const empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idEmpresas });
 
-      // if (!empresa) {
-      //   return new GenericResponse('400', `La empresa con Id ${idEmpresas} no encontrado`, null);
-      // }
+      if (!empresa) {
+        return new GenericResponse('400', `La empresa con Id ${idEmpresas} no encontrado`, null);
+      }
 
       const sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: idSucursal });
 
-      // if (!sucursal) {
-      //   return new GenericResponse('400', `La sucursal con Id ${idSucursal} no encontrado`, null);
-      // }
+      if (!sucursal) {
+        return new GenericResponse('400', `La sucursal con Id ${idSucursal} no encontrado`, null);
+      }
 
       const areaSucursal = await this.SucursalesAreasInformacionRepository.findOneBy({ id: idAreaSucursal });
 
-      // if (!areaSucursal) {
-      //   return new GenericResponse('400', `La areaSucursal con Id ${idAreaSucursal} no encontrado`, null);
-      // }
+      if (!areaSucursal) {
+        return new GenericResponse('400', `La areaSucursal con Id ${idAreaSucursal} no encontrado`, null);
+      }
 
       const updatedUsuario = this.usuariosRepository.merge(usuario, {
         ...infoData,
@@ -364,7 +364,7 @@ export class UsuariosService {
         where: { idUsuario: usuario, idEmpresa: empresa }
       });
 
-      // if (!relacionUsuarioEmpresa) return new GenericResponse('400', `No existe una relacion entre el usuario ${usuario.nombres} ${usuario.apellidos} y la empresa ${empresa.nombre}`, null);
+      if (!relacionUsuarioEmpresa) return new GenericResponse('400', `No existe una relacion entre el usuario ${usuario.nombres} ${usuario.apellidos} y la empresa ${empresa.nombre}`, null);
 
       relacionUsuarioEmpresa.idUsuario = usuario;
       relacionUsuarioEmpresa.idEmpresa = empresa;
