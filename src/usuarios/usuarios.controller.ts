@@ -64,11 +64,11 @@ export class UsuariosController {
   }
  
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() updateUsuarioDto: UpdateUsuarioDto) {
+  async update(@Param('id') id: string, @Body() updateUsuarioDto: updateUsuarioEmpresaDto) {
 
     try {
 
-      const result = await this.usuariosService.update(+id, updateUsuarioDto);
+      const result = await this.usuariosService.updateUserEmpresa(+id, updateUsuarioDto);
       return new GenericResponse('200', 'EXITO', result);
 
     } catch (error) {
