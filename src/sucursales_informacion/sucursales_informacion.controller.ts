@@ -2,8 +2,6 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpS
 import { SucursalesInformacionService } from './sucursales_informacion.service';
 import { CreateSucursalesInformacionDto } from './dto/create-sucursales_informacion.dto';
 import { UpdateSucursalesInformacionDto } from './dto/update-sucursales_informacion.dto';
-import { GenericResponse } from '../common/dtos/genericResponse.dto';
-import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Controller('sucursales-informacion')
 export class SucursalesInformacionController {
