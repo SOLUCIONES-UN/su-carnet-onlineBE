@@ -12,6 +12,7 @@ import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
 import { SucursalesInformacion } from '../entities/SucursalesInformacion';
 import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
+import { RegistroInformacion } from '../entities/RegistroInformacion';
 
 @Module({
   controllers: [AuthController],
@@ -20,7 +21,7 @@ import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformaci
 
     ConfigModule,
 
-    TypeOrmModule.forFeature([ Usuarios, TipoUsuario, EmpresasInformacion, UsuariosRelacionEmpresas, SucursalesInformacion, SucursalesAreasInformacion]),
+    TypeOrmModule.forFeature([ Usuarios, TipoUsuario, EmpresasInformacion, UsuariosRelacionEmpresas, SucursalesInformacion, SucursalesAreasInformacion, RegistroInformacion]),
     
 
     PassportModule.register({ defaultStrategy: 'jwt' }),

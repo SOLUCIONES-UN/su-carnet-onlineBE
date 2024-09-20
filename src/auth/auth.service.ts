@@ -20,6 +20,7 @@ import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { TipoUsuario } from '../entities/TipoUsuario';
 import { SucursalesInformacion } from '../entities/SucursalesInformacion';
 import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
+import { RegistroInformacion } from '../entities/RegistroInformacion';
 
 @Injectable()
 export class AuthService {
@@ -44,6 +45,9 @@ export class AuthService {
     @InjectRepository(TipoUsuario)
     private TipoUsuarioRepository: Repository<TipoUsuario>,
 
+    @InjectRepository(RegistroInformacion)
+    private RegistroInformacionRepository: Repository<RegistroInformacion>,
+
     private readonly jwtService: JwtService,
   ) {}
 
@@ -54,6 +58,7 @@ export class AuthService {
       const { user, password, companyCode } = LoginUserDto;
 
       let usuario: Usuarios;
+      let registroInformacion: RegistroInformacion;
       let empresa: EmpresasInformacion;
       let sucursal: SucursalesInformacion = null;
       let areaSucursal: SucursalesAreasInformacion = null;
@@ -110,16 +115,18 @@ export class AuthService {
       delete usuario.passwordhash;
       delete usuario.passwordsalt;
 
+      registroInformacion = await this.RegistroInformacionRepository.findOneBy({idUsuario:usuario});
+
       const responseData = {
         usuario: {
-            email: usuario.email,
+            email: usuario.email, 
             nombres: usuario.nombres,
             apellidos: usuario.apellidos,
             telefono: usuario.telefono,
             id: usuario.id,
-            registroInformacions: usuario.registroInformacions,
             tipoUsuario: usuario.idTipo,
         },
+        registroInformacion,
         empresa: empresa ? {
             id: empresa.id,
             nombre: empresa.nombre,
@@ -168,6 +175,7 @@ export class AuthService {
         const { user, password, companyCode } = LoginUserDto;
 
         let usuario: Usuarios;
+        let registroInformacion: RegistroInformacion;
         let empresa: EmpresasInformacion;
         let sucursal: SucursalesInformacion = null;
         let areaSucursal: SucursalesAreasInformacion = null;
@@ -230,6 +238,8 @@ export class AuthService {
         delete usuario.passwordhash;
         delete usuario.passwordsalt;
 
+        registroInformacion = await this.RegistroInformacionRepository.findOneBy({idUsuario:usuario});
+
         const responseData = {
             usuario: {
                 email: usuario.email,
@@ -237,9 +247,9 @@ export class AuthService {
                 apellidos: usuario.apellidos,
                 telefono: usuario.telefono,
                 id: usuario.id,
-                registroInformacions: usuario.registroInformacions,
                 tipoUsuario: usuario.idTipo,
             },
+            registroInformacion,
             empresa: empresa ? {
                 id: empresa.id,
                 nombre: empresa.nombre,
