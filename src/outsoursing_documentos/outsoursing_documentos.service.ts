@@ -78,7 +78,7 @@ export class OutsoursingDocumentosService {
 
     const outsoursingDocumentos = await this.OutsoursingDocumentosRepository.find({
       where: {estado:1},
-      relations: ['idOutsoursing', 'idDocumento', 'idDocumento.idEmpresa'],
+      relations: ['idOutsoursing', 'idDocumento.idTipoDocumento', 'idDocumento.idEmpresa'],
     });
     
     return new GenericResponse('200', `EXITO `, outsoursingDocumentos); 
@@ -122,7 +122,7 @@ export class OutsoursingDocumentosService {
  
      const outsoursingDocumentos = await this.OutsoursingDocumentosRepository.find({
        where: {estado:1, idOutsoursing:outsoursingInformacion},
-       relations: ['idOutsoursing', 'idDocumento'],
+       relations: ['idOutsoursing', 'idDocumento.idTipoDocumento', 'idDocumento.idEmpresa'],
      });
      
      return new GenericResponse('200', `EXITO `, outsoursingDocumentos); 
