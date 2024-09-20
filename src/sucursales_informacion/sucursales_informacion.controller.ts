@@ -12,83 +12,39 @@ export class SucursalesInformacionController {
   @Post()
   async create(@Body() createSucursalesInformacionDto: CreateSucursalesInformacionDto) {
     
-    try {
-
-      const result = await this.sucursalesInformacionService.create(createSucursalesInformacionDto);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al agregar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
+    return await this.sucursalesInformacionService.create(createSucursalesInformacionDto);
   }
 
   @Get()
-  async findAll(@Query() paginationDto: PaginationDto) {
+  async findAll() {
 
-    try {
-
-      const result = await this.sucursalesInformacionService.findAll(paginationDto);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+   return await this.sucursalesInformacionService.findAll();
   }
 
   @Get('sucursales/:idEmpresa')
   async findAllByEmpresaId(@Param('idEmpresa') idEmpresa:string) {
 
-    try {
-
-      const result = await this.sucursalesInformacionService.findAllByEmpresaId(+idEmpresa);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.sucursalesInformacionService.findAllByEmpresaId(+idEmpresa);
   }
   
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
 
-    try {
-
-      const result = await this.sucursalesInformacionService.findOne(+id);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+   return  await this.sucursalesInformacionService.findOne(+id);
   }
 
 
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateSucursalesInformacionDto: UpdateSucursalesInformacionDto) {
     
-    try {
-
-      const result = await this.sucursalesInformacionService.update(+id, updateSucursalesInformacionDto);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al editar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
+    return await this.sucursalesInformacionService.update(+id, updateSucursalesInformacionDto);
   }
 
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number) {
 
-    try {
-
-      const result = await this.sucursalesInformacionService.remove(+id);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al eliminar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.sucursalesInformacionService.remove(+id);
   }
   
 }
