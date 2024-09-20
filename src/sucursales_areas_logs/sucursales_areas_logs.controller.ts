@@ -49,7 +49,7 @@ export class SucursalesAreasLogsController {
             payload: {
               notification: {
                 title: 'Confirmacion de Cita',
-                body: 'Acceso confirmado puede continuar' 
+                body: 'Acceso confirmado puede continuar',
               },
               data: {
                 customDataKey: 'customDataValue'
@@ -68,7 +68,7 @@ export class SucursalesAreasLogsController {
             payload: {
               notification: {
                 title: 'Confirmacion de Cita',
-                body: 'Acceso denegado cita rechazada ' 
+                body: 'Acceso denegado cita rechazada' 
               },
               data: {
                 customDataKey: 'customDataValue'

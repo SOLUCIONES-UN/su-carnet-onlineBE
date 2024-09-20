@@ -14,10 +14,11 @@ import { Usuarios } from '../entities/Usuarios';
 import { UpdateRegistroAfiliacioneDto } from './dto/update-registro_afiliacione.dto';
 import { CreateNotificacioneDto } from '../notificaciones/dto/create-notificacione.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
+import { Dispositivos } from '../entities/Dispositivos';
+import { NotificacionesService } from '../notificaciones/notificaciones.service';
 
 @Injectable()
 export class RegistroAfiliacionesService {
-  private readonly logger = new Logger('RegistroAfiliacionesService');
 
   constructor(
     @InjectRepository(RegistroAfiliaciones)
@@ -28,6 +29,11 @@ export class RegistroAfiliacionesService {
 
     @InjectRepository(Usuarios)
     private UsuariosRepository: Repository<Usuarios>,
+
+    // @InjectRepository(Dispositivos)
+    // private DispositivosRepository: Repository<Dispositivos>,
+
+    // private readonly notificacionesService: NotificacionesService,
   ) {}
 
   async create(createRegistroAfiliacioneDto: CreateRegistroAfiliacioneDto) {
@@ -79,6 +85,40 @@ export class RegistroAfiliacionesService {
       return new GenericResponse('500', `Error al crear `, error);
     }
   }
+
+
+  // async obtenerTokens(idUsuario:number){
+
+  //   const usuario = await this.UsuariosRepository.findOneBy({id:idUsuario});
+
+  //   return await this.DispositivosRepository.find({
+  //     where: {idusuario: usuario}
+  //   });
+  // }
+
+
+  // async GenerarNotificacionPush(idUsuario: number){
+
+  //   const tokensObtenidos = await this.obtenerTokens(idUsuario);
+
+  //   tokensObtenidos.forEach(async element => {
+  //     const createNotificacioneDto: CreateNotificacioneDto = {
+  //       token: element.tokendispositivo,
+  //       payload: {
+  //         notification: {
+  //           title: 'Confirmacion de Cita',
+  //           body: 'Acceso confirmado puede continuar' 
+  //         },
+  //         data: {
+  //           customDataKey: 'customDataValue'
+  //         }
+  //       }
+  //     };
+
+  //     await this.notificacionesService.sendNotification(createNotificacioneDto);
+  //   });
+
+  // }
 
   async AceptarAfiliacion( id: number, updateRegistroAfiliacioneDto: UpdateRegistroAfiliacioneDto) {
 

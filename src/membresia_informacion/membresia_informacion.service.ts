@@ -69,7 +69,7 @@ export class MembresiaInformacionService {
       where: {estado: 1},
       skip: offset,
       take: limit,
-      relations: ['empresa'],
+      relations: ['empresa','tipoMembresia'],
     });
     
     return membresia_informacion;
@@ -82,7 +82,7 @@ export class MembresiaInformacionService {
 
     const membresia_informacion = await this.MembresiaInformacionRepository.find({
       where: {estado: 1, empresa:empresa},
-      relations: ['empresa'],
+      relations: ['empresa','tipoMembresia'],
     });
     
     return membresia_informacion;

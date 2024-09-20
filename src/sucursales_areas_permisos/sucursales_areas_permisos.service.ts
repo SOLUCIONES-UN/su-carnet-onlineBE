@@ -16,8 +16,6 @@ import { GenericResponse } from '../common/dtos/genericResponse.dto';
 @Injectable()
 export class SucursalesAreasPermisosService {
 
-  private readonly logger = new Logger("SucursalesAreasPermisosService");
-
   constructor(
     @InjectRepository(SucursalesAreasPermisos)
     private SucursalesAreasPermisosRepository: Repository<SucursalesAreasPermisos>,
