@@ -11,6 +11,9 @@ import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { Municipios } from '../entities/Municipios';
 import { instanceToPlain } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
+import { read } from 'fs';
+import { SucursalesInformacion } from '../entities/SucursalesInformacion';
+import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
 
 @Injectable()
 export class RegistroInformacionService {
@@ -157,22 +160,41 @@ export class RegistroInformacionService {
 
   async findAllByUsuario(idUsuario: number) {
 
-   try {
-    
-    const usuario = await this.UsuariosRepository.findOneBy({ id: idUsuario });
-
-    if(!usuario) return new GenericResponse('400', `Usuario no encontrado`, []);
-    
-    const registroInformacion = await this.RegistroInformacionRepository.findOne({
-      where:{idUsuario: usuario},
-      relations:['idMunicipio.iddepartamento.idpais']
-    })
-
-    return new GenericResponse('200', `EXITO`, registroInformacion);
-
-   } catch (error) {
-    return new GenericResponse('500', `Error`, error);
-   }
+    try {
+      const usuario = await this.UsuariosRepository.findOneBy({ id: idUsuario });
+  
+      if (!usuario) {
+        return new GenericResponse('400', `Usuario no encontrado`, []);
+      }
+  
+      const registroInformacion = await this.RegistroInformacionRepository.findOne({
+        where: { idUsuario: usuario },
+        relations: ['idUsuario', 'idMunicipio.iddepartamento.idpais']
+      });
+  
+      const relacionEmpresa = await this.UsuariosRelacionEmpresasRepository.findOneBy({ idUsuario: usuario });
+  
+      let empresa: EmpresasInformacion = null;
+      let sucursal: SucursalesInformacion = null;
+      let areaSucursal: SucursalesAreasInformacion = null;
+  
+      if (relacionEmpresa) {
+        empresa = relacionEmpresa.idEmpresa || null;
+        sucursal = relacionEmpresa.idSucursal || null;
+        areaSucursal = relacionEmpresa.idAreaSucursal || null;
+      }
+  
+      const responseData = {
+        registroInformacion,
+        empresa,
+        sucursal,
+        areaSucursal
+      };
+  
+      return new GenericResponse('200', `EXITO`, responseData);
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error.message);
+    }
   }
 
 
