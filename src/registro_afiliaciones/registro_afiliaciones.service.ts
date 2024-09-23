@@ -12,10 +12,7 @@ import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { Repository } from 'typeorm';
 import { Usuarios } from '../entities/Usuarios';
 import { UpdateRegistroAfiliacioneDto } from './dto/update-registro_afiliacione.dto';
-import { CreateNotificacioneDto } from '../notificaciones/dto/create-notificacione.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
-import { Dispositivos } from '../entities/Dispositivos';
-import { NotificacionesService } from '../notificaciones/notificaciones.service';
 
 @Injectable()
 export class RegistroAfiliacionesService {
@@ -30,22 +27,12 @@ export class RegistroAfiliacionesService {
     @InjectRepository(Usuarios)
     private UsuariosRepository: Repository<Usuarios>,
 
-    // @InjectRepository(Dispositivos)
-    // private DispositivosRepository: Repository<Dispositivos>,
-
-    // private readonly notificacionesService: NotificacionesService,
   ) {}
 
   async create(createRegistroAfiliacioneDto: CreateRegistroAfiliacioneDto) {
 
     try {
 
-      const verificarRegistro = await this.verificarAfiliacion(createRegistroAfiliacioneDto);
-
-      if(verificarRegistro){
-        return new GenericResponse('401', 'Ya estas afiliado a esta empresa', verificarRegistro);
-      }
-      
       const usuario = await this.UsuariosRepository.findOneBy({
         id: createRegistroAfiliacioneDto.idUsuario,
       });
@@ -60,6 +47,15 @@ export class RegistroAfiliacionesService {
 
       if (!empresaInformacion) {
         return new GenericResponse('400', `Empresa con id ${createRegistroAfiliacioneDto.idEmpresa} no encontrada `, []);
+      }
+
+      const verificarRegistro = await this.RegistroAfiliacionesRepository.findOne({
+        where: { idEmpresa: empresaInformacion, idUsuario: usuario },
+        relations: ['idEmpresa', 'idUsuario'],
+      });
+
+      if(verificarRegistro){
+        return new GenericResponse('401', 'Ya estas afiliado a esta empresa', []);
       }
 
       let fechaInicioAfiliacion = null;
@@ -85,40 +81,6 @@ export class RegistroAfiliacionesService {
       return new GenericResponse('500', `Error al crear `, error);
     }
   }
-
-
-  // async obtenerTokens(idUsuario:number){
-
-  //   const usuario = await this.UsuariosRepository.findOneBy({id:idUsuario});
-
-  //   return await this.DispositivosRepository.find({
-  //     where: {idusuario: usuario}
-  //   });
-  // }
-
-
-  // async GenerarNotificacionPush(idUsuario: number){
-
-  //   const tokensObtenidos = await this.obtenerTokens(idUsuario);
-
-  //   tokensObtenidos.forEach(async element => {
-  //     const createNotificacioneDto: CreateNotificacioneDto = {
-  //       token: element.tokendispositivo,
-  //       payload: {
-  //         notification: {
-  //           title: 'Confirmacion de Cita',
-  //           body: 'Acceso confirmado puede continuar' 
-  //         },
-  //         data: {
-  //           customDataKey: 'customDataValue'
-  //         }
-  //       }
-  //     };
-
-  //     await this.notificacionesService.sendNotification(createNotificacioneDto);
-  //   });
-
-  // }
 
   async AceptarAfiliacion( id: number, updateRegistroAfiliacioneDto: UpdateRegistroAfiliacioneDto) {
 
