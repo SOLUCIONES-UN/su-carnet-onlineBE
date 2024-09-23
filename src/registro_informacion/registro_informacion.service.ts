@@ -169,29 +169,10 @@ export class RegistroInformacionService {
   
       const registroInformacion = await this.RegistroInformacionRepository.findOne({
         where: { idUsuario: usuario },
-        relations: ['idUsuario', 'idMunicipio.iddepartamento.idpais']
+        relations: ['idMunicipio.iddepartamento.idpais', 'idUsuario.idTipo','idUsuario.role', 'idUsuario.areaSucursal.idSucursal.idEmpresa'],
       });
   
-      const relacionEmpresa = await this.UsuariosRelacionEmpresasRepository.findOneBy({ idUsuario: usuario });
-  
-      let empresa: EmpresasInformacion = null;
-      let sucursal: SucursalesInformacion = null;
-      let areaSucursal: SucursalesAreasInformacion = null;
-  
-      if (relacionEmpresa) {
-        // empresa = relacionEmpresa.idEmpresa || null;
-        // sucursal = relacionEmpresa.idSucursal || null;
-        areaSucursal = relacionEmpresa.idAreaSucursal || null;
-      }
-  
-      const responseData = {
-        registroInformacion,
-        empresa,
-        sucursal,
-        areaSucursal
-      };
-  
-      return new GenericResponse('200', `EXITO`, responseData);
+      return new GenericResponse('200', `EXITO`, registroInformacion);
     } catch (error) {
       return new GenericResponse('500', `Error`, error.message);
     }
@@ -203,7 +184,7 @@ export class RegistroInformacionService {
     try {
 
       const RegistroInformacion = await this.RegistroInformacionRepository.find({
-        relations: ['idMunicipio', 'idUsuario.idTipo','idUsuario.role', 'idUsuario.areaSucursal'],
+        relations: ['idMunicipio.iddepartamento.idpais', 'idUsuario.idTipo','idUsuario.role', 'idUsuario.areaSucursal.idSucursal.idEmpresa'],
       });
 
       return new GenericResponse('200', `EXITO`, RegistroInformacion);
@@ -213,35 +194,34 @@ export class RegistroInformacionService {
   }
 
   async findAllByEmpresa(idEmpresa: number) {
+
     try {
-      // Verificar que la empresa exista
+
       const empresa = await this.EmpresasInformacionRepository.findOne({ where: { id: idEmpresa } });
       if (!empresa) {
         return new GenericResponse('400', `Empresa no encontrada`, []);
       }
   
-      // Realizar la consulta con joins
-      const registroInformacion = await this.RegistroInformacionRepository.createQueryBuilder('registro')
-        .leftJoinAndSelect('registro.idUsuario', 'usuario')
-        .leftJoinAndSelect('usuario.idTipo', 'tipo')
-        .leftJoinAndSelect('usuario.usuariosRelacionEmpresas', 'relacion')
-        .leftJoinAndSelect('relacion.idEmpresa', 'empresa')
-        .leftJoinAndSelect('relacion.idSucursal', 'sucursal')
-        .leftJoinAndSelect('relacion.idAreaSucursal', 'areaSucursal')
-        .leftJoinAndSelect('registro.idMunicipio', 'pais')
-        .where('relacion.idEmpresa = :idEmpresa', { idEmpresa })
-        .andWhere('relacion.estado = :estado', { estado: 1 })
-        .andWhere('empresa.estado = :empresaEstado', { empresaEstado: 1 })
-        .andWhere('relacion.idSucursal IS NOT NULL')
-        .andWhere('relacion.idAreaSucursal IS NOT NULL')
-        .andWhere('registro.estado = :registroEstado', { registroEstado: 'ACT' })
-        .orderBy('usuario.id')
-        .getMany();
+      const registroInformacion = await this.RegistroInformacionRepository.find({
+        where: {
+          estado: 'ACT', 
+          idUsuario: {
+            areaSucursal: {
+              idSucursal: {
+                idEmpresa: empresa, 
+              },
+            },
+          },
+        },
+        relations: [
+          'idMunicipio.iddepartamento.idpais', 
+          'idUsuario.idTipo', 
+          'idUsuario.role', 
+          'idUsuario.areaSucursal.idSucursal.idEmpresa',
+        ],
+      });
   
-      // Convertir a objeto plano para evitar referencias circulares
-      const plainResult = instanceToPlain(registroInformacion);
-  
-      return new GenericResponse('200', `ÉXITO`, plainResult);
+      return new GenericResponse('200', `ÉXITO`, registroInformacion);
     } catch (error) {
       return new GenericResponse('500', `Error`, error.message);
     }

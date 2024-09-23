@@ -102,7 +102,8 @@ export class UsuariosService {
         passwordhash: passwordHashBuffer,
         passwordsalt: saltBuffer,
         idTipo: tipoUsuario,
-        role: role
+        role: role,
+        areaSucursal: areaSucursal
       });
 
       await this.usuariosRepository.save(usuario);
