@@ -6,6 +6,7 @@ import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { UsuariosService } from '../usuarios/usuarios.service';
 import { CreateUsuarioDto } from '../usuarios/dto/create-usuario.dto';
 import { updateUsuarioEmpresaDto } from '../usuarios/dto/update-usuario-empresa.dto';
+import { UpdateUsuarioDto } from '../usuarios/dto/update-usuario.dto';
 
 @Controller('registro-informacion')
 export class RegistroInformacionController {
@@ -46,7 +47,6 @@ export class RegistroInformacionController {
       }
   
       let tipoUsuario;
-      let rol;
   
       if (createRegistroInformacionDto.idTipo === undefined || createRegistroInformacionDto.idTipo === null) {
         tipoUsuario = await this.usuariosService.getTipoUsuario();
@@ -111,29 +111,35 @@ export class RegistroInformacionController {
     
     try {
 
-       await this.registroInformacionService.update(+id, updateRegistroInformacionDto);
+      await this.registroInformacionService.update(+id, updateRegistroInformacionDto);
 
       let tipoUsuario;
   
       if (updateRegistroInformacionDto.idTipo === undefined || updateRegistroInformacionDto.idTipo === null) {
         tipoUsuario = await this.usuariosService.getTipoUsuario();
       } else {
-        tipoUsuario = await this.usuariosService.getTipoUsuarioById(updateRegistroInformacionDto.idTipo);
+        tipoUsuario = { id: updateRegistroInformacionDto.idTipo };
       }
 
-      let updateUsuarioDto: updateUsuarioEmpresaDto = {
+    if (updateRegistroInformacionDto.role_id === undefined || updateRegistroInformacionDto.role_id === null) {
+      tipoUsuario = await this.usuariosService.getTipoUsuario();
+    } else {
+      tipoUsuario = { id: updateRegistroInformacionDto.idTipo };
+    }
+  
+
+      let updateUsuarioDto: UpdateUsuarioDto = {
         nombres: updateRegistroInformacionDto.nombres,
         apellidos: updateRegistroInformacionDto.apellidos,
         email: updateRegistroInformacionDto.correo,
         telefono: updateRegistroInformacionDto.telefono,
         idTipo: tipoUsuario.id,
-        idEmpresas: updateRegistroInformacionDto.idEmpresas,
-        idSucursal: updateRegistroInformacionDto.idSucursal,
+        role_id: updateRegistroInformacionDto.role_id,
         idAreaSucursal: updateRegistroInformacionDto.idAreaSucursal,
         fotoPerfil: '',
       };
 
-      return await this.usuariosService.updateUserEmpresa(updateRegistroInformacionDto.idUsuario, updateUsuarioDto);
+      return await this.usuariosService.update(updateRegistroInformacionDto.idUsuario, updateUsuarioDto);
 
     } catch (error) {
       throw new HttpException(new GenericResponse('500', 'Error al editar', error), HttpStatus.INTERNAL_SERVER_ERROR);

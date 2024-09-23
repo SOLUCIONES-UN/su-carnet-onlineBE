@@ -280,16 +280,6 @@ export class RegistroInformacionService {
       usuario.estado = 0;
       await this.UsuariosRepository.save(usuario);
 
-      const usuarioRelacionEmpresa = await this.UsuariosRelacionEmpresasRepository.findOneBy({ idUsuario: usuario });
-
-      if (!usuarioRelacionEmpresa) {
-        return new GenericResponse('401', `UsuarioRelacion con ID ${id} not encontrado`, usuarioRelacionEmpresa);
-      }
-
-      usuarioRelacionEmpresa.estado = 0;
-
-      await this.UsuariosRelacionEmpresasRepository.save(usuarioRelacionEmpresa);
-
       RegistroInformacion.estado = 'INA';
       await this.RegistroInformacionRepository.save(RegistroInformacion);
 

@@ -202,111 +202,7 @@ export class UsuariosService {
 
     try {
 
-      const usuario = await this.usuariosRepository.findOne({ where: { id } });
-
-      if (!usuario) {
-        throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
-      }
-
-      if (updateUsuarioDto.idEmpresas && updateUsuarioDto.idEmpresas.length > 0) {
-
-        for (let i = 0; i < updateUsuarioDto.idEmpresas.length; i++) {
-
-          for (let i = 0; i < updateUsuarioDto.idSucursal.length; i++) {
-
-            for (let i = 0; i < updateUsuarioDto.idAreaSucursal.length; i++) {
-
-              const idempresa = updateUsuarioDto.idEmpresas[i];
-              const idSucursal = updateUsuarioDto.idSucursal[i];
-              const idAreaSucursal = updateUsuarioDto.idAreaSucursal[i];
-
-              const empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idempresa });
-              const sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: idSucursal });
-              const areaSucursal = await this.SucursalesAreasInformacionRepository.findOneBy({ id: idAreaSucursal });
-
-              const relacionesEncontradas = await this.UsuariosRelacionEmpresasRepository.find({
-                where: {
-                  idUsuario: usuario,
-                  // idEmpresa: empresa,
-                  // idSucursal: sucursal,
-                  // idAreaSucursal: areaSucursal
-                },
-              });
-
-              let relacionEncontrada: UsuariosRelacionEmpresas | null = null;
-
-              if (relacionesEncontradas.length > 0) {
-
-                relacionEncontrada = relacionesEncontradas[0];
-                relacionEncontrada.estado = 1;
-                // relacionEncontrada.idEmpresa = empresa;
-                // relacionEncontrada.idSucursal = sucursal;
-                relacionEncontrada.idAreaSucursal = areaSucursal;
-
-                await this.UsuariosRelacionEmpresasRepository.save(relacionesEncontradas);
-
-              }
-              else if (relacionesEncontradas.length === 0) {
-
-                const relacionUsuarioEmpresa = this.UsuariosRelacionEmpresasRepository.create({
-                  // idEmpresa: empresa,
-                  idUsuario: usuario,
-                  // idSucursal: sucursal,
-                  idAreaSucursal: areaSucursal
-                });
-                await this.UsuariosRelacionEmpresasRepository.save(relacionUsuarioEmpresa);
-              }
-            }
-          }
-
-        }
-
-      } else if (updateUsuarioDto.idEmpresas && updateUsuarioDto.idEmpresas.length === 0) {
-
-        const relacionesEncontradas = await this.UsuariosRelacionEmpresasRepository.find({
-          where: {
-            idUsuario: usuario
-          },
-        });
-
-        if (relacionesEncontradas.length > 0) {
-
-          relacionesEncontradas.forEach(async element => {
-            element.estado = 0;
-            await this.UsuariosRelacionEmpresasRepository.save(element);
-          });
-        }
-      }
-
-      if (updateUsuarioDto.idTipo !== undefined) {
-        const tipoUsuario = await this.tipos_usuariosRepository.findOne({ where: { id: updateUsuarioDto.idTipo } });
-        if (!tipoUsuario) {
-          throw new NotFoundException(`TipoUsuario con ID ${updateUsuarioDto.idTipo} no encontrado`);
-        }
-        usuario.idTipo = tipoUsuario;
-      }
-
-      for (const key in updateUsuarioDto) {
-        if (updateUsuarioDto.hasOwnProperty(key) && key !== 'idTipo' && key !== 'password' && key !== 'idEmpresas') {
-          usuario[key] = updateUsuarioDto[key];
-        }
-      }
-
-      await this.usuariosRepository.save(usuario);
-
-      return updateUsuarioDto;
-
-    } catch (error) {
-      this.handleDBException(error);
-    }
-  }
-
-
-  async updateUserEmpresa(id: number, updateUsuarioDto: updateUsuarioEmpresaDto) {
-
-    try {
-
-      const { idEmpresas, idSucursal, idAreaSucursal, ...infoData } = updateUsuarioDto;
+      const { idAreaSucursal, ...infoData } = updateUsuarioDto;
 
       const usuario = await this.usuariosRepository.findOne({ where: { id } });
 
@@ -320,41 +216,20 @@ export class UsuariosService {
         return new GenericResponse('400', `El tipoUsuario con Id ${updateUsuarioDto.idTipo} no encontrado`, null);
       }
 
-      const empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idEmpresas });
-
-      if (!empresa) {
-        return new GenericResponse('400', `La empresa con Id ${idEmpresas} no encontrado`, null);
-      }
-
-      const sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: idSucursal });
-
-      if (!sucursal) {
-        return new GenericResponse('400', `La sucursal con Id ${idSucursal} no encontrado`, null);
-      }
-
       const areaSucursal = await this.SucursalesAreasInformacionRepository.findOneBy({ id: idAreaSucursal });
 
       if (!areaSucursal) {
         return new GenericResponse('400', `La areaSucursal con Id ${idAreaSucursal} no encontrado`, null);
       }
 
+      const role = await this.RolesRepository.findOneBy({id: updateUsuarioDto.role_id});
+
       const updatedUsuario = this.usuariosRepository.merge(usuario, {
         ...infoData,
         idTipo: tipoUsuario,
+        role: role,
+        areaSucursal: areaSucursal
       });
-
-      const relacionUsuarioEmpresa = await this.UsuariosRelacionEmpresasRepository.findOne({
-        where: { idUsuario: usuario }
-      });
-
-      if (!relacionUsuarioEmpresa) return new GenericResponse('400', `No existe una relacion entre el usuario ${usuario.nombres} ${usuario.apellidos} y la empresa ${empresa.nombre}`, null);
-
-      relacionUsuarioEmpresa.idUsuario = usuario;
-      // relacionUsuarioEmpresa.idEmpresa = empresa;
-      // relacionUsuarioEmpresa.idSucursal = sucursal;
-      relacionUsuarioEmpresa.idAreaSucursal = areaSucursal;
-
-      await this.UsuariosRelacionEmpresasRepository.save(relacionUsuarioEmpresa);
 
       await this.usuariosRepository.save(updatedUsuario);
 
@@ -364,6 +239,70 @@ export class UsuariosService {
       return new GenericResponse('500', `Error al editar usuario de empresa `, error);
     }
   }
+
+
+  // async updateUserEmpresa(id: number, updateUsuarioDto: updateUsuarioEmpresaDto) {
+
+  //   try {
+
+  //     const { idEmpresas, idSucursal, idAreaSucursal, ...infoData } = updateUsuarioDto;
+
+  //     const usuario = await this.usuariosRepository.findOne({ where: { id } });
+
+  //     if (!usuario) {
+  //       return new GenericResponse('400', `El usuario con Id ${id} no encontrado`, null);
+  //     }
+
+  //     const tipoUsuario = await this.tipos_usuariosRepository.findOneBy({ id: updateUsuarioDto.idTipo });
+
+  //     if (!tipoUsuario) {
+  //       return new GenericResponse('400', `El tipoUsuario con Id ${updateUsuarioDto.idTipo} no encontrado`, null);
+  //     }
+
+  //     const empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idEmpresas });
+
+  //     if (!empresa) {
+  //       return new GenericResponse('400', `La empresa con Id ${idEmpresas} no encontrado`, null);
+  //     }
+
+  //     const sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: idSucursal });
+
+  //     if (!sucursal) {
+  //       return new GenericResponse('400', `La sucursal con Id ${idSucursal} no encontrado`, null);
+  //     }
+
+  //     const areaSucursal = await this.SucursalesAreasInformacionRepository.findOneBy({ id: idAreaSucursal });
+
+  //     if (!areaSucursal) {
+  //       return new GenericResponse('400', `La areaSucursal con Id ${idAreaSucursal} no encontrado`, null);
+  //     }
+
+  //     const updatedUsuario = this.usuariosRepository.merge(usuario, {
+  //       ...infoData,
+  //       idTipo: tipoUsuario,
+  //     });
+
+  //     const relacionUsuarioEmpresa = await this.UsuariosRelacionEmpresasRepository.findOne({
+  //       where: { idUsuario: usuario }
+  //     });
+
+  //     if (!relacionUsuarioEmpresa) return new GenericResponse('400', `No existe una relacion entre el usuario ${usuario.nombres} ${usuario.apellidos} y la empresa ${empresa.nombre}`, null);
+
+  //     relacionUsuarioEmpresa.idUsuario = usuario;
+  //     // relacionUsuarioEmpresa.idEmpresa = empresa;
+  //     // relacionUsuarioEmpresa.idSucursal = sucursal;
+  //     relacionUsuarioEmpresa.idAreaSucursal = areaSucursal;
+
+  //     await this.UsuariosRelacionEmpresasRepository.save(relacionUsuarioEmpresa);
+
+  //     await this.usuariosRepository.save(updatedUsuario);
+
+  //     return new GenericResponse('200', `EXITO`, updateUsuarioDto);
+
+  //   } catch (error) {
+  //     return new GenericResponse('500', `Error al editar usuario de empresa `, error);
+  //   }
+  // }
 
   async verifiUser(user: string): Promise<Usuarios> {
 
