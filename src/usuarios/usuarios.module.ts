@@ -11,11 +11,17 @@ import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
 import { ConfigModule } from '@nestjs/config';
 import { SucursalesInformacion } from '../entities/SucursalesInformacion';
 import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
+import { Roles } from '../entities/Roles';
+import { Permisosopciones } from '../entities/Permisosopciones';
+import { Menusprincipales } from '../entities/Menusprincipales';
+import { Opcionesmenu } from '../entities/Opcionesmenu';
 
 @Module({
 
   imports:[
-    TypeOrmModule.forFeature([Usuarios, EmpresasInformacion, TipoUsuario, Otps, UsuariosRelacionEmpresas, SucursalesInformacion, SucursalesAreasInformacion]),
+    TypeOrmModule.forFeature([Usuarios, EmpresasInformacion, TipoUsuario, Otps, UsuariosRelacionEmpresas, SucursalesInformacion, SucursalesAreasInformacion, Roles,
+      Permisosopciones, Menusprincipales, Opcionesmenu
+    ]),
     ConfigModule
   ],
 

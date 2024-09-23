@@ -95,9 +95,9 @@ export class AuthService {
 
         if (relacionEmpresa) {
 
-          if (relacionEmpresa.idSucursal) {
-            sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: relacionEmpresa.idSucursal.id });
-          }
+          // if (relacionEmpresa.idSucursal) {
+          //   sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: relacionEmpresa.idSucursal.id });
+          // }
   
           if (relacionEmpresa.idAreaSucursal) {
             areaSucursal = await this.SucursalesAreasInformacionRepository.findOneBy({ id: relacionEmpresa.idAreaSucursal.id });
@@ -220,13 +220,13 @@ export class AuthService {
               return new GenericResponse('401', `El usuario no esta relacionado a ninguna empresa`, null);
             }
 
-            if (relacionEmpresa.idSucursal) {
-              sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: relacionEmpresa.idSucursal.id });
-            }
+            // if (relacionEmpresa.idSucursal) {
+            //   sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: relacionEmpresa.idSucursal.id });
+            // }
 
-            if (relacionEmpresa.idAreaSucursal) {
-              areaSucursal = await this.SucursalesAreasInformacionRepository.findOneBy({ id: relacionEmpresa.idAreaSucursal.id });
-            }
+            // if (relacionEmpresa.idAreaSucursal) {
+            //   areaSucursal = await this.SucursalesAreasInformacionRepository.findOneBy({ id: relacionEmpresa.idAreaSucursal.id });
+            // }
         }
 
         const hashToCompare = bcrypt.hashSync(password, usuario.passwordsalt.toString('utf-8'));

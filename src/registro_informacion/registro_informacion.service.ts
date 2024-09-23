@@ -179,8 +179,8 @@ export class RegistroInformacionService {
       let areaSucursal: SucursalesAreasInformacion = null;
   
       if (relacionEmpresa) {
-        empresa = relacionEmpresa.idEmpresa || null;
-        sucursal = relacionEmpresa.idSucursal || null;
+        // empresa = relacionEmpresa.idEmpresa || null;
+        // sucursal = relacionEmpresa.idSucursal || null;
         areaSucursal = relacionEmpresa.idAreaSucursal || null;
       }
   
@@ -203,8 +203,7 @@ export class RegistroInformacionService {
     try {
 
       const RegistroInformacion = await this.RegistroInformacionRepository.find({
-        relations: ['idMunicipio', 'idUsuario.idTipo', 'idUsuario.usuariosRelacionEmpresas', 'idUsuario.usuariosRelacionEmpresas.idEmpresa',
-          'idUsuario.usuariosRelacionEmpresas.idSucursal', 'idUsuario.usuariosRelacionEmpresas.idAreaSucursal'],
+        relations: ['idMunicipio', 'idUsuario.idTipo','idUsuario.role', 'idUsuario.areaSucursal'],
       });
 
       return new GenericResponse('200', `EXITO`, RegistroInformacion);

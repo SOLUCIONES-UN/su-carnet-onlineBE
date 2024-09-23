@@ -13,6 +13,7 @@ import { SucursalesInformacion } from '../entities/SucursalesInformacion';
 import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
 import { updateUsuarioEmpresaDto } from './dto/update-usuario-empresa.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
+import { Roles } from '../entities/Roles';
 
 @Injectable()
 export class UsuariosService {
@@ -38,6 +39,9 @@ export class UsuariosService {
     @InjectRepository(SucursalesAreasInformacion)
     private SucursalesAreasInformacionRepository: Repository<SucursalesAreasInformacion>,
 
+    @InjectRepository(Roles)
+    private RolesRepository: Repository<Roles>,
+
   ) { }
 
 
@@ -55,28 +59,9 @@ export class UsuariosService {
 
     try {
 
-      const { password, idTipo, idEmpresas, idSucursal, idAreaSucursal, ...userInfo } = createUsuarioDto;
+      const { password, idTipo, idAreaSucursal, ...userInfo } = createUsuarioDto;
 
-      let empresa;
-      let sucursal;
       let areaSucursal;
-
-      // Validar empresas si existen
-      if (idEmpresas !== null && idEmpresas !== undefined) {
-
-        empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idEmpresas });
-        if (!empresa) {
-          throw new NotFoundException(`empresa con id ${idEmpresas} no encontrada`);
-        }
-      }
-
-      if (idSucursal !== null && idSucursal !== undefined) {
-        sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: idSucursal });
-
-        if (!sucursal) {
-          throw new NotFoundException(`sucursal con id ${idSucursal} no encontrada`);
-        }
-      }
 
       if (idAreaSucursal !== null && idAreaSucursal !== undefined) {
         areaSucursal = await this.SucursalesAreasInformacionRepository.findOneBy({ id: idAreaSucursal });
@@ -89,10 +74,18 @@ export class UsuariosService {
       // Buscar la relación TipoUsuario 
       const tipoUsuario = await this.tipos_usuariosRepository.findOne({ where: { id: idTipo } });
 
+      let role: Roles;
+
       if (!tipoUsuario) {
         throw new NotFoundException(`TipoUsuario con ID ${idTipo} no encontrado`);
       }
 
+      if (createUsuarioDto.role_id === undefined || createUsuarioDto.role_id === null) {
+        role = null;
+      } else {
+        role = await this.RolesRepository.findOneBy({ id: createUsuarioDto.role_id });
+      }
+    
       // Generar la passwordSalt
       const passwordSalt = bcrypt.genSaltSync(10);
 
@@ -109,21 +102,10 @@ export class UsuariosService {
         passwordhash: passwordHashBuffer,
         passwordsalt: saltBuffer,
         idTipo: tipoUsuario,
+        role: role
       });
 
       await this.usuariosRepository.save(usuario);
-
-      // Crear las relaciones entre usuario y empresas si existen
-      if (empresa) {
-        const UsuariosRelacionEmpresas = this.UsuariosRelacionEmpresasRepository.create({
-          idUsuario: usuario,
-          idEmpresa: empresa,
-          idSucursal: sucursal,
-          idAreaSucursal: areaSucursal
-        });
-
-        await this.UsuariosRelacionEmpresasRepository.save(UsuariosRelacionEmpresas);
-      }
 
       return usuario;
 
@@ -244,7 +226,7 @@ export class UsuariosService {
               const relacionesEncontradas = await this.UsuariosRelacionEmpresasRepository.find({
                 where: {
                   idUsuario: usuario,
-                  idEmpresa: empresa,
+                  // idEmpresa: empresa,
                   // idSucursal: sucursal,
                   // idAreaSucursal: areaSucursal
                 },
@@ -256,8 +238,8 @@ export class UsuariosService {
 
                 relacionEncontrada = relacionesEncontradas[0];
                 relacionEncontrada.estado = 1;
-                relacionEncontrada.idEmpresa = empresa;
-                relacionEncontrada.idSucursal = sucursal;
+                // relacionEncontrada.idEmpresa = empresa;
+                // relacionEncontrada.idSucursal = sucursal;
                 relacionEncontrada.idAreaSucursal = areaSucursal;
 
                 await this.UsuariosRelacionEmpresasRepository.save(relacionesEncontradas);
@@ -266,9 +248,9 @@ export class UsuariosService {
               else if (relacionesEncontradas.length === 0) {
 
                 const relacionUsuarioEmpresa = this.UsuariosRelacionEmpresasRepository.create({
-                  idEmpresa: empresa,
+                  // idEmpresa: empresa,
                   idUsuario: usuario,
-                  idSucursal: sucursal,
+                  // idSucursal: sucursal,
                   idAreaSucursal: areaSucursal
                 });
                 await this.UsuariosRelacionEmpresasRepository.save(relacionUsuarioEmpresa);
@@ -323,7 +305,7 @@ export class UsuariosService {
 
     try {
 
-      const {idEmpresas, idSucursal, idAreaSucursal, ...infoData} = updateUsuarioDto;
+      const { idEmpresas, idSucursal, idAreaSucursal, ...infoData } = updateUsuarioDto;
 
       const usuario = await this.usuariosRepository.findOne({ where: { id } });
 
@@ -361,14 +343,14 @@ export class UsuariosService {
       });
 
       const relacionUsuarioEmpresa = await this.UsuariosRelacionEmpresasRepository.findOne({
-        where: { idUsuario: usuario, idEmpresa: empresa }
+        where: { idUsuario: usuario }
       });
 
       if (!relacionUsuarioEmpresa) return new GenericResponse('400', `No existe una relacion entre el usuario ${usuario.nombres} ${usuario.apellidos} y la empresa ${empresa.nombre}`, null);
 
       relacionUsuarioEmpresa.idUsuario = usuario;
-      relacionUsuarioEmpresa.idEmpresa = empresa;
-      relacionUsuarioEmpresa.idSucursal = sucursal;
+      // relacionUsuarioEmpresa.idEmpresa = empresa;
+      // relacionUsuarioEmpresa.idSucursal = sucursal;
       relacionUsuarioEmpresa.idAreaSucursal = areaSucursal;
 
       await this.UsuariosRelacionEmpresasRepository.save(relacionUsuarioEmpresa);

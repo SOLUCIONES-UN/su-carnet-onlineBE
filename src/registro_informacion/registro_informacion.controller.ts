@@ -46,12 +46,19 @@ export class RegistroInformacionController {
       }
   
       let tipoUsuario;
+      let rol;
   
       if (createRegistroInformacionDto.idTipo === undefined || createRegistroInformacionDto.idTipo === null) {
         tipoUsuario = await this.usuariosService.getTipoUsuario();
       } else {
         tipoUsuario = { id: createRegistroInformacionDto.idTipo };
       }
+
+    if (createRegistroInformacionDto.role_id === undefined || createRegistroInformacionDto.role_id === null) {
+      tipoUsuario = await this.usuariosService.getTipoUsuario();
+    } else {
+      tipoUsuario = { id: createRegistroInformacionDto.idTipo };
+    }
   
       let createUsuarioDto: CreateUsuarioDto = {
         nombres: createRegistroInformacionDto.nombres,
@@ -59,10 +66,9 @@ export class RegistroInformacionController {
         email: createRegistroInformacionDto.correo,
         telefono: createRegistroInformacionDto.telefono,
         password: createRegistroInformacionDto.password,
-        idEmpresas: createRegistroInformacionDto.idEmpresas,
-        idSucursal: createRegistroInformacionDto.idSucursal,
         idAreaSucursal: createRegistroInformacionDto.idAreaSucursal,
         idTipo: tipoUsuario.id,
+        role_id: createRegistroInformacionDto.role_id,
         fotoPerfil: ''
       };
   

@@ -12,7 +12,9 @@ import { RegistroAfiliaciones } from "./RegistroAfiliaciones";
 import { RegistroColaboradores } from "./RegistroColaboradores";
 import { RegistroInformacion } from "./RegistroInformacion";
 import { TarjetaPresentacion } from "./TarjetaPresentacion";
+import { SucursalesAreasInformacion } from "./SucursalesAreasInformacion";
 import { TipoUsuario } from "./TipoUsuario";
+import { Roles } from "./Roles";
 import { UsuariosRelacionEmpresas } from "./UsuariosRelacionEmpresas";
 
 @Index("usuarios_pkey", ["id"], { unique: true })
@@ -79,9 +81,20 @@ export class Usuarios {
   )
   tarjetaPresentacions: TarjetaPresentacion[];
 
+  @ManyToOne(
+    () => SucursalesAreasInformacion,
+    (sucursalesAreasInformacion) => sucursalesAreasInformacion.usuarios
+  )
+  @JoinColumn([{ name: "areaSucursal_id", referencedColumnName: "id" }])
+  areaSucursal: SucursalesAreasInformacion;
+
   @ManyToOne(() => TipoUsuario, (tipoUsuario) => tipoUsuario.usuarios)
   @JoinColumn([{ name: "id_tipo", referencedColumnName: "id" }])
   idTipo: TipoUsuario;
+
+  @ManyToOne(() => Roles, (roles) => roles.usuarios)
+  @JoinColumn([{ name: "role_id", referencedColumnName: "id" }])
+  role: Roles;
 
   @OneToMany(
     () => UsuariosRelacionEmpresas,

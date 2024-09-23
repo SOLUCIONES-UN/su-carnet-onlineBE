@@ -11,6 +11,7 @@ import { AreasSucursalesDocumentos } from "./AreasSucursalesDocumentos";
 import { SucursalesAreasGruposInformacion } from "./SucursalesAreasGruposInformacion";
 import { SucursalesInformacion } from "./SucursalesInformacion";
 import { SucursalesAreasPuertas } from "./SucursalesAreasPuertas";
+import { Usuarios } from "./Usuarios";
 import { UsuariosRelacionEmpresas } from "./UsuariosRelacionEmpresas";
 
 @Index("sucursales_areas_informacion_pkey", ["id"], { unique: true })
@@ -80,6 +81,9 @@ export class SucursalesAreasInformacion {
     (sucursalesAreasPuertas) => sucursalesAreasPuertas.idSucursalArea
   )
   sucursalesAreasPuertas: SucursalesAreasPuertas[];
+
+  @OneToMany(() => Usuarios, (usuarios) => usuarios.areaSucursal)
+  usuarios: Usuarios[];
 
   @OneToMany(
     () => UsuariosRelacionEmpresas,
