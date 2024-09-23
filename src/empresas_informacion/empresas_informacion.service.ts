@@ -6,7 +6,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThan, Repository } from 'typeorm';
 import { Vendedores } from '../entities/Vendedores';
 import { PaginationDto } from '../common/dtos/pagination.dto';
-import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
 import { Usuarios } from '../entities/Usuarios';
 import { RegistroAfiliaciones } from '../entities/RegistroAfiliaciones';
 
@@ -177,6 +176,7 @@ export class EmpresasInformacionService {
         where: {
           idUsuario: usuario,
           idEmpresa: comercio,
+          estado: 'ACEP'
         },
       });
 
