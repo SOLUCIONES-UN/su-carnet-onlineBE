@@ -64,7 +64,7 @@ export class RegistroAfiliacionesService {
       })
 
       if(haySolicitud){
-        return new GenericResponse('401', 'Ya has enviado solicitud a esta empresa debes esperar asta que la empresa la acepte', []);
+        return new GenericResponse('403', 'Ya has enviado solicitud a esta empresa debes esperar asta que la empresa la acepte', []);
       }
 
 
