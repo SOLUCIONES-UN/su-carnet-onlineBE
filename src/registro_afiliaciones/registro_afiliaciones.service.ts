@@ -50,13 +50,23 @@ export class RegistroAfiliacionesService {
       }
 
       const verificarRegistro = await this.RegistroAfiliacionesRepository.findOne({
-        where: { idEmpresa: empresaInformacion, idUsuario: usuario },
+        where: { idEmpresa: empresaInformacion, idUsuario: usuario, estado:'ACEP' },
         relations: ['idEmpresa', 'idUsuario'],
       });
 
       if(verificarRegistro){
         return new GenericResponse('401', 'Ya estas afiliado a esta empresa', []);
       }
+
+      const haySolicitud = await this.RegistroAfiliacionesRepository.findOne({
+        where: { idEmpresa: empresaInformacion, idUsuario: usuario, estado:'PEN' },
+        relations: ['idEmpresa', 'idUsuario'],
+      })
+
+      if(haySolicitud){
+        return new GenericResponse('401', 'Ya has enviado solicitud a esta empresa debes esperar asta que la empresa la acepte', []);
+      }
+
 
       let fechaInicioAfiliacion = null;
 
