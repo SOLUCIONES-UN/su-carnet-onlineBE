@@ -6,14 +6,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Usuarios } from '../entities/Usuarios';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
-import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { Municipios } from '../entities/Municipios';
-import { instanceToPlain } from 'class-transformer';
 import * as bcrypt from 'bcrypt';
-import { read } from 'fs';
-import { SucursalesInformacion } from '../entities/SucursalesInformacion';
-import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
 
 @Injectable()
 export class RegistroInformacionService {
@@ -30,9 +25,6 @@ export class RegistroInformacionService {
 
     @InjectRepository(EmpresasInformacion)
     private EmpresasInformacionRepository: Repository<EmpresasInformacion>,
-
-    @InjectRepository(UsuariosRelacionEmpresas)
-    private UsuariosRelacionEmpresasRepository: Repository<UsuariosRelacionEmpresas>,
 
   ) { }
 

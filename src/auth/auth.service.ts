@@ -12,10 +12,7 @@ import { IsNull, Not, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { JwtPayload } from './interface/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
-import { GenerateToken } from './dto/generateToken.dto';
-import { use } from 'passport';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
-import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { TipoUsuario } from '../entities/TipoUsuario';
 import { SucursalesInformacion } from '../entities/SucursalesInformacion';
@@ -33,14 +30,8 @@ export class AuthService {
     @InjectRepository(EmpresasInformacion)
     private empresasRepository: Repository<EmpresasInformacion>,
 
-    @InjectRepository(UsuariosRelacionEmpresas)
-    private UsuariosRelacionEmpresasRepository: Repository<UsuariosRelacionEmpresas>,
-
     @InjectRepository(SucursalesInformacion)
     private SucursalesInformacionRepository: Repository<SucursalesInformacion>,
-
-    @InjectRepository(SucursalesAreasInformacion)
-    private SucursalesAreasInformacionRepository: Repository<SucursalesAreasInformacion>,
 
     @InjectRepository(TipoUsuario)
     private TipoUsuarioRepository: Repository<TipoUsuario>,

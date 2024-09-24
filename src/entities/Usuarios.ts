@@ -15,7 +15,6 @@ import { TarjetaPresentacion } from "./TarjetaPresentacion";
 import { SucursalesAreasInformacion } from "./SucursalesAreasInformacion";
 import { TipoUsuario } from "./TipoUsuario";
 import { Roles } from "./Roles";
-import { UsuariosRelacionEmpresas } from "./UsuariosRelacionEmpresas";
 
 @Index("usuarios_pkey", ["id"], { unique: true })
 @Entity("usuarios", { schema: "public" })
@@ -95,10 +94,4 @@ export class Usuarios {
   @ManyToOne(() => Roles, (roles) => roles.usuarios)
   @JoinColumn([{ name: "role_id", referencedColumnName: "id" }])
   role: Roles;
-
-  @OneToMany(
-    () => UsuariosRelacionEmpresas,
-    (usuariosRelacionEmpresas) => usuariosRelacionEmpresas.idUsuario
-  )
-  usuariosRelacionEmpresas: UsuariosRelacionEmpresas[];
 }

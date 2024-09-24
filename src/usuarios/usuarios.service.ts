@@ -8,7 +8,6 @@ import * as bcrypt from 'bcrypt';
 import { TipoUsuario } from '../entities/TipoUsuario';
 import { changePasswordDto } from './dto/changePasswordDto';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
-import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
 import { SucursalesInformacion } from '../entities/SucursalesInformacion';
 import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
 import { updateUsuarioEmpresaDto } from './dto/update-usuario-empresa.dto';
@@ -29,9 +28,6 @@ export class UsuariosService {
 
     @InjectRepository(EmpresasInformacion)
     private EmpresasInformacionRepository: Repository<EmpresasInformacion>,
-
-    @InjectRepository(UsuariosRelacionEmpresas)
-    private UsuariosRelacionEmpresasRepository: Repository<UsuariosRelacionEmpresas>,
 
     @InjectRepository(SucursalesInformacion)
     private SucursalesInformacionRepository: Repository<SucursalesInformacion>,
@@ -247,68 +243,6 @@ export class UsuariosService {
   }
 
 
-  // async updateUserEmpresa(id: number, updateUsuarioDto: updateUsuarioEmpresaDto) {
-
-  //   try {
-
-  //     const { idEmpresas, idSucursal, idAreaSucursal, ...infoData } = updateUsuarioDto;
-
-  //     const usuario = await this.usuariosRepository.findOne({ where: { id } });
-
-  //     if (!usuario) {
-  //       return new GenericResponse('400', `El usuario con Id ${id} no encontrado`, null);
-  //     }
-
-  //     const tipoUsuario = await this.tipos_usuariosRepository.findOneBy({ id: updateUsuarioDto.idTipo });
-
-  //     if (!tipoUsuario) {
-  //       return new GenericResponse('400', `El tipoUsuario con Id ${updateUsuarioDto.idTipo} no encontrado`, null);
-  //     }
-
-  //     const empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idEmpresas });
-
-  //     if (!empresa) {
-  //       return new GenericResponse('400', `La empresa con Id ${idEmpresas} no encontrado`, null);
-  //     }
-
-  //     const sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: idSucursal });
-
-  //     if (!sucursal) {
-  //       return new GenericResponse('400', `La sucursal con Id ${idSucursal} no encontrado`, null);
-  //     }
-
-  //     const areaSucursal = await this.SucursalesAreasInformacionRepository.findOneBy({ id: idAreaSucursal });
-
-  //     if (!areaSucursal) {
-  //       return new GenericResponse('400', `La areaSucursal con Id ${idAreaSucursal} no encontrado`, null);
-  //     }
-
-  //     const updatedUsuario = this.usuariosRepository.merge(usuario, {
-  //       ...infoData,
-  //       idTipo: tipoUsuario,
-  //     });
-
-  //     const relacionUsuarioEmpresa = await this.UsuariosRelacionEmpresasRepository.findOne({
-  //       where: { idUsuario: usuario }
-  //     });
-
-  //     if (!relacionUsuarioEmpresa) return new GenericResponse('400', `No existe una relacion entre el usuario ${usuario.nombres} ${usuario.apellidos} y la empresa ${empresa.nombre}`, null);
-
-  //     relacionUsuarioEmpresa.idUsuario = usuario;
-  //     // relacionUsuarioEmpresa.idEmpresa = empresa;
-  //     // relacionUsuarioEmpresa.idSucursal = sucursal;
-  //     relacionUsuarioEmpresa.idAreaSucursal = areaSucursal;
-
-  //     await this.UsuariosRelacionEmpresasRepository.save(relacionUsuarioEmpresa);
-
-  //     await this.usuariosRepository.save(updatedUsuario);
-
-  //     return new GenericResponse('200', `EXITO`, updateUsuarioDto);
-
-  //   } catch (error) {
-  //     return new GenericResponse('500', `Error al editar usuario de empresa `, error);
-  //   }
-  // }
 
   async verifiUser(user: string): Promise<Usuarios> {
 

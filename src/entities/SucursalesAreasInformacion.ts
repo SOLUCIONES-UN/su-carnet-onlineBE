@@ -12,7 +12,6 @@ import { SucursalesAreasGruposInformacion } from "./SucursalesAreasGruposInforma
 import { SucursalesInformacion } from "./SucursalesInformacion";
 import { SucursalesAreasPuertas } from "./SucursalesAreasPuertas";
 import { Usuarios } from "./Usuarios";
-import { UsuariosRelacionEmpresas } from "./UsuariosRelacionEmpresas";
 
 @Index("sucursales_areas_informacion_pkey", ["id"], { unique: true })
 @Entity("sucursales_areas_informacion", { schema: "public" })
@@ -84,10 +83,4 @@ export class SucursalesAreasInformacion {
 
   @OneToMany(() => Usuarios, (usuarios) => usuarios.areaSucursal)
   usuarios: Usuarios[];
-
-  @OneToMany(
-    () => UsuariosRelacionEmpresas,
-    (usuariosRelacionEmpresas) => usuariosRelacionEmpresas.idAreaSucursal
-  )
-  usuariosRelacionEmpresas: UsuariosRelacionEmpresas[];
 }

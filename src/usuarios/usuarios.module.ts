@@ -7,7 +7,6 @@ import { TipoUsuario } from '../entities/TipoUsuario';
 import { Otps } from '../entities/Otps';
 import { VerificacionUsuariosService } from '../verificacion_usuarios/verificacion_usuarios.service';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
-import { UsuariosRelacionEmpresas } from '../entities/UsuariosRelacionEmpresas';
 import { ConfigModule } from '@nestjs/config';
 import { SucursalesInformacion } from '../entities/SucursalesInformacion';
 import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
@@ -19,7 +18,7 @@ import { Opcionesmenu } from '../entities/Opcionesmenu';
 @Module({
 
   imports:[
-    TypeOrmModule.forFeature([Usuarios, EmpresasInformacion, TipoUsuario, Otps, UsuariosRelacionEmpresas, SucursalesInformacion, SucursalesAreasInformacion, Roles,
+    TypeOrmModule.forFeature([Usuarios, EmpresasInformacion, TipoUsuario, Otps, SucursalesInformacion, SucursalesAreasInformacion, Roles,
       Permisosopciones, Menusprincipales, Opcionesmenu, SucursalesAreasInformacion
     ]),
     ConfigModule
