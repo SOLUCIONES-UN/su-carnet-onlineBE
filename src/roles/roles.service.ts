@@ -32,19 +32,62 @@ export class RolesService {
     }
   }
 
-  findAll() {
-    return `This action returns all roles`;
+  async findAll() {
+
+    const roles = await this.RolesRepository.find({
+      where: { estado: 1 },
+    });
+    
+    return new GenericResponse('200', `EXITO`, roles);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} role`;
+
+  async findOne(id: number) {
+    return this.RolesRepository.findOneBy({ id });
   }
 
-  update(id: number, updateRoleDto: UpdateRoleDto) {
-    return `This action updates a #${id} role`;
+
+  async update(id: number, updateRoleDto: UpdateRoleDto) {
+    
+    try {
+  
+      const role = await this.RolesRepository.findOneBy({ id:id });
+
+      if (!role) {
+        return new GenericResponse('400', `No se encontro el rol`, []);
+      }
+  
+      const updateRole = this.RolesRepository.merge(role, {
+        descripcion: updateRoleDto.descripcion
+      });
+  
+      await this.RolesRepository.save(updateRole);
+  
+      return new GenericResponse('200', `EXITO`, updateRole);
+  
+    } catch (error) {
+      return new GenericResponse('500', `Error al editar`, error);
+    }
+
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} role`;
+  async remove(id: number) {
+    
+    try {
+
+      const role = await this.RolesRepository.findOneBy({id:id});
+
+      if (!role) {
+        return new GenericResponse('400', `No se encontro el rol`, []);
+      }
+
+      role.estado = 0;
+
+      return await this.RolesRepository.save(role);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error al eliminar`, error);
+    }
+
   }
 }
