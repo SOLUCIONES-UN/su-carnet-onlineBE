@@ -239,9 +239,18 @@ export class RegistroInformacionService {
       if (!usuario) return new GenericResponse('400', `usuario con id ${idUsuario} no encontrado `, []);
 
       const update_registro_informacion = this.RegistroInformacionRepository.merge(registro_informacion, {
-        ...infoData,
         idMunicipio: municipio,
-        idUsuario: usuario
+        idUsuario: usuario,
+        documento: updateRegistroInformacionDto.documento,
+        nombres: updateRegistroInformacionDto.nombres,
+        apellidos: updateRegistroInformacionDto.apellidos,
+        fechaNacimiento: updateRegistroInformacionDto.fechaNacimiento,
+        telefono: updateRegistroInformacionDto.telefono,
+        correo: updateRegistroInformacionDto.correo,
+        direccionRecidencia: updateRegistroInformacionDto.direccionRecidencia,
+        contactoEmergenciaNombre: updateRegistroInformacionDto.contactoEmergenciaNombre,
+        contactoEmergenciaTelefono: updateRegistroInformacionDto.contactoEmergenciaTelefono,
+        genero: updateRegistroInformacionDto.genero
       });
 
       await this.RegistroInformacionRepository.save(update_registro_informacion);
