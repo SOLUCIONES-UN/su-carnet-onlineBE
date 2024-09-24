@@ -30,6 +30,12 @@ export class DispositivosService {
         return new GenericResponse('400', `El usuario con Id ${createDispositivoDto.idusuario} no encontrado`, null);
       }
 
+      const existToken = await this.DispositivosRepository.findOneBy({tokendispositivo: createDispositivoDto.tokendispositivo});
+
+      if(existToken){
+        return new GenericResponse('4001', `El token de dispositivo ya existe`, null);
+      }
+
       const dispositivos = this.DispositivosRepository.create({
         idusuario: usuario,
         tokendispositivo: createDispositivoDto.tokendispositivo
