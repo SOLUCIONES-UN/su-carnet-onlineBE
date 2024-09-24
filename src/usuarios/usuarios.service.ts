@@ -13,6 +13,7 @@ import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformaci
 import { updateUsuarioEmpresaDto } from './dto/update-usuario-empresa.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { Roles } from '../entities/Roles';
+import { RegistroInformacion } from '../entities/RegistroInformacion';
 
 @Injectable()
 export class UsuariosService {
@@ -37,6 +38,9 @@ export class UsuariosService {
 
     @InjectRepository(Roles)
     private RolesRepository: Repository<Roles>,
+
+    @InjectRepository(RegistroInformacion)
+    private RegistroInformacionRepository: Repository<RegistroInformacion>,
 
   ) { }
 
@@ -235,7 +239,12 @@ export class UsuariosService {
 
       await this.usuariosRepository.save(updatedUsuario);
 
-      return new GenericResponse('200', `EXITO`, updateUsuarioDto);
+      const registroInformacion = await this.RegistroInformacionRepository.findOne({
+        where: {idUsuario:usuario},
+        relations: ['idUsuario.areaSucursal.idSucursal.idEmpresa']
+      })
+
+      return new GenericResponse('200', `EXITO`, registroInformacion);
 
     } catch (error) {
       return new GenericResponse('500', `Error al editar usuario de empresa `, error);

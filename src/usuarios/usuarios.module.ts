@@ -14,12 +14,13 @@ import { Roles } from '../entities/Roles';
 import { Permisosopciones } from '../entities/Permisosopciones';
 import { Menusprincipales } from '../entities/Menusprincipales';
 import { Opcionesmenu } from '../entities/Opcionesmenu';
+import { RegistroInformacion } from '../entities/RegistroInformacion';
 
 @Module({
 
   imports:[
     TypeOrmModule.forFeature([Usuarios, EmpresasInformacion, TipoUsuario, Otps, SucursalesInformacion, SucursalesAreasInformacion, Roles,
-      Permisosopciones, Menusprincipales, Opcionesmenu, SucursalesAreasInformacion
+      Permisosopciones, Menusprincipales, Opcionesmenu, SucursalesAreasInformacion, RegistroInformacion
     ]),
     ConfigModule
   ],

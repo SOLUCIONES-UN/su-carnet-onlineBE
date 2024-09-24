@@ -12,8 +12,10 @@ export class NotificacionesService {
   ) {}
   
   async sendNotification(createNotificacioneDto: CreateNotificacioneDto) {
+    
     try {
-      const messagingPayload: admin.messaging.MessagingPayload = {
+      const messagingPayload: admin.messaging.Message = {
+        token: createNotificacioneDto.token,
         notification: {
           title: createNotificacioneDto.payload.notification.title,
           body: createNotificacioneDto.payload.notification.body,
@@ -22,12 +24,12 @@ export class NotificacionesService {
           customDataKey: createNotificacioneDto.payload.data.customDataKey,
         },
       };
-      const response = await this.firebaseAdmin.messaging().sendToDevice(createNotificacioneDto.token, messagingPayload);
-      
+  
+      const response = await this.firebaseAdmin.messaging().send(messagingPayload);
+  
       return new GenericResponse('200', `EXITO`, response);
-
     } catch (error) {
-      return new GenericResponse('200', `EXITO`, error.message);
+      return new GenericResponse('500', `ERROR`, error.message);
     }
   }
 
