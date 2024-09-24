@@ -14,8 +14,8 @@ export class TiposCuentasController {
   }
 
   @Get()
-  findAll(@Query() paginationDto: PaginationDto) {
-    return this.tiposCuentasService.findAll(paginationDto);
+  findAll() {
+    return this.tiposCuentasService.findAll();
   }
 
   @Get(':id')

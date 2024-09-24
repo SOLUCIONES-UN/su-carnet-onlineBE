@@ -216,11 +216,17 @@ export class UsuariosService {
         return new GenericResponse('400', `El tipoUsuario con Id ${updateUsuarioDto.idTipo} no encontrado`, null);
       }
 
-      const areaSucursal = await this.SucursalesAreasInformacionRepository.findOneBy({ id: idAreaSucursal });
+      let areaSucursal: SucursalesAreasInformacion;
 
-      if (!areaSucursal) {
-        return new GenericResponse('400', `La areaSucursal con Id ${idAreaSucursal} no encontrado`, null);
+      if(updateUsuarioDto.idAreaSucursal!= null ){
+        areaSucursal = await this.SucursalesAreasInformacionRepository.findOneBy({ id: idAreaSucursal });
+
+        if (!areaSucursal) {
+          return new GenericResponse('400', `La areaSucursal con Id ${idAreaSucursal} no encontrado`, null);
+        }
       }
+
+      areaSucursal = null;
 
       const role = await this.RolesRepository.findOneBy({id: updateUsuarioDto.role_id});
 

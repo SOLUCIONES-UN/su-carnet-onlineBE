@@ -20,7 +20,7 @@ import { Opcionesmenu } from '../entities/Opcionesmenu';
 
   imports:[
     TypeOrmModule.forFeature([Usuarios, EmpresasInformacion, TipoUsuario, Otps, UsuariosRelacionEmpresas, SucursalesInformacion, SucursalesAreasInformacion, Roles,
-      Permisosopciones, Menusprincipales, Opcionesmenu
+      Permisosopciones, Menusprincipales, Opcionesmenu, SucursalesAreasInformacion
     ]),
     ConfigModule
   ],

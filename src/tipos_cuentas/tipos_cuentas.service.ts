@@ -35,14 +35,10 @@ export class TiposCuentasService {
     }
   }
 
-  async findAll(PaginationDto: PaginationDto) {
-
-    const { limit = 10, offset = 0 } = PaginationDto;
+  async findAll() {
 
     const Tiposcuentas = await this.TiposcuentasRepository.find({
       where: { estado: 1 },
-      skip: offset,
-      take: limit,
     });
     
     return new GenericResponse('200', `EXITO`, Tiposcuentas);
