@@ -2,8 +2,6 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpS
 import { SucursalesAreasInformacionService } from './sucursales_areas_informacion.service';
 import { CreateSucursalesAreasInformacionDto } from './dto/create-sucursales_areas_informacion.dto';
 import { UpdateSucursalesAreasInformacionDto } from './dto/update-sucursales_areas_informacion.dto';
-import { GenericResponse } from '../common/dtos/genericResponse.dto';
-import { PaginationDto } from '../common/dtos/pagination.dto';
 
 @Controller('sucursales-areas-informacion')
 export class SucursalesAreasInformacionController {
@@ -12,94 +10,45 @@ export class SucursalesAreasInformacionController {
   @Post()
   async create(@Body() createSucursalesAreasInformacionDto: CreateSucursalesAreasInformacionDto) {
     
-    try {
-
-      const result = await this.sucursalesAreasInformacionService.create(createSucursalesAreasInformacionDto);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al agregar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.sucursalesAreasInformacionService.create(createSucursalesAreasInformacionDto);
 
   }
 
   @Get()
-  async findAll(@Query() paginationDto: PaginationDto) {
+  async findAll() {
 
-    try {
-
-      const result = await this.sucursalesAreasInformacionService.findAll(paginationDto);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.sucursalesAreasInformacionService.findAll();
   }
 
   @Get('SucursalesAreasInformacion/:idSucursal')
-  async findAllBySucursal(@Param('idSucursal') idSucursal:string) {
+  async findAllBySucursal(@Param('idSucursal') idSucursal:number) {
 
-    try {
-
-      const result = await this.sucursalesAreasInformacionService.findAllBySucursalId(+idSucursal);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.sucursalesAreasInformacionService.findAllBySucursalId(idSucursal);
   }
 
   @Get('AreasBySucursalId/:idSucursal')
-  async AreasBySucursalId(@Param('idSucursal') idSucursal:string) {
+  async AreasBySucursalId(@Param('idSucursal') idSucursal:number) {
 
-    try {
-
-      const result = await this.sucursalesAreasInformacionService.AreasBySucursalId(+idSucursal);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.sucursalesAreasInformacionService.AreasBySucursalId(idSucursal);
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
 
-    try {
-
-      const result = await this.sucursalesAreasInformacionService.findOne(+id);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.sucursalesAreasInformacionService.findOne(+id);
   }
 
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateSucursalesAreasInformacionDto: UpdateSucursalesAreasInformacionDto) {
     
-    try {
-
-      const result = await this.sucursalesAreasInformacionService.update(+id, updateSucursalesAreasInformacionDto);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al editar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.sucursalesAreasInformacionService.update(+id, updateSucursalesAreasInformacionDto);
 
   }
 
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number) {
 
-    try {
-
-      const result = await this.sucursalesAreasInformacionService.remove(+id);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al eliminar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.sucursalesAreasInformacionService.remove(+id);
 
   }
   
