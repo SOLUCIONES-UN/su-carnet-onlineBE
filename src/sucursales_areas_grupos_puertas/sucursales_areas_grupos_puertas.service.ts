@@ -20,10 +20,10 @@ export class SucursalesAreasGruposPuertasService {
     @InjectRepository(SucursalesAreasGruposPuertas)
     private puertasRepository: Repository<SucursalesAreasGruposPuertas>,
 
-    @InjectRepository(EmpresasInformacion)
+    @InjectRepository(SucursalesAreasGruposInformacion)
     private AreasGruposInformacionRepository: Repository<SucursalesAreasGruposInformacion>,
 
-    @InjectRepository(SucursalesAreasGruposInformacion)
+    @InjectRepository(EmpresasInformacion)
     private EmpresasInformacionRepository: Repository<EmpresasInformacion>,
 
   ) { }
@@ -36,11 +36,13 @@ export class SucursalesAreasGruposPuertasService {
   
       const AreasPuertas = await this.SucursalesAreasPuertasRepository.findOneBy({ id: idPuerta });
   
-      if (!AreasPuertas) return new GenericResponse('400', `No se encontro AreasPuertas con id $${idPuerta}`, null);
+      if (!AreasPuertas) return new GenericResponse('400', `No se encontro AreasPuertas con id ${idPuerta}`, null);
 
       const AreasGruposInformacion = await this.AreasGruposInformacionRepository.findOneBy({id:idAreaGrupo});
 
-      if(!AreasGruposInformacion) return new GenericResponse('400', `No se encontro AreasGruposInformacion con id $${idAreaGrupo}`, null);
+      console.log(AreasGruposInformacion)
+
+      if(!AreasGruposInformacion) return new GenericResponse('400', `No se encontro AreasGruposInformacion con id ${idAreaGrupo}`, null);
 
       const estaAsignada = await this.puertasRepository.findOne({
         where: {idPuerta:AreasPuertas, idAreaGrupo:AreasGruposInformacion}
