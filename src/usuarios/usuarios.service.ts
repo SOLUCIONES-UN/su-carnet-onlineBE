@@ -221,24 +221,31 @@ export class UsuariosService {
 
       if(updateUsuarioDto.idAreaSucursal!= null ){
         areaSucursal = await this.SucursalesAreasInformacionRepository.findOneBy({ id: idAreaSucursal });
+        console.log(areaSucursal)
 
         if (!areaSucursal) {
           return new GenericResponse('400', `La areaSucursal con Id ${idAreaSucursal} no encontrada`, null);
         }
+
+      }else if(updateUsuarioDto.idAreaSucursal == null){
+        areaSucursal = null;
       }
 
-      areaSucursal = null;
+      console.log(areaSucursal)
 
       if(updateUsuarioDto.role_id !=null){
 
         role = await this.RolesRepository.findOneBy({id: updateUsuarioDto.role_id});
 
+        console.log(role)
+
         if (!role) {
           return new GenericResponse('400', `El rol con Id ${updateUsuarioDto.role_id} no encontrado`, null);
         }
-      }
 
-      role = null;
+      }else if(updateUsuarioDto.role_id == null){
+        role = null;
+      }
 
       const updatedUsuario = this.usuariosRepository.merge(usuario, {
         ...infoData,
@@ -251,7 +258,7 @@ export class UsuariosService {
 
       const registroInformacion = await this.RegistroInformacionRepository.findOne({
         where: {idUsuario:usuario},
-        relations: ['idUsuario.areaSucursal.idSucursal.idEmpresa']
+        relations: ['idUsuario.areaSucursal.idSucursal.idEmpresa', 'idUsuario.role']
       })
 
       return new GenericResponse('200', `EXITO`, registroInformacion);
