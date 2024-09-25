@@ -217,18 +217,28 @@ export class UsuariosService {
       }
 
       let areaSucursal: SucursalesAreasInformacion;
+      let role: Roles;
 
       if(updateUsuarioDto.idAreaSucursal!= null ){
         areaSucursal = await this.SucursalesAreasInformacionRepository.findOneBy({ id: idAreaSucursal });
 
         if (!areaSucursal) {
-          return new GenericResponse('400', `La areaSucursal con Id ${idAreaSucursal} no encontrado`, null);
+          return new GenericResponse('400', `La areaSucursal con Id ${idAreaSucursal} no encontrada`, null);
         }
       }
 
       areaSucursal = null;
 
-      const role = await this.RolesRepository.findOneBy({id: updateUsuarioDto.role_id});
+      if(updateUsuarioDto.role_id !=null){
+
+        role = await this.RolesRepository.findOneBy({id: updateUsuarioDto.role_id});
+
+        if (!areaSucursal) {
+          return new GenericResponse('400', `El rol con Id ${updateUsuarioDto.role_id} no encontrado`, null);
+        }
+      }
+
+      role = null;
 
       const updatedUsuario = this.usuariosRepository.merge(usuario, {
         ...infoData,

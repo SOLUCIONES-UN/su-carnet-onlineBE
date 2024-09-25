@@ -242,6 +242,7 @@ export class AuthService {
           telefono: usuario.telefono,
           id: usuario.id,
           tipoUsuario: usuario.idTipo,
+          role: usuario.role
         },
         registroInformacion,
         empresa: empresa ? {
