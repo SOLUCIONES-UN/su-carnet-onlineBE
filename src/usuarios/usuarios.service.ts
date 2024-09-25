@@ -233,7 +233,7 @@ export class UsuariosService {
 
         role = await this.RolesRepository.findOneBy({id: updateUsuarioDto.role_id});
 
-        if (!areaSucursal) {
+        if (!role) {
           return new GenericResponse('400', `El rol con Id ${updateUsuarioDto.role_id} no encontrado`, null);
         }
       }

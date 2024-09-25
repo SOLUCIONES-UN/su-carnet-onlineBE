@@ -120,12 +120,6 @@ export class RegistroInformacionController {
       } else {
         tipoUsuario = { id: updateRegistroInformacionDto.idTipo };
       }
-
-    if (updateRegistroInformacionDto.role_id === undefined || updateRegistroInformacionDto.role_id === null) {
-      tipoUsuario = await this.usuariosService.getTipoUsuario();
-    } else {
-      tipoUsuario = { id: updateRegistroInformacionDto.idTipo };
-    }
   
 
       let updateUsuarioDto: UpdateUsuarioDto = {
