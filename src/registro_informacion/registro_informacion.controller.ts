@@ -100,6 +100,11 @@ export class RegistroInformacionController {
     return  await this.registroInformacionService.findAllByEmpresa(idEmpresa);
   }
 
+  @Get('usuariosByEmpresa/:idEmpresa/:idSucursal/:idArea')
+  async usuariosByEmpresa(@Param('idEmpresa') idEmpresa:number, @Param('idSucursal') idSucursal:number, @Param('idArea') idArea:number) {
+    return  await this.registroInformacionService.usuariosByEmpresa(idEmpresa, idSucursal, idArea);
+  }
+
   @Get('findAllByUsuario/:idUsuario')
   async findAllByUsuario(@Param('idUsuario') idUsuario: number) {
     return await this.registroInformacionService.findAllByUsuario(idUsuario);

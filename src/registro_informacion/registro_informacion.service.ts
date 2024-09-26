@@ -219,6 +219,59 @@ export class RegistroInformacionService {
     }
   }
 
+  async usuariosByEmpresa(idEmpresa: number, idSucursal: number, idAreaSucursal: number) {
+
+    try {
+      const whereConditions: any = {
+        estado: 'ACT',
+      };
+  
+      if (idEmpresa && idEmpresa !== 0) {
+        whereConditions.idUsuario = {
+          areaSucursal: {
+            idSucursal: {
+              idEmpresa: {
+                id: idEmpresa,
+              },
+            },
+          },
+        };
+      }
+  
+      if (idSucursal && idSucursal !== 0) {
+        whereConditions.idUsuario = {
+          areaSucursal: {
+            idSucursal: {
+              id: idSucursal,
+            },
+          },
+        };
+      }
+  
+      if (idAreaSucursal && idAreaSucursal !== 0) {
+        whereConditions.idUsuario = {
+          areaSucursal: {
+            id: idAreaSucursal,
+          },
+        };
+      }
+  
+      const registroInformacion = await this.RegistroInformacionRepository.find({
+        where: whereConditions,
+        relations: [
+          'idMunicipio.iddepartamento.idpais',
+          'idUsuario.idTipo',
+          'idUsuario.role',
+          'idUsuario.areaSucursal.idSucursal.idEmpresa',
+        ],
+      });
+  
+      return new GenericResponse('200', `ÉXITO`, registroInformacion);
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error.message);
+    }
+  }
+
 
   async update(id: number, updateRegistroInformacionDto: UpdateRegistroInformacionDto) {
 
