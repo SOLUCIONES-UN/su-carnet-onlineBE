@@ -5,6 +5,7 @@ import { Vendedores } from '../entities/Vendedores';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
 @Injectable()
 export class VendedoresService {
@@ -21,52 +22,64 @@ export class VendedoresService {
   async create(createVendedoreDto: CreateVendedoreDto) {
     
     try {
+
+      const existCodigo = await this.vendedoresRepository.findOneBy({codigo:createVendedoreDto.codigo});
+
+      if(existCodigo) return new GenericResponse('400', `El codugo para empleado ya se esta utilizando`, null);
+
       const vendedor = this.vendedoresRepository.create(createVendedoreDto);
 
       await this.vendedoresRepository.save(vendedor);
 
-      return vendedor;
+      return new GenericResponse('200', `EXITO`, vendedor);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error al editar usuario de empresa `, error);
     }
   }
 
-  async findAll(PaginationDto: PaginationDto) {
-    const { limit = 10, offset = 0 } = PaginationDto;
+  async findAll() {
 
-    const vendedores = await this.vendedoresRepository.find({
-      where: { estado: 1 },
-      skip: offset,
-      take: limit,
-    });
-    
-    return vendedores;
+    try {
+      
+      const vendedores = await this.vendedoresRepository.find({
+        where: { estado: 1 },
+      });
+      
+      return new GenericResponse('200', `EXITO`, vendedores);
+    } catch (error) {
+      return new GenericResponse('500', `Error al editar usuario de empresa `, error);
+    }
   }
 
   async findOne(id: number) {
-    return this.vendedoresRepository.findOneBy({ id });
+    
+    try {
+
+      const vendedor = await this.vendedoresRepository.findOneBy({ id });
+      return new GenericResponse('200', `EXITO`, vendedor);
+
+    } catch (error) {
+      return new GenericResponse('500', `Error al editar usuario de empresa `, error);
+    }
   }
 
   async update(id: number, updateVendedoreDto: UpdateVendedoreDto) {
 
     try {
-      // Buscar el vendedor por ID
+
       const vendedor = await this.vendedoresRepository.findOneBy({ id });
-      if (!vendedor) {
-        throw new NotFoundException(`Vendedor con ID ${id} no encontrado`);
-      }
+      if (!vendedor) return new GenericResponse('404', `Vendedor con id ${id} no encontrado `, []);
   
-      // Actualizar los campos del vendedor con los valores del DTO
       Object.assign(vendedor, updateVendedoreDto);
   
       // Guardar los cambios
       await this.vendedoresRepository.save(vendedor);
   
-      return vendedor;
+      return new GenericResponse('200', `EXITO`, vendedor);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error al editar usuario de empresa `, error);
     }
   }
 
@@ -74,25 +87,18 @@ export class VendedoresService {
 
     try {
 
-      const vendedor = await this.findOne(id);
+      const vendedor = await this.vendedoresRepository.findOneBy({id:id});
 
-      if (!vendedor) {
-        throw new NotFoundException(`vendedor con ID ${id} no encontrado`);
-      }
+      if (!vendedor) return new GenericResponse('404', `Vendedor con id ${id} no encontrado `, []);
 
       vendedor.estado = 0;
-      return await this.vendedoresRepository.save(vendedor);
+      await this.vendedoresRepository.save(vendedor);
+
+      return new GenericResponse('200', `EXITO`, vendedor);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `Error al editar usuario de empresa `, error);
     }
   }
 
-
-  private handleDBException(error: any) {
-    if (error.code === '23505') throw new BadRequestException(error.detail);
-
-    this.logger.error(`Error : ${error.message}`);
-    throw new InternalServerErrorException('Error ');
-  }
 }

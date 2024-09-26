@@ -12,69 +12,34 @@ export class VendedoresController {
   @Post()
   async create(@Body() createVendedoreDto: CreateVendedoreDto) {
     
-    try {
-      
-      const result = await this.vendedoresService.create(createVendedoreDto);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al agregar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.vendedoresService.create(createVendedoreDto);
 
   }
 
   @Get()
-  async findAll(@Query() paginationDto: PaginationDto) {
+  async findAll() {
     
-    try {
-
-      const result = await this.vendedoresService.findAll(paginationDto);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.vendedoresService.findAll();
 
   }
 
   @Get(':id')
   async findOne(@Param('id') id: string) {
 
-    try {
-
-      const result = await this.vendedoresService.findOne(+id);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al consultar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.vendedoresService.findOne(+id);
   }
 
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateVendedoreDto: UpdateVendedoreDto) {
     
-    try {
-
-      const result = await this.vendedoresService.update(+id, updateVendedoreDto);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al editar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.vendedoresService.update(+id, updateVendedoreDto);
 
   }
 
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number) {
 
-    try {
-
-      const result = await this.vendedoresService.remove(+id);
-      return new GenericResponse('200', 'EXITO', result);
-
-    } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'Error al eliminar', error), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    return await this.vendedoresService.remove(+id);
 
   }
   
