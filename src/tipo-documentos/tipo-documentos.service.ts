@@ -50,7 +50,7 @@ export class TipoDocumentosService {
   }
 
   async existDocumentoInicial(descripcion: string) {
-    return this.TipoDocumentosRepository.findOneBy({ descripcion });
+    return this.TipoDocumentosRepository.findOne({ where: {descripcion: descripcion, estado:1} });
   }
 
 
