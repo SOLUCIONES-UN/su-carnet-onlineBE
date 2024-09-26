@@ -23,11 +23,7 @@ export class SucursalesInformacion {
   @Column("character varying", { name: "direccion", length: 100 })
   direccion: string;
 
-  @Column("character varying", {
-    name: "informacion_general",
-    nullable: true,
-    length: 250,
-  })
+  @Column("text", { name: "informacion_general", nullable: true })
   informacionGeneral: string | null;
 
   @Column("character varying", {

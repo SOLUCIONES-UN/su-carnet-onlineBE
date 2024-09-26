@@ -29,6 +29,9 @@ export class Opcionesmenu {
   @Column("integer", { name: "state", default: () => "1" })
   state: number;
 
+  @Column("character varying", { name: "icono", length: 200 })
+  icono: string;
+
   @ManyToOne(
     () => Menusprincipales,
     (menusprincipales) => menusprincipales.opcionesmenus
