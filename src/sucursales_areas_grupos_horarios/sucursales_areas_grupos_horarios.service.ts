@@ -51,7 +51,9 @@ export class SucursalesAreasGruposHorariosService {
       if (!SucursalesAreasGruposInformacion) return new GenericResponse('400',`SucursalesAreasGruposInformacion con ID ${idAreaGrupo} no encontrada`, []);
 
       
-      const existeHorarioGrupo = await this.SucursalesAreasGruposHorariosRepository.findOneBy({idAreaGrupo: SucursalesAreasGruposInformacion});
+      const existeHorarioGrupo = await this.SucursalesAreasGruposHorariosRepository.findOne({
+        where: {idAreaGrupo: SucursalesAreasGruposInformacion, diaSemana: createSucursalesAreasGruposHorarioDto.diaSemana}
+      });
 
       if(existeHorarioGrupo) return new GenericResponse('401', `Ya existe un horario apra este grupo`, SucursalesAreasGruposInformacion);
 
