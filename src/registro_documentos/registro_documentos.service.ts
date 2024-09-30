@@ -23,6 +23,7 @@ import {
 import { Usuarios } from '../entities/Usuarios';
 import { waitForDebugger } from 'inspector';
 import { UpdateRegistroDocumentoDto } from './dto/update-registro_documento.dto';
+import { use } from 'passport';
 
 @Injectable()
 export class RegistroDocumentosService {
@@ -225,18 +226,7 @@ export class RegistroDocumentosService {
 
     try {
 
-      let usuario: Usuarios;
-
-      // Determinar si es email o teléfono y buscar usuario
-      if (this.isEmail(user)) {
-        usuario = await this.userRepository.findOne({
-          where: { email: user, estado: 2 },
-        });
-      } else if (this.isPhoneNumber(user)) {
-        usuario = await this.userRepository.findOne({
-          where: { telefono: user, estado: 2 },
-        });
-      }
+      const usuario = await this.userRepository.findOneBy({telefono: user});
 
       if (!usuario) {
         throw new NotFoundException(
