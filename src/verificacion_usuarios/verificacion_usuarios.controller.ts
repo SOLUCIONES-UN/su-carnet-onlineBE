@@ -20,6 +20,13 @@ export class VerificacionUsuariosController {
       }
 
       const otpGenerado = this.verificacionUsuariosService.generateRandomCode();
+
+      const existOtpGenerado = await this.verificacionUsuariosService.existOtpGenerado(CreateVerificacionUsuarioDto.correoElectronico);
+
+      if(existOtpGenerado){
+        await this.verificacionUsuariosService.remove(existOtpGenerado.codigo);
+      }
+
       const result = await this.verificacionUsuariosService.GenerarOtp(CreateVerificacionUsuarioDto.correoElectronico, otpGenerado);
 
       if(result == false){

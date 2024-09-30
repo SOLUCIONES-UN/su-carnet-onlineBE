@@ -73,6 +73,15 @@ export class VerificacionUsuariosService {
     return true;
   }
 
+  async existOtpGenerado(correo: string){
+
+    const usuario = await this.usuariosRepository.findOneBy({email:correo});
+
+    const existeOtp = await this.verificacionUsuariosRepository.findOneBy({correo: usuario.email});
+
+    return existeOtp;
+  }
+
   
   async sendEmail(correoDestino: string, otp: string, action:string): Promise<boolean> {
 
@@ -185,13 +194,6 @@ export class VerificacionUsuariosService {
       codeVerification += randomDigit.toString();
     }
     return codeVerification;
-  }
-
-  private handleDBException(error: any) {
-    if (error.code === '23505') throw new BadRequestException(error.detail);
-
-    this.logger.error(`Error : ${error.message}`);
-    throw new InternalServerErrorException('Error ');
   }
 
 }

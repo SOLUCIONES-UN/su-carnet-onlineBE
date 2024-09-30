@@ -25,7 +25,7 @@ export class VendedoresService {
 
       const existCodigo = await this.vendedoresRepository.findOneBy({codigo:createVendedoreDto.codigo});
 
-      if(existCodigo) return new GenericResponse('400', `El codugo para empleado ya se esta utilizando`, null);
+      if(existCodigo) return new GenericResponse('400', `El codigo para empleado ya se esta utilizando`, null);
 
       const vendedor = this.vendedoresRepository.create(createVendedoreDto);
 
