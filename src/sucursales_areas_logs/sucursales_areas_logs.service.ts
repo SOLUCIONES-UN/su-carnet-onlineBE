@@ -197,6 +197,13 @@ export class SucursalesAreasLogsService {
         cita.estado = logVisitas.estado;
         await this.SucursalesAreasPermisosRepository.save(cita);
       }
+
+      const citaActual = await this.SucursalesAreasPermisosRepository.findOneBy({id:logVisitas.idSucursalAreaPermiso.id});
+
+      if(citaActual){
+        citaActual.estado = logVisitas.estado;
+        await this.SucursalesAreasPermisosRepository.save(citaActual);
+      }
     
       return logVisitas;
   
