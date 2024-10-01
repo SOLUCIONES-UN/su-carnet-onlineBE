@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class NotificationDto {
@@ -28,8 +28,9 @@ class PayloadDto {
 }
 
 export class CreateNotificacioneDto {
-  @IsString()
-  @IsNotEmpty({ message: 'El campo token es requerido' })
+  @IsArray()
+  @IsString({ each: true })  // Asegura que cada elemento del array sea un string
+  @IsNotEmpty({ message: 'El campo tokens es requerido' })
   tokens: string[];
 
   @ValidateNested()

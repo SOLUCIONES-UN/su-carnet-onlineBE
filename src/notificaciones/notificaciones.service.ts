@@ -35,9 +35,14 @@ export class NotificacionesService {
 
   async sendNotification(createNotificacioneDto: CreateNotificacioneDto) {
     try {
+      // Verifica que el array de tokens no esté vacío
+      if (!createNotificacioneDto.tokens || createNotificacioneDto.tokens.length === 0) {
+        throw new Error('El array de tokens debe contener al menos un token');
+      }
+  
       // Prepara el payload de la notificación
       const messagingPayload: admin.messaging.MulticastMessage = {
-        tokens: createNotificacioneDto.tokens,  
+        tokens: createNotificacioneDto.tokens,  // Un array con los tokens de los dispositivos
         notification: {
           title: createNotificacioneDto.payload.notification.title,
           body: createNotificacioneDto.payload.notification.body,

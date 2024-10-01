@@ -5,13 +5,17 @@ import { RegistroAfiliaciones } from '../entities/RegistroAfiliaciones';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Usuarios } from '../entities/Usuarios';
+import { Dispositivos } from '../entities/Dispositivos';
+import { NotificacionesService } from '../notificaciones/notificaciones.service';
+import { FirebaseAdminModule } from '../firebase-admin/firebase-admin.module'
 
 @Module({
   imports:[
-    TypeOrmModule.forFeature([EmpresasInformacion, RegistroAfiliaciones, Usuarios]),
+    FirebaseAdminModule,
+    TypeOrmModule.forFeature([EmpresasInformacion, RegistroAfiliaciones, Usuarios, Dispositivos]),
   ],
 
   controllers: [RegistroAfiliacionesController],
-  providers: [RegistroAfiliacionesService],
+  providers: [RegistroAfiliacionesService, NotificacionesService],
 })
 export class RegistroAfiliacionesModule {}
