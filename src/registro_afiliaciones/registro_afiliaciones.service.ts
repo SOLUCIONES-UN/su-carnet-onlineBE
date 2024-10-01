@@ -162,45 +162,23 @@ export class RegistroAfiliacionesService {
     }
   }
 
-  async AceptarAfiliacion(
-    id: number,
-    updateRegistroAfiliacioneDto: UpdateRegistroAfiliacioneDto,
-  ) {
+  async AceptarAfiliacion(id: number, updateRegistroAfiliacioneDto: UpdateRegistroAfiliacioneDto) {
+
     try {
-      const usuario = await this.UsuariosRepository.findOneBy({
-        id: updateRegistroAfiliacioneDto.idUsuario,
-      });
 
-      if (!usuario)
-        return new GenericResponse(
-          '400',
-          `usuario con id ${updateRegistroAfiliacioneDto.idUsuario} no encontrado`,
-          [],
-        );
+      const usuario = await this.UsuariosRepository.findOneBy({id: updateRegistroAfiliacioneDto.idUsuario});
 
-      const empresaInformacion = await this.empresaRepository.findOneBy({
-        id: updateRegistroAfiliacioneDto.idEmpresa,
-      });
+      if (!usuario)return new GenericResponse('400',`usuario con id ${updateRegistroAfiliacioneDto.idUsuario} no encontrado`,[]);
 
-      if (!empresaInformacion)
-        return new GenericResponse(
-          '400',
-          `Empresa con id ${updateRegistroAfiliacioneDto.idEmpresa} no encontrada`,
-          [],
-        );
+      const empresaInformacion = await this.empresaRepository.findOneBy({id: updateRegistroAfiliacioneDto.idEmpresa});
 
-      const RegistroAfiliacion =
-        await this.RegistroAfiliacionesRepository.findOneBy({ id });
+      if (!empresaInformacion)return new GenericResponse('400',`Empresa con id ${updateRegistroAfiliacioneDto.idEmpresa} no encontrada`,[]);
+        
+      const RegistroAfiliacion = await this.RegistroAfiliacionesRepository.findOneBy({ id });
 
-      if (!RegistroAfiliacion)
-        return new GenericResponse(
-          '400',
-          `RegistroAfiliacion con id ${id} no encontrado`,
-          [],
-        );
+      if (!RegistroAfiliacion) return new GenericResponse('400',`RegistroAfiliacion con id ${id} no encontrado`,[]);
 
-      const updateRegistroAfiliacion =
-        this.RegistroAfiliacionesRepository.merge(RegistroAfiliacion, {
+      const updateRegistroAfiliacion = this.RegistroAfiliacionesRepository.merge(RegistroAfiliacion, {
           idEmpresa: empresaInformacion,
           idUsuario: usuario,
           fechaInicio: new Date(),
