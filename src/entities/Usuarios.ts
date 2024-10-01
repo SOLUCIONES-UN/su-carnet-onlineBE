@@ -8,6 +8,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Dispositivos } from "./Dispositivos";
+import { Notificaciones } from "./Notificaciones";
 import { RegistroAfiliaciones } from "./RegistroAfiliaciones";
 import { RegistroColaboradores } from "./RegistroColaboradores";
 import { RegistroInformacion } from "./RegistroInformacion";
@@ -55,6 +56,9 @@ export class Usuarios {
 
   @OneToMany(() => Dispositivos, (dispositivos) => dispositivos.idusuario)
   dispositivos: Dispositivos[];
+
+  @OneToMany(() => Notificaciones, (notificaciones) => notificaciones.idusuario)
+  notificaciones: Notificaciones[];
 
   @OneToMany(
     () => RegistroAfiliaciones,

@@ -30,7 +30,7 @@ class PayloadDto {
 export class CreateNotificacioneDto {
   @IsString()
   @IsNotEmpty({ message: 'El campo token es requerido' })
-  token: string;
+  tokens: string[];
 
   @ValidateNested()
   @Type(() => PayloadDto)
