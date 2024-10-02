@@ -2,6 +2,10 @@ import { Inject, Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import { CreateNotificacioneDto } from './dto/create-notificacione.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
+import { Notificaciones } from '../entities/Notificaciones';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Usuarios } from '../entities/Usuarios';
 
 
 @Injectable()
@@ -9,40 +13,20 @@ export class NotificacionesService {
   
   constructor(
     @Inject('FIREBASE_ADMIN') private readonly firebaseAdmin: admin.app.App,
-  ) {}
-  
-  // async sendNotification(createNotificacioneDto: CreateNotificacioneDto) {
+
+    @InjectRepository(Notificaciones)
+    private NotificacionesRepository: Repository<Notificaciones>,
     
-  //   try {
-  //     const messagingPayload: admin.messaging.Message = {
-  //       token: createNotificacioneDto.token,
-  //       notification: {
-  //         title: createNotificacioneDto.payload.notification.title,
-  //         body: createNotificacioneDto.payload.notification.body,
-  //       },
-  //       data: {
-  //         customDataKey: createNotificacioneDto.payload.data.customDataKey,
-  //       },
-  //     };
-  
-  //     const response = await this.firebaseAdmin.messaging().send(messagingPayload);
-  
-  //     return new GenericResponse('200', `EXITO`, response);
-  //   } catch (error) {
-  //     return new GenericResponse('500', `ERROR`, error.message);
-  //   }
-  // }
+  ) {}
 
   async sendNotification(createNotificacioneDto: CreateNotificacioneDto) {
     try {
-      // Verifica que el array de tokens no esté vacío
       if (!createNotificacioneDto.tokens || createNotificacioneDto.tokens.length === 0) {
         throw new Error('El array de tokens debe contener al menos un token');
       }
-  
-      // Prepara el payload de la notificación
+
       const messagingPayload: admin.messaging.MulticastMessage = {
-        tokens: createNotificacioneDto.tokens,  // Un array con los tokens de los dispositivos
+        tokens: createNotificacioneDto.tokens,  
         notification: {
           title: createNotificacioneDto.payload.notification.title,
           body: createNotificacioneDto.payload.notification.body,
@@ -52,7 +36,6 @@ export class NotificacionesService {
         },
       };
   
-      // Envía la notificación usando sendEachForMulticast
       const response = await this.firebaseAdmin.messaging().sendEachForMulticast(messagingPayload);
   
       // Verifica cuántos envíos fueron exitosos y cuántos fallaron
@@ -67,6 +50,27 @@ export class NotificacionesService {
       }
   
       return new GenericResponse('200', `EXITO`, response);
+    } catch (error) {
+      return new GenericResponse('500', `ERROR`, error.message);
+    }
+  }
+
+  async saveNotification(notificacionDto: CreateNotificacioneDto, idUsuario: Usuarios){
+
+    try {
+
+      const notificacion = this.NotificacionesRepository.create({
+        title: notificacionDto.payload.notification.title,
+        fechaGeneracion:  new Date(),
+        body: notificacionDto.payload.notification.body,
+        idusuario: idUsuario,
+        dispatch: notificacionDto.payload.data.dispatch
+      });
+  
+      await this.NotificacionesRepository.save(notificacion);
+
+      return new GenericResponse('200', `EXITO`, []);
+
     } catch (error) {
       return new GenericResponse('500', `ERROR`, error.message);
     }

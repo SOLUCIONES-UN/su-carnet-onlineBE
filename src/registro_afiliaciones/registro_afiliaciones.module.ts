@@ -8,11 +8,12 @@ import { Usuarios } from '../entities/Usuarios';
 import { Dispositivos } from '../entities/Dispositivos';
 import { NotificacionesService } from '../notificaciones/notificaciones.service';
 import { FirebaseAdminModule } from '../firebase-admin/firebase-admin.module'
+import { Notificaciones } from '../entities/Notificaciones';
 
 @Module({
   imports:[
     FirebaseAdminModule,
-    TypeOrmModule.forFeature([EmpresasInformacion, RegistroAfiliaciones, Usuarios, Dispositivos]),
+    TypeOrmModule.forFeature([EmpresasInformacion, RegistroAfiliaciones, Usuarios, Dispositivos, Notificaciones]),
   ],
 
   controllers: [RegistroAfiliacionesController],

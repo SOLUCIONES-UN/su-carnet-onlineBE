@@ -43,23 +43,6 @@ export class SucursalesAreasLogsController {
   
       if (result.estado === "APL") {
 
-        // tokenObtenido.forEach(async element => {
-        //   const createNotificacioneDto: CreateNotificacioneDto = {
-        //     token: element.tokendispositivo,
-        //     payload: {
-        //       notification: {
-        //         title: 'Confirmacion de Cita',
-        //         body: 'Acceso confirmado puede continuar',
-        //       },
-        //       data: {
-        //         customDataKey: 'customDataValue'
-        //       }
-        //     }
-        //   };
-    
-        //   await this.notificacionesService.sendNotification(createNotificacioneDto);
-        // });
-
         let tokensDispositivos: string[];
 
         tokenObtenido.forEach(element => {
@@ -74,6 +57,7 @@ export class SucursalesAreasLogsController {
               body: 'Acceso confirmado puede continuar',
             },
             data: {
+              dispatch: "cita_aceptada",
               customDataKey: 'customDataValue'
             }
           }
@@ -83,23 +67,7 @@ export class SucursalesAreasLogsController {
 
       } else if (result.estado === "RECH") {
 
-        // tokenObtenido.forEach(async element => {
-        //   const createNotificacioneDto: CreateNotificacioneDto = {
-        //     token: element.tokendispositivo,
-        //     payload: {
-        //       notification: {
-        //         title: 'Confirmacion de Cita',
-        //         body: 'Acceso denegado cita rechazada' 
-        //       },
-        //       data: {
-        //         customDataKey: 'customDataValue'
-        //       }
-        //     }
-        //   };
-          
-        //   await this.notificacionesService.sendNotification(createNotificacioneDto);
-        // });
-
+  
         let tokensDispositivos: string[];
 
         tokenObtenido.forEach(element => {
@@ -114,6 +82,7 @@ export class SucursalesAreasLogsController {
               body: 'Acceso denegado cita rechazada' 
             },
             data: {
+              dispatch: "cita_rechazada",
               customDataKey: 'customDataValue'
             }
           }

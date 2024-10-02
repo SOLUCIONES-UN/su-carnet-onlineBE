@@ -23,6 +23,12 @@ export class Notificaciones {
   @Column("integer", { name: "estado", default: () => "1" })
   estado: number;
 
+  @Column("character varying", { name: "dispatch", length: 200 })
+  dispatch: string;
+
+  @Column("timestamp without time zone", { name: "fecha_generacion" })
+  fechaGeneracion: Date;
+
   @ManyToOne(() => Usuarios, (usuarios) => usuarios.notificaciones)
   @JoinColumn([{ name: "idusuario", referencedColumnName: "id" }])
   idusuario: Usuarios;

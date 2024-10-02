@@ -34,6 +34,7 @@ export class RegistroAfiliacionesService {
     private DispositivosRepository: Repository<Dispositivos>,
 
     private readonly notificacionesService: NotificacionesService,
+
   ) { }
 
   async create(createRegistroAfiliacioneDto: CreateRegistroAfiliacioneDto) {
@@ -144,13 +145,16 @@ export class RegistroAfiliacionesService {
         payload: {
           notification: {
             title: 'Solicitud Afiliacion',
-            body: `Usuario ${usuario.nombres} ${usuario.apellidos} ha enviado una solicitud de afiliacion`,
+            body: `${usuario.nombres} ${usuario.apellidos} ha enviado una solicitud de afiliacion Por favor, revisa los detalles para proceder con la aprobación.`,
           },
           data: {
+            dispatch: "verificar_afiliacion",
             customDataKey: 'customDataValue',
           },
         },
       };
+
+      await this.notificacionesService.saveNotification(createNotificacioneDto, usuario);
 
       const result = await this.notificacionesService.sendNotification(createNotificacioneDto);
 
@@ -198,9 +202,10 @@ export class RegistroAfiliacionesService {
         payload: {
           notification: {
             title: 'Solicitud Afiliacion',
-            body: `La empresa ${empresaInformacion.nombre} acepto tu solicitud de afiliacion `,
+            body: `La empresa ${empresaInformacion.nombre} ha aceptado tu solicitud de afiliacion `,
           },
           data: {
+            dispatch: "afiliacion_aceptada",
             customDataKey: 'customDataValue',
           },
         },

@@ -15,6 +15,10 @@ class DataDto {
   @IsString()
   @IsNotEmpty({ message: 'El campo customDataKey es requerido' })
   customDataKey: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'El campo dispatch es requerido' })
+  dispatch : string;
 }
 
 class PayloadDto {
