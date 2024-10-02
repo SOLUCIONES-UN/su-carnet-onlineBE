@@ -32,6 +32,7 @@ export class NotificacionesService {
           body: createNotificacioneDto.payload.notification.body,
         },
         data: {
+          dispatch: createNotificacioneDto.payload.data.dispatch,
           customDataKey: createNotificacioneDto.payload.data.customDataKey,
         },
       };
