@@ -21,9 +21,7 @@ import {
   CompareFacesCommand,
 } from '@aws-sdk/client-rekognition';
 import { Usuarios } from '../entities/Usuarios';
-import { waitForDebugger } from 'inspector';
 import { UpdateRegistroDocumentoDto } from './dto/update-registro_documento.dto';
-import { use } from 'passport';
 
 @Injectable()
 export class RegistroDocumentosService {
@@ -118,7 +116,7 @@ export class RegistroDocumentosService {
       const tipoDocumento = await this.TipoDocumentosRepository.findOneBy({id: createRegistroDocumentoDto.idTipoDocumento});
       
       return await this.RegistroDocumentosRepository.findOne({
-        where: {idRegistroInformacion: registroInformacion, idTipoDocumento: tipoDocumento}
+        where: {idRegistroInformacion: registroInformacion, idTipoDocumento: tipoDocumento, estado: 'ACT'}
       });
     } catch (error) {
       this.handleDBException(error);

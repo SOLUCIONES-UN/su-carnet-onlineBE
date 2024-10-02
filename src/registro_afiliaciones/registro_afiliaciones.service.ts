@@ -34,7 +34,7 @@ export class RegistroAfiliacionesService {
     private DispositivosRepository: Repository<Dispositivos>,
 
     private readonly notificacionesService: NotificacionesService,
-  ) {}
+  ) { }
 
   async create(createRegistroAfiliacioneDto: CreateRegistroAfiliacioneDto) {
     try {
@@ -128,11 +128,11 @@ export class RegistroAfiliacionesService {
       const dispositivos = await this.DispositivosRepository.createQueryBuilder(
         'dispositivo',
       )
-        .innerJoinAndSelect('dispositivo.idusuario', 'usuario') // Unimos con la tabla de usuarios
+        .innerJoinAndSelect('dispositivo.idusuario', 'usuario')
         .where('usuario.id IN (:...usuarioIds)', {
           usuarioIds: usuarios.map((usuario) => usuario.id),
         })
-        .distinct(true) // Asegura que los resultados sean únicos
+        .distinct(true)
         .getMany();
 
       const tokensDispositivos: string[] = dispositivos.map(
@@ -144,7 +144,7 @@ export class RegistroAfiliacionesService {
         payload: {
           notification: {
             title: 'Solicitud Afiliacion',
-            body: `Usuario ${usuario.nombres } ${usuario.apellidos} ha enviado una solicitud de afiliacion`,
+            body: `Usuario ${usuario.nombres} ${usuario.apellidos} ha enviado una solicitud de afiliacion`,
           },
           data: {
             customDataKey: 'customDataValue',
@@ -166,28 +166,51 @@ export class RegistroAfiliacionesService {
 
     try {
 
-      const usuario = await this.UsuariosRepository.findOneBy({id: updateRegistroAfiliacioneDto.idUsuario});
+      const usuario = await this.UsuariosRepository.findOneBy({ id: updateRegistroAfiliacioneDto.idUsuario });
 
-      if (!usuario)return new GenericResponse('400',`usuario con id ${updateRegistroAfiliacioneDto.idUsuario} no encontrado`,[]);
+      if (!usuario) return new GenericResponse('400', `usuario con id ${updateRegistroAfiliacioneDto.idUsuario} no encontrado`, []);
 
-      const empresaInformacion = await this.empresaRepository.findOneBy({id: updateRegistroAfiliacioneDto.idEmpresa});
+      const empresaInformacion = await this.empresaRepository.findOneBy({ id: updateRegistroAfiliacioneDto.idEmpresa });
 
-      if (!empresaInformacion)return new GenericResponse('400',`Empresa con id ${updateRegistroAfiliacioneDto.idEmpresa} no encontrada`,[]);
-        
+      if (!empresaInformacion) return new GenericResponse('400', `Empresa con id ${updateRegistroAfiliacioneDto.idEmpresa} no encontrada`, []);
+
       const RegistroAfiliacion = await this.RegistroAfiliacionesRepository.findOneBy({ id });
 
-      if (!RegistroAfiliacion) return new GenericResponse('400',`RegistroAfiliacion con id ${id} no encontrado`,[]);
+      if (!RegistroAfiliacion) return new GenericResponse('400', `RegistroAfiliacion con id ${id} no encontrado`, []);
 
       const updateRegistroAfiliacion = this.RegistroAfiliacionesRepository.merge(RegistroAfiliacion, {
-          idEmpresa: empresaInformacion,
-          idUsuario: usuario,
-          fechaInicio: new Date(),
-          estado: updateRegistroAfiliacioneDto.estado,
-        });
+        idEmpresa: empresaInformacion,
+        idUsuario: usuario,
+        fechaInicio: new Date(),
+        estado: updateRegistroAfiliacioneDto.estado,
+      });
+
+      const dispositivos = await this.DispositivosRepository.find({
+        where: {idusuario: usuario}
+      })
+
+      const tokensDispositivos: string[] = dispositivos.map(
+        (dispositivo) => dispositivo.tokendispositivo,
+      );
+
+      const createNotificacioneDto: CreateNotificacioneDto = {
+        tokens: tokensDispositivos,
+        payload: {
+          notification: {
+            title: 'Solicitud Afiliacion',
+            body: `La empresa ${empresaInformacion.nombre} acepto tu solicitud de afiliacion `,
+          },
+          data: {
+            customDataKey: 'customDataValue',
+          },
+        },
+      };
+
+      const result = await this.notificacionesService.sendNotification(createNotificacioneDto);
 
       await this.RegistroAfiliacionesRepository.save(updateRegistroAfiliacion);
 
-      return new GenericResponse('200', `EXITO`, updateRegistroAfiliacion);
+      return new GenericResponse('200', `EXITO`, result);
     } catch (error) {
       return new GenericResponse('500', `Error al crear `, error);
     }
