@@ -6,6 +6,8 @@ import { Notificaciones } from '../entities/Notificaciones';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Usuarios } from '../entities/Usuarios';
+import { updateStateDto } from './dto/updateState.dto';
+import { constructNow } from 'date-fns';
 
 
 @Injectable()
@@ -97,6 +99,27 @@ export class NotificacionesService {
       })
 
       return new GenericResponse('200', `EXITO`, notificaciones);
+
+    } catch (error) {
+      return new GenericResponse('500', `ERROR`, error.message);
+    }
+  }
+
+  async updateState(updateState: updateStateDto){
+
+    try {
+      
+      updateState.idsNotificaciones.forEach(async element => {
+        
+        const notificacion = await this.NotificacionesRepository.findOneBy({id:element});
+
+        if(!notificacion) return new GenericResponse('404', `Notifiacion con id ${element} no encontrado `, []);
+
+        notificacion.estado = updateState.estado;
+        await this.NotificacionesRepository.save(notificacion);
+      });
+
+      return new GenericResponse('200', `EXITO`, []);
 
     } catch (error) {
       return new GenericResponse('500', `ERROR`, error.message);

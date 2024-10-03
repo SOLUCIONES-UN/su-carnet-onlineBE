@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { NotificacionesService } from './notificaciones.service';
 import { CreateNotificacioneDto } from './dto/create-notificacione.dto';
+import { updateStateDto } from './dto/updateState.dto';
 
 @Controller('notificaciones')
 export class NotificacionesController {
@@ -14,5 +15,10 @@ export class NotificacionesController {
   @Get(':idUsuario')
   GetByUsuario(@Param('idUsuario') idUsuario: number) {
     return this.notificacionesService.GetByUsuario(idUsuario);
+  }
+
+  @Patch()
+  update(@Body() updateState: updateStateDto) {
+    return this.notificacionesService.updateState(updateState);
   }
 }
