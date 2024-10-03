@@ -114,9 +114,7 @@ export class RegistroAfiliacionesService {
         estado: createRegistroAfiliacioneDto.estado,
       });
 
-      const usuarios = await this.UsuariosRepository.createQueryBuilder(
-        'usuario',
-      )
+      const usuarios = await this.UsuariosRepository.createQueryBuilder('usuario')
         .innerJoinAndSelect('usuario.areaSucursal', 'areaSucursal')
         .innerJoinAndSelect('areaSucursal.idSucursal', 'sucursal')
         .innerJoinAndSelect('sucursal.idEmpresa', 'empresa')
@@ -125,6 +123,14 @@ export class RegistroAfiliacionesService {
         })
         .andWhere('usuario.estado = :estado', { estado: 2 })
         .getMany();
+
+      // Verifica si usuarios no está vacío
+      if (usuarios.length === 0) {
+        
+        await this.RegistroAfiliacionesRepository.save(RegistroAfiliaciones);
+
+        return new GenericResponse('200', `EXITO`, RegistroAfiliaciones);
+      }
 
       const dispositivos = await this.DispositivosRepository.createQueryBuilder(
         'dispositivo',
@@ -154,9 +160,8 @@ export class RegistroAfiliacionesService {
         },
       };
 
-      await this.notificacionesService.saveNotification(createNotificacioneDto, usuario);
-
       const result = await this.notificacionesService.sendNotification(createNotificacioneDto);
+      await this.notificacionesService.saveNotification(createNotificacioneDto, usuario.id);
 
       await this.RegistroAfiliacionesRepository.save(RegistroAfiliaciones);
 
@@ -190,7 +195,7 @@ export class RegistroAfiliacionesService {
       });
 
       const dispositivos = await this.DispositivosRepository.find({
-        where: {idusuario: usuario}
+        where: { idusuario: usuario }
       })
 
       const tokensDispositivos: string[] = dispositivos.map(
@@ -212,6 +217,7 @@ export class RegistroAfiliacionesService {
       };
 
       const result = await this.notificacionesService.sendNotification(createNotificacioneDto);
+      await this.notificacionesService.saveNotification(createNotificacioneDto, usuario.id);
 
       await this.RegistroAfiliacionesRepository.save(updateRegistroAfiliacion);
 

@@ -16,6 +16,9 @@ export class NotificacionesService {
 
     @InjectRepository(Notificaciones)
     private NotificacionesRepository: Repository<Notificaciones>,
+
+    @InjectRepository(Usuarios)
+    private UsuariosRepository: Repository<Usuarios>,
     
   ) {}
 
@@ -56,15 +59,17 @@ export class NotificacionesService {
     }
   }
 
-  async saveNotification(notificacionDto: CreateNotificacioneDto, idUsuario: Usuarios){
+  async saveNotification(notificacionDto: CreateNotificacioneDto, idUsuario: number){
 
     try {
+
+      const usuario = await this.UsuariosRepository.findOneBy({id:idUsuario});
 
       const notificacion = this.NotificacionesRepository.create({
         title: notificacionDto.payload.notification.title,
         fechaGeneracion:  new Date(),
         body: notificacionDto.payload.notification.body,
-        idusuario: idUsuario,
+        idusuario: usuario,
         dispatch: notificacionDto.payload.data.dispatch
       });
   

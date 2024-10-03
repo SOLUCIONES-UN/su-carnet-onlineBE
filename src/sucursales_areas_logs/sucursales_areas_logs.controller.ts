@@ -64,6 +64,7 @@ export class SucursalesAreasLogsController {
         };
   
         await this.notificacionesService.sendNotification(createNotificacioneDto);
+        await this.notificacionesService.saveNotification(createNotificacioneDto, updateSucursalesAreasLogDto.idUsuario);
 
       } else if (result.estado === "RECH") {
 
@@ -89,6 +90,7 @@ export class SucursalesAreasLogsController {
         };
         
         await this.notificacionesService.sendNotification(createNotificacioneDto);
+        await this.notificacionesService.saveNotification(createNotificacioneDto, updateSucursalesAreasLogDto.idUsuario);
       }
   
       return new GenericResponse('200', 'EXITO', result);
