@@ -82,4 +82,25 @@ export class NotificacionesService {
     }
   }
 
+  
+  async GetByUsuario(idUsuario:number){
+
+    try {
+      
+      const usuario = await this.UsuariosRepository.findOneBy({id:idUsuario});
+
+      if(!usuario) return new GenericResponse('404', `usuario no encontrado`, []);
+
+      const notificaciones = await this.NotificacionesRepository.find({
+        where: {idusuario: usuario},
+        relations: ['idusuario']
+      })
+
+      return new GenericResponse('200', `EXITO`, notificaciones);
+
+    } catch (error) {
+      return new GenericResponse('500', `ERROR`, error.message);
+    }
+  }
+
 }

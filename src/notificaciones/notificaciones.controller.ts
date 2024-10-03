@@ -10,4 +10,9 @@ export class NotificacionesController {
   async sendNotification(@Body() createNotificacioneDto: CreateNotificacioneDto) {
     return this.notificacionesService.sendNotification(createNotificacioneDto);
   }
+
+  @Get(':idUsuario')
+  GetByUsuario(@Param('idUsuario') idUsuario: number) {
+    return this.notificacionesService.GetByUsuario(idUsuario);
+  }
 }
