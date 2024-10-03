@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TipoCategoriasServicios } from '../entities/TipoCategoriasServicios';
 import { PaginationDto } from '../common/dtos/pagination.dto';
+import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
 @Injectable()
 export class TipoServiciosService {
@@ -35,13 +36,9 @@ export class TipoServiciosService {
 
       const categoria = await this.categoriaRepository.findOneBy({id: idCategoria});
   
-      if (!empresa) {
-        throw new NotFoundException(`Empresa con ID ${idEmpresa} no encontrada`);
-      }
+      if (!empresa) return new GenericResponse('404', `Empresa con ID ${idEmpresa} no encontrada `, []);
 
-      if (!categoria) {
-        throw new NotFoundException(`categoria con ID ${idCategoria} no encontrada`);
-      }
+      if (!categoria) return new GenericResponse('404', `categoria con ID ${idCategoria} no encontrada `, []);
   
       const tipo_servicio = this.TipoServiciosRepository.create({
         ...infoData,
@@ -51,30 +48,60 @@ export class TipoServiciosService {
   
       await this.TipoServiciosRepository.save(tipo_servicio);
   
-      return tipo_servicio; 
+      return new GenericResponse('200', `EXITO`, tipo_servicio);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `ERROR`, error.message);
     }
 
   }
 
-  async findAll(PaginationDto: PaginationDto) {
+  async findAll() {
 
-    const { limit = 10, offset = 0 } = PaginationDto;
+    try {
+      
+      const tipo_servicios = await this.TipoServiciosRepository.find({
+        where: { estado: 1 },
+        relations: ['idEmpresa', 'idCategoria'],
+      });
+      
+      return new GenericResponse('200', `EXITO`, tipo_servicios);
 
-    const tipo_servicios = await this.TipoServiciosRepository.find({
-      where: { estado: 1 },
-      skip: offset,
-      take: limit,
-      relations: ['idEmpresa', 'idCategoria'],
-    });
-    
-    return tipo_servicios;
+    } catch (error) {
+      return new GenericResponse('500', `ERROR`, error.message);
+    }
+  }
+
+  async findAllByEmpresa(idEmpresa:number) {
+
+    try {
+
+      const empresa = await this.empresaRepository.findOneBy({id:idEmpresa});
+
+      if(!empresa) return new GenericResponse('404', `Empresa no encontrada`, []);
+      
+      const tipo_servicios = await this.TipoServiciosRepository.find({
+        where: { estado: 1, idEmpresa:empresa },
+        relations: ['idEmpresa', 'idCategoria'],
+      });
+      
+      return new GenericResponse('200', `EXITO`, tipo_servicios);
+
+    } catch (error) {
+      return new GenericResponse('500', `ERROR`, error.message);
+    }
   }
 
   async findOne(id: number) {
-    return this.TipoServiciosRepository.findOneBy({ id });
+    
+    try {
+      
+      const tipo_servicios = await this.TipoServiciosRepository.findOneBy({ id });
+      return new GenericResponse('200', `EXITO`, tipo_servicios);
+
+    } catch (error) {
+      return new GenericResponse('500', `ERROR`, error.message);
+    }
   }
 
   async update(id: number, updateTipoServicioDto: UpdateTipoServicioDto) {
@@ -84,21 +111,15 @@ export class TipoServiciosService {
   
       const tipo_servicio = await this.TipoServiciosRepository.findOneBy({ id });
 
-      if (!tipo_servicio) {
-        throw new NotFoundException(`tipo_servicio con ID ${id} no encontrada`);
-      }
+      if (!tipo_servicio) return new GenericResponse('404', `tipo servicio con ID ${id} no encontrad `, []);
   
       const empresa = await this.empresaRepository.findOneBy({ id: idEmpresa });
 
       const categoria = await this.categoriaRepository.findOneBy({id: idCategoria});
 
-      if (!empresa) {
-        throw new NotFoundException(`empresa con ID ${idEmpresa} no encontrada`);
-      }
+      if (!empresa) return new GenericResponse('404', `Empresa con ID ${idEmpresa} no encontrada `, []);
 
-      if (!categoria) {
-        throw new NotFoundException(`categoria con ID ${idCategoria} no encontrada`);
-      }
+      if (!categoria) return new GenericResponse('404', `categoria con ID ${idCategoria} no encontrada `, []);
   
       const update_tipo_servicio = this.TipoServiciosRepository.merge(tipo_servicio, {
         ...infoData,
@@ -106,13 +127,12 @@ export class TipoServiciosService {
         idCategoria: categoria
       });
   
-      // Guardar los cambios en la base de datos
       await this.TipoServiciosRepository.save(update_tipo_servicio);
   
-      return update_tipo_servicio;
+      return new GenericResponse('200', `EXITO`, update_tipo_servicio);
   
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `ERROR`, error.message);
     }
 
   }
@@ -121,25 +141,17 @@ export class TipoServiciosService {
     
     try {
       
-      const tipo_servicio = await this.findOne(id);
+      const tipo_servicio = await this.TipoServiciosRepository.findOneBy({id:id});
 
-      if(!tipo_servicio){
-        throw new NotFoundException(`tipo_servicio con ID ${id} not encontrada`);
-      }
+      if(!tipo_servicio) return new GenericResponse('404', `tipo servicio con ID ${id} no encontrad `, []);
 
       tipo_servicio.estado = 0;
       return await this.TipoServiciosRepository.save(tipo_servicio);
 
     } catch (error) {
-      this.handleDBException(error);
+      return new GenericResponse('500', `ERROR`, error.message);
     }
   }
 
-  private handleDBException(error: any) {
-    if (error.code === '23505') throw new BadRequestException(error.detail);
-
-    this.logger.error(`Error : ${error.message}`);
-    throw new InternalServerErrorException('Error ');
-  }
   
 }
