@@ -5,14 +5,19 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 import { Usuarios } from '../entities/Usuarios';
 import { RegistroColaboradores } from '../entities/RegistroColaboradores';
+import { Dispositivos } from '../entities/Dispositivos';
+import { NotificacionesService } from '../notificaciones/notificaciones.service';
+import { FirebaseAdminModule } from '../firebase-admin/firebase-admin.module';
+import { Notificaciones } from '../entities/Notificaciones';
 
 @Module({
 
   imports:[
-    TypeOrmModule.forFeature([EmpresasInformacion, RegistroColaboradores, Usuarios]),
+    FirebaseAdminModule,
+    TypeOrmModule.forFeature([EmpresasInformacion, RegistroColaboradores, Usuarios, Dispositivos, Notificaciones]),
   ],
   
   controllers: [RegistroColaboradoresController],
-  providers: [RegistroColaboradoresService],
+  providers: [RegistroColaboradoresService, NotificacionesService],
 })
 export class RegistroColaboradoresModule {}

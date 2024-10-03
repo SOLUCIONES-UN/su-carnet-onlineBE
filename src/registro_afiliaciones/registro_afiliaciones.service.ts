@@ -202,26 +202,46 @@ export class RegistroAfiliacionesService {
         (dispositivo) => dispositivo.tokendispositivo,
       );
 
-      const createNotificacioneDto: CreateNotificacioneDto = {
-        tokens: tokensDispositivos,
-        payload: {
-          notification: {
-            title: 'Solicitud Afiliacion',
-            body: `La empresa ${empresaInformacion.nombre} ha aceptado tu solicitud de afiliacion `,
+      if(updateRegistroAfiliacioneDto.estado == 'ACEP'){
+        const createNotificacioneDto: CreateNotificacioneDto = {
+          tokens: tokensDispositivos,
+          payload: {
+            notification: {
+              title: 'Solicitud Afiliacion',
+              body: `La empresa ${empresaInformacion.nombre} ha aceptado tu solicitud de afiliacion `,
+            },
+            data: {
+              dispatch: "afiliacion_aceptada",
+              customDataKey: 'customDataValue',
+            },
           },
-          data: {
-            dispatch: "afiliacion_aceptada",
-            customDataKey: 'customDataValue',
-          },
-        },
-      };
+        };
+  
+        await this.notificacionesService.sendNotification(createNotificacioneDto);
+        await this.notificacionesService.saveNotification(createNotificacioneDto, usuario.id);
 
-      const result = await this.notificacionesService.sendNotification(createNotificacioneDto);
-      await this.notificacionesService.saveNotification(createNotificacioneDto, usuario.id);
+      }else if(updateRegistroAfiliacioneDto.estado == 'RECH'){
+        const createNotificacioneDto: CreateNotificacioneDto = {
+          tokens: tokensDispositivos,
+          payload: {
+            notification: {
+              title: 'Solicitud Afiliacion',
+              body: `La empresa ${empresaInformacion.nombre} ha rechazado tu solicitud de afiliacion `,
+            },
+            data: {
+              dispatch: "afiliacion_rechazada",
+              customDataKey: 'customDataValue',
+            },
+          },
+        };
+  
+        await this.notificacionesService.sendNotification(createNotificacioneDto);
+        await this.notificacionesService.saveNotification(createNotificacioneDto, usuario.id);
+      }
 
       await this.RegistroAfiliacionesRepository.save(updateRegistroAfiliacion);
 
-      return new GenericResponse('200', `EXITO`, result);
+      return new GenericResponse('200', `EXITO`, updateRegistroAfiliacion);
     } catch (error) {
       return new GenericResponse('500', `Error al crear `, error);
     }
