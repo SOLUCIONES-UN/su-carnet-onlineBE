@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
+import { SucursalesAreasPuertas } from '../entities/SucursalesAreasPuertas';
 
 @Injectable()
 export class SucursalesAreasInformacionService {
@@ -19,6 +20,9 @@ export class SucursalesAreasInformacionService {
 
     @InjectRepository(SucursalesInformacion)
     private sucursalesRepository: Repository<SucursalesInformacion>,
+
+    @InjectRepository(SucursalesAreasPuertas)
+    private SucursalesAreasPuertasRepository: Repository<SucursalesAreasPuertas>,
 
   ) { }
 
@@ -86,19 +90,29 @@ export class SucursalesAreasInformacionService {
   async AreasBySucursalId(idSucursal:number) {
 
     try {
-      
-      const sucursal = await this.sucursalesRepository.findOneBy({id: idSucursal})
-
-      if(!sucursal){
-        return new GenericResponse('404', 'Sucursal no encontrada', sucursal);
-      }
-
-      const SucursalesAreasInformacion = await this.sucursalesAreasRepository.find({
-        where: { idSucursal: sucursal, estado: 1 },
+      const sucursal = await this.sucursalesRepository.findOneBy({ id: idSucursal });
+  
+      if (!sucursal) return new GenericResponse('404', `sucursal con ID ${idSucursal} no encontrada`, []);
+  
+      const sucursalesAreasInformacion = await this.sucursalesAreasRepository.find({
+        where: { idSucursal: sucursal, estado: 1},
         relations: ['idSucursal.idEmpresa'],
       });
-      
-      return new GenericResponse('200', 'EXITO', SucursalesAreasInformacion);
+  
+      const sucursalesAreasConPuertaAsignada = await Promise.all(
+        sucursalesAreasInformacion.map(async (area) => {
+          const puerta = await this.SucursalesAreasPuertasRepository.findOne({
+            where: { idSucursalArea: area }, 
+          });
+  
+          return {
+            ...area,
+            puertaAsignada: puerta ? true : false, 
+          };
+        })
+      );
+  
+      return new GenericResponse('200', 'EXITO', sucursalesAreasConPuertaAsignada);
     } catch (error) {
       return new GenericResponse('500', 'Error', error);
     }

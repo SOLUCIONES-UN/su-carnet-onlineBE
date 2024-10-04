@@ -40,8 +40,6 @@ export class SucursalesAreasGruposPuertasService {
 
       const AreasGruposInformacion = await this.AreasGruposInformacionRepository.findOneBy({id:idAreaGrupo});
 
-      console.log(AreasGruposInformacion)
-
       if(!AreasGruposInformacion) return new GenericResponse('400', `No se encontro AreasGruposInformacion con id ${idAreaGrupo}`, null);
 
       const estaAsignada = await this.puertasRepository.findOne({
