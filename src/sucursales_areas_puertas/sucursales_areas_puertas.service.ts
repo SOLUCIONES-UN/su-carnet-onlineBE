@@ -7,6 +7,7 @@ import { In, Repository } from 'typeorm';
 import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
+import { SucursalesAreasGruposInformacion } from '../entities/SucursalesAreasGruposInformacion';
 
 @Injectable()
 export class SucursalesAreasPuertasService {
@@ -112,6 +113,23 @@ export class SucursalesAreasPuertasService {
     }
   }
 
+
+  async areasGruposByPuerta(idPuerta: number){
+
+    try {
+
+      const areaPuerta = await this.sucursalesAreas_Puertas_Repository.find({
+        where: {id: idPuerta},
+        relations: ['sucursalesAreasGruposPuertas', 'idSucursalArea']
+      });
+
+      return new GenericResponse('200', `EXITO`, areaPuerta);
+
+    } catch (error) {
+      
+    }
+
+  }
 
   async findAllByEmpresa(idEmpresa: number) {
     try {

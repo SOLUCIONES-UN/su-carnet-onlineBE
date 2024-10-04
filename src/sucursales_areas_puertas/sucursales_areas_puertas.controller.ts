@@ -2,8 +2,6 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, HttpException, HttpS
 import { SucursalesAreasPuertasService } from './sucursales_areas_puertas.service';
 import { CreateSucursalesAreasPuertaDto } from './dto/create-sucursales_areas_puerta.dto';
 import { UpdateSucursalesAreasPuertaDto } from './dto/update-sucursales_areas_puerta.dto';
-import { PaginationDto } from '../common/dtos/pagination.dto';
-import { GenericResponse } from '../common/dtos/genericResponse.dto';
 
 @Controller('sucursales-areas-puertas')
 export class SucursalesAreasPuertasController {
@@ -22,6 +20,11 @@ export class SucursalesAreasPuertasController {
   @Get('findAllByArea/:idArea')
   async findAllByArea(@Param('idArea') idArea: number) {
     return await this.sucursalesAreasPuertasService.findAllByArea(idArea);
+  }
+
+  @Get('areasGruposByPuerta/:idPuerta')
+  async areasGruposByPuerta(@Param('idPuerta') idPuerta: number) {
+    return await this.sucursalesAreasPuertasService.areasGruposByPuerta(idPuerta);
   }
 
   @Get('findAllByEmpresa/:idEmpresa')
