@@ -79,6 +79,40 @@ export class SucursalesAreasPuertasService {
     }
   }
 
+
+  async findAllBySucursal(idSucursal: number) {
+
+    try {
+      const areasSucursales = await this.sucursalesAreasRepository.find({
+        where: {
+          idSucursal: {
+            id:idSucursal
+          },
+        },
+        relations: ['idSucursal', 'idSucursal.idEmpresa'],
+      });
+  
+      if (areasSucursales.length === 0) {
+        return new GenericResponse('404', `No se encontraron áreas para la sucursal con ID ${idSucursal}`, []);
+      }
+  
+      const areaSucursalesPuertas = await this.sucursalesAreas_Puertas_Repository.find({
+        where: {
+          idSucursalArea: {
+            id: In(areasSucursales.map(area => area.id)),
+          },
+        },
+        relations: ['idSucursalArea', 'idSucursalArea.idSucursal'],
+      });
+  
+      return new GenericResponse('200', `EXITO`, areaSucursalesPuertas);
+  
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error.message);
+    }
+  }
+
+
   async findAllByEmpresa(idEmpresa: number) {
     try {
       const areasSucursales = await this.sucursalesAreasRepository.find({

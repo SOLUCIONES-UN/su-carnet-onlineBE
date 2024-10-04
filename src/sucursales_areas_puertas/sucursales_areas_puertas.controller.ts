@@ -29,6 +29,11 @@ export class SucursalesAreasPuertasController {
     return await this.sucursalesAreasPuertasService.findAllByEmpresa(idEmpresa);
   }
 
+  @Get('findAllBySucursal/:idSucursal')
+  async findAllBySucursal(@Param('idSucursal') idSucursal: number) {
+    return await this.sucursalesAreasPuertasService.findAllBySucursal(idSucursal);
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return await this.sucursalesAreasPuertasService.findOne(+id);
