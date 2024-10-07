@@ -8,6 +8,7 @@ import { SucursalesAreasGruposInformacion } from '../entities/SucursalesAreasGru
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
+import { SucursalesInformacion } from '../entities/SucursalesInformacion';
 
 @Injectable()
 export class SucursalesAreasGruposFechasService {
@@ -21,6 +22,9 @@ export class SucursalesAreasGruposFechasService {
 
     @InjectRepository(EmpresasInformacion)
     private EmpresasInformacionRepository: Repository<EmpresasInformacion>,
+
+    @InjectRepository(SucursalesInformacion)
+    private SucursalesInformacionRepository: Repository<SucursalesInformacion>,
 
   ) { }
 
@@ -112,6 +116,31 @@ export class SucursalesAreasGruposFechasService {
   
       return new GenericResponse('200', `EXITO`, sucursalesAreasGruposHorarios);
   
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error.message);
+    }
+  }
+
+  async findAllBySucursal(idSucursal: number) {
+    try {
+      const sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: idSucursal, estado: 1 });
+  
+      if (!sucursal) {
+        return new GenericResponse('400', `Sucursal no encontrada o inactiva`, []);
+      }
+  
+      const sucursalesAreasGruposHorarios = await this.SucursalesAreasGruposFechasRepository
+        .createQueryBuilder('sucursalesAreasGruposFechas')
+        .innerJoinAndSelect('sucursalesAreasGruposFechas.idAreaGrupo', 'areaGrupo')
+        .innerJoinAndSelect('areaGrupo.idSucursalArea', 'sucursalArea')
+        .innerJoinAndSelect('sucursalArea.idSucursal', 'sucursal')
+        .where('sucursal.id = :idSucursal', { idSucursal }) // Filtrar por sucursal
+        .andWhere('sucursal.estado = 1')
+        .andWhere('sucursalArea.estado = 1')
+        .andWhere('areaGrupo.estado = 1')
+        .getMany();
+  
+      return new GenericResponse('200', `EXITO`, sucursalesAreasGruposHorarios);
     } catch (error) {
       return new GenericResponse('500', `Error`, error.message);
     }

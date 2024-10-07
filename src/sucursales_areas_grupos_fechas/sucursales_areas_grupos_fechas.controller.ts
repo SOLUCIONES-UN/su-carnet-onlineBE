@@ -22,6 +22,11 @@ export class SucursalesAreasGruposFechasController {
     return await this.sucursalesAreasGruposFechasService.findAllByEmpresa(idEmpresa);
   }
 
+  @Get('findAllBySucursal/:idSucursal')
+  async findAllBySucursal(@Param('idSucursal') idSucursal: number) {
+    return await this.sucursalesAreasGruposFechasService.findAllBySucursal(idSucursal);
+  }
+
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateSucursalesAreasGruposFechaDto: UpdateSucursalesAreasGruposFechaDto) {
     return await this.sucursalesAreasGruposFechasService.update(+id, updateSucursalesAreasGruposFechaDto);
