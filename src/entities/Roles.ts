@@ -2,10 +2,13 @@ import {
   Column,
   Entity,
   Index,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Permisosopciones } from "./Permisosopciones";
+import { EmpresasInformacion } from "./EmpresasInformacion";
 import { Usuarios } from "./Usuarios";
 
 @Index("roles_pkey", ["id"], { unique: true })
@@ -22,6 +25,13 @@ export class Roles {
 
   @OneToMany(() => Permisosopciones, (permisosopciones) => permisosopciones.rol)
   permisosopciones: Permisosopciones[];
+
+  @ManyToOne(
+    () => EmpresasInformacion,
+    (empresasInformacion) => empresasInformacion.roles
+  )
+  @JoinColumn([{ name: "empresa_id", referencedColumnName: "id" }])
+  empresa: EmpresasInformacion;
 
   @OneToMany(() => Usuarios, (usuarios) => usuarios.role)
   usuarios: Usuarios[];

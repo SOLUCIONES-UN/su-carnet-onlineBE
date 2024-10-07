@@ -5,6 +5,7 @@ import { Roles } from '../entities/Roles';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
+import { EmpresasInformacion } from '../entities/EmpresasInformacion';
 
 @Injectable()
 export class RolesService {
@@ -14,14 +15,22 @@ export class RolesService {
     @InjectRepository(Roles)
     private RolesRepository: Repository<Roles>,
 
+    @InjectRepository(EmpresasInformacion)
+    private EmpresasInformacionRepository: Repository<EmpresasInformacion>,
+
   ) { }
 
   async create(createRoleDto: CreateRoleDto) {
     
     try {
 
+      const empresa = await this.EmpresasInformacionRepository.findOneBy({id:createRoleDto.empresaId});
+
+      if(!empresa) return new GenericResponse('400', `La empresa con id ${createRoleDto.empresaId} no encontrada `, []);
+
       const tiposCuenta = this.RolesRepository.create({
-        descripcion: createRoleDto.descripcion
+        descripcion: createRoleDto.descripcion,
+        empresa: empresa
       });
 
       await this.RolesRepository.save(tiposCuenta);
@@ -36,6 +45,7 @@ export class RolesService {
 
     const roles = await this.RolesRepository.find({
       where: { estado: 1 },
+      relations: ['empresa']
     });
     
     return new GenericResponse('200', `EXITO`, roles);
@@ -56,9 +66,14 @@ export class RolesService {
       if (!role) {
         return new GenericResponse('400', `No se encontro el rol`, []);
       }
+
+      const empresa = await this.EmpresasInformacionRepository.findOneBy({id:updateRoleDto.empresaId});
+
+      if(!empresa) return new GenericResponse('400', `La empresa con id ${updateRoleDto.empresaId} no encontrada `, []);
   
       const updateRole = this.RolesRepository.merge(role, {
-        descripcion: updateRoleDto.descripcion
+        descripcion: updateRoleDto.descripcion,
+        empresa: empresa
       });
   
       await this.RolesRepository.save(updateRole);
@@ -83,7 +98,9 @@ export class RolesService {
 
       role.estado = 0;
 
-      return await this.RolesRepository.save(role);
+      await this.RolesRepository.save(role);
+
+      return new GenericResponse('200', `EXITO`, role);
 
     } catch (error) {
       return new GenericResponse('500', `Error al eliminar`, error);

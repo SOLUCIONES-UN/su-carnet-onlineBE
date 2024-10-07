@@ -14,6 +14,7 @@ import { MembresiaInformacion } from "./MembresiaInformacion";
 import { OutsoursingInformacion } from "./OutsoursingInformacion";
 import { RegistroAfiliaciones } from "./RegistroAfiliaciones";
 import { RegistroColaboradores } from "./RegistroColaboradores";
+import { Roles } from "./Roles";
 import { SucursalesInformacion } from "./SucursalesInformacion";
 import { TarjetaPresentacion } from "./TarjetaPresentacion";
 import { TipoServicios } from "./TipoServicios";
@@ -129,6 +130,9 @@ export class EmpresasInformacion {
     (registroColaboradores) => registroColaboradores.idEmpresa
   )
   registroColaboradores: RegistroColaboradores[];
+
+  @OneToMany(() => Roles, (roles) => roles.empresa)
+  roles: Roles[];
 
   @OneToMany(
     () => SucursalesInformacion,
