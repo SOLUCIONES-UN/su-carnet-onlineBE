@@ -8,6 +8,8 @@ import { SucursalesAreasPuertas } from '../entities/SucursalesAreasPuertas';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { EmpresasInformacion } from '../entities/EmpresasInformacion';
+import { SucursalesInformacion } from '../entities/SucursalesInformacion';
+import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
 
 @Injectable()
 export class SucursalesAreasGruposPuertasService {
@@ -25,6 +27,12 @@ export class SucursalesAreasGruposPuertasService {
 
     @InjectRepository(EmpresasInformacion)
     private EmpresasInformacionRepository: Repository<EmpresasInformacion>,
+
+    @InjectRepository(SucursalesInformacion)
+    private SucursalesInformacionRepository: Repository<SucursalesInformacion>,
+
+    @InjectRepository(SucursalesAreasInformacion)
+    private SucursalesAreasInformacionRepository: Repository<SucursalesAreasInformacion>,
 
   ) { }
 
@@ -83,6 +91,56 @@ export class SucursalesAreasGruposPuertasService {
         .getMany();
   
       return new GenericResponse('200', `EXITO`, SucursalesAreasGruposPuertas);
+    } catch (error) {
+      return new GenericResponse('500', `Error en el servidor`, error);
+    }
+  }
+
+
+  async findAllBySucursal(idSucursal: number) {
+    try {
+      // Verificar si la sucursal existe
+      const sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: idSucursal });
+  
+      if (!sucursal) {
+        return new GenericResponse('400', `Sucursal no encontrada`, []);
+      }
+  
+      const SucursalesAreasGruposPuertas = await this.puertasRepository
+        .createQueryBuilder('puerta')
+        .innerJoinAndSelect('puerta.idPuerta', 'puertaArea')
+        .innerJoinAndSelect('puerta.idAreaGrupo', 'areaGrupo')
+        .innerJoinAndSelect('areaGrupo.idSucursalArea', 'sucursalArea')
+        .innerJoinAndSelect('sucursalArea.idSucursal', 'sucursal')
+        .where('sucursal.id = :idSucursal', { idSucursal }) 
+        .getMany();
+  
+      return new GenericResponse('200', `ÉXITO`, SucursalesAreasGruposPuertas);
+    } catch (error) {
+      return new GenericResponse('500', `Error en el servidor`, error);
+    }
+  }
+
+
+  async findAllByAreaSucursal(idArea: number) {
+    try {
+
+      const Areasucursal = await this.SucursalesAreasInformacionRepository.findOneBy({ id: idArea });
+  
+      if (!Areasucursal) {
+        return new GenericResponse('400', `Área de Sucursal no encontrada`, []);
+      }
+  
+      const SucursalesAreasGruposPuertas = await this.puertasRepository
+        .createQueryBuilder('puerta')
+        .innerJoinAndSelect('puerta.idPuerta', 'puertaArea')
+        .innerJoinAndSelect('puerta.idAreaGrupo', 'areaGrupo')
+        .innerJoinAndSelect('areaGrupo.idSucursalArea', 'sucursalArea')
+        .innerJoinAndSelect('sucursalArea.idSucursal', 'sucursal')
+        .where('sucursalArea.id = :idArea', { idArea }) 
+        .getMany();
+  
+      return new GenericResponse('200', `ÉXITO`, SucursalesAreasGruposPuertas);
     } catch (error) {
       return new GenericResponse('500', `Error en el servidor`, error);
     }

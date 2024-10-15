@@ -16,6 +16,16 @@ export class SucursalesAreasGruposPuertasController {
     return await this.sucursalesAreasGruposPuertasService.findAll(idEmpresa);
   }
 
+  @Get('findAllBySucursal/:idSucursal')
+  async findAllBySucursal(@Param('idSucursal', ParseIntPipe) idSucursal: number) {
+    return await this.sucursalesAreasGruposPuertasService.findAllBySucursal(idSucursal);
+  }
+
+  @Get('findAllByAreaSucursal/:idArea')
+  async findAllByAreaSucursal(@Param('idArea', ParseIntPipe) idArea: number) {
+    return await this.sucursalesAreasGruposPuertasService.findAllByAreaSucursal(idArea);
+  }
+
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number) {
     return await this.sucursalesAreasGruposPuertasService.remove(+id);
