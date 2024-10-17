@@ -120,18 +120,10 @@ export class UsuariosService {
 
     try {
 
-      let usuario: Usuarios;
+      // let usuario: Usuarios;
 
-      if (this.isEmail(user)) {
-        usuario = await this.usuariosRepository.findOne({
-          where: { email: user },
-        });
-      } else if (this.isPhoneNumber(user)) {
-        usuario = await this.usuariosRepository.findOne({
-          where: { telefono: user },
-        });
-      }
-
+      const usuario = await this.usuariosRepository.findOneBy({telefono: user});
+ 
       if (!usuario) {
         throw new NotFoundException(`Usuario con identificador ${user} no encontrado`);
       }
