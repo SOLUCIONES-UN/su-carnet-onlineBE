@@ -65,11 +65,13 @@ export class AuthService {
         }
       }
 
-      if (this.isEmail(user)) {
-        usuario = await this.findUserByEmail(user);
-      } else if (this.isPhoneNumber(user)) {
-        usuario = await this.findUserByPhone(user);
-      }
+      // if (this.isEmail(user)) {
+      //   usuario = await this.findUserByEmail(user);
+      // } else if (this.isPhoneNumber(user)) {
+      //   usuario = await this.findUserByPhone(user);
+      // }
+
+      usuario = await this.findUserByEmail(user);
 
       if (!usuario) return new GenericResponse('400', `El usuario no existe o puede estar inactivo`, null);
 
@@ -183,11 +185,13 @@ export class AuthService {
       }
       
 
-      if (this.isEmail(user)) {
-        usuario = await this.findUserByEmail(user);
-      } else if (this.isPhoneNumber(user)) {
-        usuario = await this.findUserByPhone(user);
-      }
+      // if (this.isEmail(user)) {
+      //   usuario = await this.findUserByEmail(user);
+      // } else if (this.isPhoneNumber(user)) {
+      //   usuario = await this.findUserByPhone(user);
+      // }
+
+      usuario = await this.findUserByEmail(user);
 
       if (!usuario) return new GenericResponse('400', `El usuario no existe o puede estar inactivo`, null);
 

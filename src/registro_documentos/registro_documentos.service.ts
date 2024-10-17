@@ -125,13 +125,9 @@ export class RegistroDocumentosService {
 
   async create(createRegistroDocumentoDto: CreateRegistroDocumentoDto) {
     try {
-      const { idRegistroInformacion, idTipoDocumento, archivo, ...infoData } =
-        createRegistroDocumentoDto;
+      const { idRegistroInformacion, idTipoDocumento, archivo, ...infoData } = createRegistroDocumentoDto;
 
-      const registro_informacion =
-        await this.RegistroInformacionRepository.findOneBy({
-          id: idRegistroInformacion,
-        });
+      const registro_informacion = await this.RegistroInformacionRepository.findOneBy({ id: idRegistroInformacion});
 
       if (!registro_informacion) {
         throw new NotFoundException(
@@ -337,8 +333,7 @@ export class RegistroDocumentosService {
 
   async acepatarDocumento(id: number) {
     try {
-      const RegistroDocumento =
-        await this.RegistroDocumentosRepository.findOneBy({ id });
+      const RegistroDocumento = await this.RegistroDocumentosRepository.findOneBy({ id });
 
       if (!RegistroDocumento) {
         throw new NotFoundException(
