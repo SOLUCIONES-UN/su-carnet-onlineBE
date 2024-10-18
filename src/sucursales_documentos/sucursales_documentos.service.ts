@@ -79,12 +79,14 @@ export class SucursalesDocumentosService {
     try {
       let whereCondition: any = { estado: 1 };
   
+      // Si idEmpresa es 0, traemos todos los registros (sin filtro por empresa ni sucursal)
       if (idEmpresa !== 0) {
         const empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idEmpresa });
         if (!empresa) {
           return new GenericResponse('400', `No se encontró Empresa con el ID ${idEmpresa}`, null);
         }
   
+        // Si idSucursal es 0, obtenemos todas las sucursales de la empresa
         if (idSucursal === 0) {
           const sucursalesDeEmpresa = await this.SucursalesInformacionRepository.find({
             where: { idEmpresa: empresa },
@@ -92,21 +94,25 @@ export class SucursalesDocumentosService {
   
           const idsSucursales = sucursalesDeEmpresa.map(sucursal => sucursal.id);
   
+          // Si hay sucursales asociadas, las añadimos al filtro
           if (idsSucursales.length > 0) {
             whereCondition.idSucursal = In(idsSucursales);
           } else {
+            // Si no hay sucursales asociadas, retornamos un array vacío
             return new GenericResponse('200', 'EXITO', []);
           }
         } else {
-          // Si se especifica idSucursal, validamos que esa sucursal pertenezca a la empresa
+          // Si idSucursal es distinto de 0, validamos que esa sucursal pertenezca a la empresa
           const sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: idSucursal, idEmpresa: empresa });
           if (!sucursal) {
             return new GenericResponse('400', `La Sucursal con el ID ${idSucursal} no pertenece a la Empresa con el ID ${idEmpresa}`, null);
           }
+          // Filtramos por la sucursal específica
           whereCondition.idSucursal = idSucursal;
         }
       }
   
+      // Realizamos la consulta en SucursalesDocumentossRepository con las condiciones
       const sucursalesDocumentos = await this.SucursalesDocumentossRepository.find({
         where: whereCondition,
         relations: ['idSucursal', 'idTipoDocumento', 'idSucursal.idEmpresa'],
