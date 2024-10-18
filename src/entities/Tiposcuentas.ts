@@ -1,4 +1,11 @@
-import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  Index,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { EmpresasInformacion } from "./EmpresasInformacion";
 
 @Index("tiposcuentas_pkey", ["id"], { unique: true })
 @Entity("tiposcuentas", { schema: "public" })
@@ -14,4 +21,10 @@ export class Tiposcuentas {
 
   @Column("integer", { name: "estado", default: () => "1" })
   estado: number;
+
+  @OneToMany(
+    () => EmpresasInformacion,
+    (empresasInformacion) => empresasInformacion.tipoCuenta
+  )
+  empresasInformacions: EmpresasInformacion[];
 }

@@ -8,6 +8,7 @@ import { Vendedores } from '../entities/Vendedores';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { Usuarios } from '../entities/Usuarios';
 import { RegistroAfiliaciones } from '../entities/RegistroAfiliaciones';
+import { Tiposcuentas } from '../entities/Tiposcuentas';
 
 @Injectable()
 export class EmpresasInformacionService {
@@ -27,6 +28,9 @@ export class EmpresasInformacionService {
     @InjectRepository(RegistroAfiliaciones)
     private RegistroAfiliacionesRepository: Repository<RegistroAfiliaciones>,
 
+    @InjectRepository(Tiposcuentas)
+    private TiposcuentasRepository: Repository<Tiposcuentas>,
+
   ) { }
 
   // Función para transformar la fecha
@@ -35,21 +39,43 @@ export class EmpresasInformacionService {
     return `${year}-${month}-${day}`;
   }
 
+
+  public generateRandomCode(): string {
+
+    let empresaCode = '';
+
+    for (let i = 0; i < 4; i++) {
+      const randomDigit = Math.floor(Math.random() * 9) + 1;
+      empresaCode += randomDigit.toString();
+    }
+    return empresaCode;
+  }
+
   async create(createEmpresasInformacionDto: CreateEmpresasInformacionDto) {
 
     try {
+
+      let codigoEmpresa : string;
 
       const { idVendedor, ...infoData } = createEmpresasInformacionDto;
 
       const vendedor = await this.vendedoresRepository.findOneBy({ id: idVendedor });
 
-      if (!vendedor) {
-        throw new NotFoundException(`Vendedor con ID ${idVendedor} no encontrado`);
+      const tipoCuenta = await this.TiposcuentasRepository.findOneBy({id: createEmpresasInformacionDto.tipoCuenta});
+
+      codigoEmpresa = this.generateRandomCode();
+
+      const existeCodigo = await this.empresaRepository.findOneBy({codigoEmpresa: codigoEmpresa});
+
+      if(existeCodigo){
+        codigoEmpresa = this.generateRandomCode();
       }
 
       const empresa = this.empresaRepository.create({
         ...infoData,
         idVendedor: vendedor,
+        codigoEmpresa: codigoEmpresa,
+        tipoCuenta: tipoCuenta,
         fechaInicio: new Date().toISOString().split('T')[0]
       });
 
@@ -216,6 +242,8 @@ export class EmpresasInformacionService {
 
       const vendedor = await this.vendedoresRepository.findOneBy({ id: idVendedor });
 
+      const tipoCuenta = await this.TiposcuentasRepository.findOneBy({id: updateEmpresasInformacionDto.tipoCuenta});
+
       if (!vendedor) {
         throw new NotFoundException(`vendedor con ID ${idVendedor} no encontrado`);
       }
@@ -223,6 +251,7 @@ export class EmpresasInformacionService {
       const updatedEmpresa = this.empresaRepository.merge(empresa, {
         ...infoData,
         idVendedor: vendedor,
+        tipoCuenta: tipoCuenta
       });
 
       // Guardar los cambios en la base de datos
