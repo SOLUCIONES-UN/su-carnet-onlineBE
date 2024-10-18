@@ -13,8 +13,6 @@ export class VerificacionUsuariosService {
 
   private client: Twilio;
 
-  private readonly logger = new Logger("VerificacionUsuariosService");
-
   constructor(
 
     private configService: ConfigService,
@@ -183,6 +181,23 @@ export class VerificacionUsuariosService {
     }
 
     return true;
+  }
+
+  async codigoReciente(correo: string): Promise<boolean> {
+
+    const otp = await this.verificacionUsuariosRepository.findOne({ where: { correo: correo } });
+
+    if (!otp) {
+      return false;
+    }
+
+    const now = new Date();
+    const minutesApart = (now.getTime() - otp.fechacreacion.getTime()) / 60000; // Milisegundos a minutos
+
+    if (minutesApart <= 1) {
+      return true;
+    }
+
   }
 
   public generateRandomCode(): string {

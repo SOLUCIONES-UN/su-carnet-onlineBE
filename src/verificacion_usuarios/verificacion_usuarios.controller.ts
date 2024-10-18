@@ -3,6 +3,7 @@ import { VerificacionUsuariosService } from './verificacion_usuarios.service';
 import { GenericResponse } from '../common/dtos/genericResponse.dto';
 import { CreateVerificacionUsuarioDto } from './dto/create-verificacion_usuario.dto';
 import { confirmarUsuario } from './dto/confirmar-usuario.dto';
+import { Console } from 'console';
 
 @Controller('verificacion-usuarios')
 export class VerificacionUsuariosController {
@@ -12,6 +13,12 @@ export class VerificacionUsuariosController {
   async generarOtp(@Body() CreateVerificacionUsuarioDto: CreateVerificacionUsuarioDto) {
     
     try {
+
+      const existOtpReciente = await this.verificacionUsuariosService.codigoReciente(CreateVerificacionUsuarioDto.correoElectronico);
+
+      if(existOtpReciente == true){
+        return new GenericResponse('400', 'YA HAS GENERADO UN CODIGO ESPERA A QUE LLEGUE. SI NO LLEGA EN UN MINUTO VUELVE A GENERAR UNO NUEVO ', []); 
+      }
 
       const usuarioActivo = await this.verificacionUsuariosService.usuarioActivo(CreateVerificacionUsuarioDto.correoElectronico);
 
@@ -45,7 +52,7 @@ export class VerificacionUsuariosController {
       return new GenericResponse('200', 'EXITO', result); 
 
     } catch (error) {
-      throw new HttpException(new GenericResponse('500', 'ERROR INTERNO ', error), HttpStatus.INTERNAL_SERVER_ERROR);
+      return new GenericResponse('500', 'Error', error.message); 
     }
   }
 

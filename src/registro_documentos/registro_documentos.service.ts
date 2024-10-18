@@ -146,11 +146,13 @@ export class RegistroDocumentosService {
       }
 
       let estado = '';
+
       if (TipoDocumentos.necesitaValidacion == 'SI') {
         estado = 'PEN';
-      }
 
-      estado = 'ACT';
+      }else if(TipoDocumentos.necesitaValidacion == 'NO'){
+        estado = 'ACT';
+      }
 
       const RegistroDocumento = this.RegistroDocumentosRepository.create({
         ...infoData,
