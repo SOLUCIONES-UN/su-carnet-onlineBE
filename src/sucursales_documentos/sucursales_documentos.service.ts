@@ -76,13 +76,10 @@ export class SucursalesDocumentosService {
   }
 
   async findAll(idEmpresa: number, idSucursal: number) {
-    
     try {
       let whereCondition: any = { estado: 1 };
   
-      if (idEmpresa === 0) {
-        whereCondition = { estado: 1 };
-      } else {
+      if (idEmpresa !== 0) {
         const empresa = await this.EmpresasInformacionRepository.findOneBy({ id: idEmpresa });
         if (!empresa) {
           return new GenericResponse('400', `No se encontró Empresa con el ID ${idEmpresa}`, null);
@@ -101,6 +98,7 @@ export class SucursalesDocumentosService {
             return new GenericResponse('200', 'EXITO', []);
           }
         } else {
+          // Si se especifica idSucursal, validamos que esa sucursal pertenezca a la empresa
           const sucursal = await this.SucursalesInformacionRepository.findOneBy({ id: idSucursal, idEmpresa: empresa });
           if (!sucursal) {
             return new GenericResponse('400', `La Sucursal con el ID ${idSucursal} no pertenece a la Empresa con el ID ${idEmpresa}`, null);
