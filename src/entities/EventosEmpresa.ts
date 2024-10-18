@@ -53,6 +53,20 @@ export class EventosEmpresa {
   @Column("integer", { name: "estado", nullable: true })
   estado: number | null;
 
+  @Column("character varying", {
+    name: "path_image",
+    nullable: true,
+    length: 255,
+  })
+  pathImage: string | null;
+
+  @Column("character varying", {
+    name: "color_letra",
+    nullable: true,
+    length: 10,
+  })
+  colorLetra: string | null;
+
   @OneToMany(
     () => ArchivosEventos,
     (archivosEventos) => archivosEventos.idEvento

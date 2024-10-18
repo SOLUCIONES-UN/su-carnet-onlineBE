@@ -12,11 +12,24 @@ import { SucursalesInformacion } from '../entities/SucursalesInformacion';
 import { SucursalesAreasInformacion } from '../entities/SucursalesAreasInformacion';
 import { Municipios } from '../entities/Municipios';
 import { Roles } from '../entities/Roles';
+import { Participaciones } from '../entities/Participaciones';
+import { RespuestasUsuariosConcursos } from '../entities/RespuestasUsuariosConcursos';
 
 @Module({
-  imports:[
-    TypeOrmModule.forFeature([RegistroInformacion, TipoPaises, Usuarios, TipoUsuario, Municipios, EmpresasInformacion,
-     SucursalesInformacion, SucursalesAreasInformacion, Roles]),
+  imports: [
+    TypeOrmModule.forFeature([
+      RegistroInformacion,
+      TipoPaises,
+      Usuarios,
+      TipoUsuario,
+      Municipios,
+      EmpresasInformacion,
+      SucursalesInformacion,
+      SucursalesAreasInformacion,
+      Roles,
+      Participaciones,
+      RespuestasUsuariosConcursos,
+    ]),
   ],
   controllers: [RegistroInformacionController],
   providers: [RegistroInformacionService, UsuariosService],
