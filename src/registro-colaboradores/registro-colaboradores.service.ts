@@ -108,6 +108,33 @@ export class RegistroColaboradoresService {
         (dispositivo) => dispositivo.tokendispositivo,
       );
 
+      const usuariosProcesados = new Set<number>();
+
+      dispositivos.forEach(async element => {
+
+        if (usuariosProcesados.has(element.idusuario.id)) {
+          return;
+        }
+
+        usuariosProcesados.add(element.idusuario.id);
+
+        const createNotificacioneDto: CreateNotificacioneDto = {
+          tokens: tokensDispositivos,
+          payload: {
+            notification: {
+              title: 'Solicitud Colaboracion',
+              body: `${usuario.nombres} ${usuario.apellidos} ha enviado una solicitud de colaboracion Por favor, revisa los detalles para proceder con la aprobación.`,
+            },
+            data: {
+              dispatch: "verificar_colaboracion",
+              customDataKey: 'customDataValue',
+            },
+          },
+        };
+
+        await this.notificacionesService.saveNotification(createNotificacioneDto, element.idusuario.id);
+      });
+
       const createNotificacioneDto: CreateNotificacioneDto = {
         tokens: tokensDispositivos,
         payload: {
@@ -123,7 +150,6 @@ export class RegistroColaboradoresService {
       };
 
       const result = await this.notificacionesService.sendNotification(createNotificacioneDto);
-      await this.notificacionesService.saveNotification(createNotificacioneDto, usuario.id);
 
       await this.RegistroColaboradoresRepository.save(RegistroColaboradores);
 

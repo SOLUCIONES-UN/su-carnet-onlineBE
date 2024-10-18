@@ -63,7 +63,7 @@ export class NotificacionesService {
 
   async saveNotification(notificacionDto: CreateNotificacioneDto, idUsuario: number){
 
-    try {
+    try { 
 
       const usuario = await this.UsuariosRepository.findOneBy({id:idUsuario});
 
@@ -76,6 +76,32 @@ export class NotificacionesService {
       });
   
       await this.NotificacionesRepository.save(notificacion);
+
+      return new GenericResponse('200', `EXITO`, []);
+
+    } catch (error) {
+      return new GenericResponse('500', `ERROR`, error.message);
+    }
+  }
+
+
+  async updateNotification(notificacionDto: CreateNotificacioneDto, idUsuario: number){
+
+    try { 
+
+      const usuario = await this.UsuariosRepository.findOneBy({id:idUsuario});
+
+      const notificacion = await this.NotificacionesRepository.findOneBy({idusuario: usuario});
+      
+      const notificacionUpdate = this.NotificacionesRepository.merge(notificacion, {
+        title: notificacionDto.payload.notification.title,
+        fechaGeneracion:  new Date(),
+        body: notificacionDto.payload.notification.body,
+        idusuario: usuario,
+        dispatch: notificacionDto.payload.data.dispatch
+      });
+  
+      await this.NotificacionesRepository.save(notificacionUpdate);
 
       return new GenericResponse('200', `EXITO`, []);
 

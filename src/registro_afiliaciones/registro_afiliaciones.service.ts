@@ -17,6 +17,7 @@ import { CreateNotificacioneDto } from '../notificaciones/dto/create-notificacio
 import { Dispositivos } from '../entities/Dispositivos';
 import { NotificacionesService } from '../notificaciones/notificaciones.service';
 import { Console } from 'console';
+import { Notificaciones } from '../entities/Notificaciones';
 
 @Injectable()
 export class RegistroAfiliacionesService {
@@ -33,11 +34,15 @@ export class RegistroAfiliacionesService {
     @InjectRepository(Dispositivos)
     private DispositivosRepository: Repository<Dispositivos>,
 
+    @InjectRepository(Notificaciones)
+    private NotificacionesRepository: Repository<Notificaciones>,
+
     private readonly notificacionesService: NotificacionesService,
 
   ) { }
 
   async create(createRegistroAfiliacioneDto: CreateRegistroAfiliacioneDto) {
+
     try {
       const usuario = await this.UsuariosRepository.findOneBy({
         id: createRegistroAfiliacioneDto.idUsuario,
@@ -63,8 +68,7 @@ export class RegistroAfiliacionesService {
         );
       }
 
-      const verificarRegistro =
-        await this.RegistroAfiliacionesRepository.findOne({
+      const verificarRegistro = await this.RegistroAfiliacionesRepository.findOne({
           where: {
             idEmpresa: empresaInformacion,
             idUsuario: usuario,
@@ -145,6 +149,33 @@ export class RegistroAfiliacionesService {
       const tokensDispositivos: string[] = dispositivos.map(
         (dispositivo) => dispositivo.tokendispositivo,
       );
+      
+      const usuariosProcesados = new Set<number>();
+
+      dispositivos.forEach(async element => {
+
+        if (usuariosProcesados.has(element.idusuario.id)) {
+          return;
+        }
+
+        usuariosProcesados.add(element.idusuario.id);
+
+        const createNotificacioneDto: CreateNotificacioneDto = {
+          tokens: tokensDispositivos, 
+          payload: {
+            notification: {
+              title: 'Solicitud Afiliacion',
+              body: `${usuario.nombres} ${usuario.apellidos} ha enviado una solicitud de afiliación. Por favor, revisa los detalles para proceder con la aprobación.`,
+            },
+            data: {
+              dispatch: "verificar_afiliacion",
+              customDataKey: 'customDataValue',
+            },
+          },
+        };
+
+        await this.notificacionesService.saveNotification(createNotificacioneDto, element.idusuario.id);
+      });
 
       const createNotificacioneDto: CreateNotificacioneDto = {
         tokens: tokensDispositivos,
@@ -159,9 +190,7 @@ export class RegistroAfiliacionesService {
           },
         },
       };
-
       const result = await this.notificacionesService.sendNotification(createNotificacioneDto);
-      await this.notificacionesService.saveNotification(createNotificacioneDto, usuario.id);
 
       await this.RegistroAfiliacionesRepository.save(RegistroAfiliaciones);
 
