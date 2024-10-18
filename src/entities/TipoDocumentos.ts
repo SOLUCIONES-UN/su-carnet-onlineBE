@@ -5,6 +5,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { ArchivosEventos } from "./ArchivosEventos";
 import { AreasSucursalesDocumentos } from "./AreasSucursalesDocumentos";
 import { EmpresasDocumentos } from "./EmpresasDocumentos";
 import { RegistroDocumentos } from "./RegistroDocumentos";
@@ -42,6 +43,12 @@ export class TipoDocumentos {
     length: 10,
   })
   tipoDocumento: string | null;
+
+  @OneToMany(
+    () => ArchivosEventos,
+    (archivosEventos) => archivosEventos.idDocumento
+  )
+  archivosEventos: ArchivosEventos[];
 
   @OneToMany(
     () => AreasSucursalesDocumentos,

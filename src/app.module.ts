@@ -52,13 +52,12 @@ import { RegistroColaboradoresModule } from './registro-colaboradores/registro-c
 import { VisitasSinCitasModule } from './visitas-sin-citas/visitas-sin-citas.module';
 import { TarjetasCompartidasModule } from './tarjetas_compartidas/tarjetas_compartidas.module';
 import { RolesModule } from './roles/roles.module';
+import { EventosEmpresaModule } from './eventos_empresa/eventos_empresa.module';
+import { ParticipacionUsuariosModule } from './participacion-usuarios/participacion-usuarios.module';
 
 @Module({
   imports: [
-
-    
     ConfigModule.forRoot({
-
       isGlobal: true,
     }),
     TypeOrmModule.forRoot({
@@ -173,6 +172,10 @@ import { RolesModule } from './roles/roles.module';
     TarjetasCompartidasModule,
 
     RolesModule,
+
+    EventosEmpresaModule,
+
+    ParticipacionUsuariosModule,
   ],
 })
 export class AppModule {}

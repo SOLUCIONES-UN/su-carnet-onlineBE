@@ -7,14 +7,17 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { EventosEmpresa } from "./EventosEmpresa";
 import { LogVisitasSinCitas } from "./LogVisitasSinCitas";
 import { OutsoursingAfiliaciones } from "./OutsoursingAfiliaciones";
+import { Participaciones } from "./Participaciones";
 import { RegistroDispositivos } from "./RegistroDispositivos";
 import { RegistroDocumentos } from "./RegistroDocumentos";
 import { Municipios } from "./Municipios";
 import { Usuarios } from "./Usuarios";
 import { RegistroMembresia } from "./RegistroMembresia";
 import { RegistroMensajes } from "./RegistroMensajes";
+import { RespuestasUsuariosConcursos } from "./RespuestasUsuariosConcursos";
 import { SucursalesAreasPermisos } from "./SucursalesAreasPermisos";
 import { Tarjetascompartidas } from "./Tarjetascompartidas";
 
@@ -77,6 +80,9 @@ export class RegistroInformacion {
   @Column("character varying", { name: "genero", nullable: true, length: 10 })
   genero: string | null;
 
+  @OneToMany(() => EventosEmpresa, (eventosEmpresa) => eventosEmpresa.creadoPor)
+  eventosEmpresas: EventosEmpresa[];
+
   @OneToMany(
     () => LogVisitasSinCitas,
     (logVisitasSinCitas) => logVisitasSinCitas.idregistroinformacion
@@ -88,6 +94,12 @@ export class RegistroInformacion {
     (outsoursingAfiliaciones) => outsoursingAfiliaciones.idRegistroInformacion
   )
   outsoursingAfiliaciones: OutsoursingAfiliaciones[];
+
+  @OneToMany(
+    () => Participaciones,
+    (participaciones) => participaciones.idUsuario
+  )
+  participaciones: Participaciones[];
 
   @OneToMany(
     () => RegistroDispositivos,
@@ -120,6 +132,12 @@ export class RegistroInformacion {
     (registroMensajes) => registroMensajes.idRegistroInformacion
   )
   registroMensajes: RegistroMensajes[];
+
+  @OneToMany(
+    () => RespuestasUsuariosConcursos,
+    (respuestasUsuariosConcursos) => respuestasUsuariosConcursos.idUsuario
+  )
+  respuestasUsuariosConcursos: RespuestasUsuariosConcursos[];
 
   @OneToMany(
     () => SucursalesAreasPermisos,
