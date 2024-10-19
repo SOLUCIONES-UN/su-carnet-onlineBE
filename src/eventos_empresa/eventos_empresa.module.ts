@@ -14,6 +14,8 @@ import { ArchivosEventos } from '../entities/ArchivosEventos';
 import { NotificacionesService } from '../notificaciones/notificaciones.service';
 import { FirebaseAdminModule } from '../firebase-admin/firebase-admin.module';
 import { AreasEventos } from '../entities/AreasEventos';
+import { RegistroInformacion } from '../entities/RegistroInformacion';
+import { FormulariosConcursos } from '../entities/FormulariosConcursos';
 
 @Module({
   imports: [
@@ -30,6 +32,8 @@ import { AreasEventos } from '../entities/AreasEventos';
       TipoDocumentos,
       ArchivosEventos,
       AreasEventos,
+      RegistroInformacion,
+      FormulariosConcursos,
     ]),
   ],
 

@@ -20,6 +20,8 @@ import { TipoDocumentos } from '../entities/TipoDocumentos';
 import { ArchivosEventos } from '../entities/ArchivosEventos';
 import { AreasEventos } from '../entities/AreasEventos';
 import { FormulariosConcursos } from '../entities/FormulariosConcursos';
+import { RegistroInformacion } from '../entities/RegistroInformacion';
+import { Console } from 'console';
 
 @Injectable()
 export class EventosEmpresaService {
@@ -32,9 +34,6 @@ export class EventosEmpresaService {
 
     @InjectRepository(EmpresasInformacion)
     private readonly empresasRepository: Repository<EmpresasInformacion>,
-
-    @InjectRepository(Usuarios)
-    private UsuariosRepository: Repository<Usuarios>,
 
     @InjectRepository(Dispositivos)
     private DispositivosRepository: Repository<Dispositivos>,
@@ -56,10 +55,17 @@ export class EventosEmpresaService {
     @InjectRepository(AreasEventos)
     private areasEventosRepository: Repository<AreasEventos>,
 
+    @InjectRepository(RegistroInformacion)
+    private UsuariosRepository: Repository<RegistroInformacion>,
+
+    @InjectRepository(FormulariosConcursos)
+    private formularioRepository: Repository<FormulariosConcursos>,
+
     private readonly dataSource: DataSource,
   ) {}
 
   async create(createEventosEmpresaDto: CreateEventosEmpresaDto) {
+    let eventosEmpresa: EventosEmpresa;
     try {
       const {
         fechas_evento,
@@ -67,10 +73,23 @@ export class EventosEmpresaService {
         archivosEvento,
         AreasEventos,
         preguntas_concurso,
+        creado_por,
         ...eventosData
       } = createEventosEmpresaDto;
 
       const FechaActual = new Date();
+
+      const usuario = await this.UsuariosRepository.findOneBy({
+        id: creado_por,
+      });
+
+      if (!usuario) {
+        return new GenericResponse(
+          '400',
+          `Usuario que creo el evento no encontrado`,
+          [],
+        );
+      }
 
       const empresaFound = await this.empresasRepository.findOneBy({
         id: idEmpresa,
@@ -85,18 +104,31 @@ export class EventosEmpresaService {
       }
 
       let areasEventos: AreasEventos[] = [];
-      if (AreasEventos.length > 0) {
+      if (AreasEventos && AreasEventos.length > 0) {
         areasEventos = await this.getAreasEventos(AreasEventos);
       }
 
-      const eventosEmpresa = this.eventosEmpresaRepository.create({
+      eventosEmpresa = this.eventosEmpresaRepository.create({
         ...eventosData,
         idEmpresa: empresaFound,
+        creadoPor: usuario,
+        estado: 1,
       });
 
       eventosEmpresa.areasEventos = areasEventos;
 
       await this.eventosEmpresaRepository.save(eventosEmpresa);
+
+      if (archivosEvento && archivosEvento.length > 0) {
+        await this.CreateArchivosEventos(archivosEvento, eventosEmpresa);
+      }
+
+      if (preguntas_concurso && preguntas_concurso.length > 0) {
+        await this.createFormulariosConcurso(
+          preguntas_concurso,
+          eventosEmpresa,
+        );
+      }
 
       const fechasEventos = fechas_evento.map((fecha) => {
         return this.fechasEventosRepository.create({
@@ -108,17 +140,6 @@ export class EventosEmpresaService {
 
       await this.fechasEventosRepository.save(fechasEventos);
 
-      if (archivosEvento.length > 0) {
-        await this.CreateArchivosEventos(archivosEvento, eventosEmpresa);
-      }
-
-      if (preguntas_concurso.length > 0) {
-        await this.createFormulariosConcurso(
-          preguntas_concurso,
-          eventosEmpresa,
-        );
-      }
-
       const tipoEvento =
         eventosEmpresa.tipoEvento === 1 ? 'Evento' : 'Concurso';
 
@@ -128,7 +149,11 @@ export class EventosEmpresaService {
 
       return new GenericResponse('200', `EXITO`, eventosEmpresa);
     } catch (error) {
-      return new GenericResponse('500', `Error: `, error);
+      if (eventosEmpresa) {
+        await this.eventosEmpresaRepository.delete(eventosEmpresa.idEvento);
+      }
+
+      return new GenericResponse('500', `Error: `, error.message);
     }
   }
 
@@ -153,19 +178,28 @@ export class EventosEmpresaService {
       if (!empresa)
         return new GenericResponse('400', `Empresa no encontrada`, []);
 
-      const envetosEmpresa = await this.eventosEmpresaRepository.find({
-        where: { idEmpresa: empresa },
-        relations: [
-          'idEmpresa',
-          'fechasEventos',
-          'archivosEvento',
-          'areasEventos',
-          'FormulariosConcursos',
-        ],
+      const eventosEmpresa = await this.eventosEmpresaRepository.find({
+        where: { idEmpresa: empresa, estado: 1 },
+        relations: {
+          idEmpresa: true,
+          fechasEventos: true,
+          areasEventos: true,
+          formulariosConcursos: true,
+          archivosEventos: {
+            idDocumento: true,
+          },
+        },
       });
 
-      return new GenericResponse('200', `EXITO`, envetosEmpresa);
+      eventosEmpresa.map((evento) => {
+        evento.formulariosConcursos.map((pregunta) => {
+          delete pregunta.respuesta;
+        });
+      });
+
+      return new GenericResponse('200', `EXITO`, eventosEmpresa);
     } catch (error) {
+      console.log('Error', error);
       return new GenericResponse('500', `Error: `, error);
     }
   }
@@ -181,45 +215,51 @@ export class EventosEmpresaService {
         ...eventosData
       } = updateEventosEmpresaDto;
 
-      const empresaFound = await this.empresasRepository.findOneBy({
-        id: idEmpresa,
-      });
-
-      if (!empresaFound) {
-        return new GenericResponse(
-          '400',
-          `Empresa con id ${idEmpresa} no encontrada `,
-          [],
-        );
-      }
-
-      const eventoEmpresa = await this.eventosEmpresaRepository.preload({
-        idEvento: id,
-        idEmpresa: empresaFound,
-        ...eventosData,
-      });
-
       const queryRunner = await this.dataSource.createQueryRunner();
 
       await queryRunner.connect();
       await queryRunner.startTransaction();
 
       try {
-        if (fechas_evento) {
+        const empresaFound = await this.empresasRepository.findOneBy({
+          id: idEmpresa,
+        });
+
+        if (!empresaFound) {
+          return new GenericResponse(
+            '400',
+            `Empresa con id ${idEmpresa} no encontrada `,
+            [],
+          );
+        }
+
+        const eventoEmpresa = await this.eventosEmpresaRepository.preload({
+          idEvento: id,
+          idEmpresa: empresaFound,
+          ...eventosData,
+        });
+
+        console.log('eventoEmpresa', eventoEmpresa);
+
+        if (fechas_evento && fechas_evento.length > 0) {
           await queryRunner.manager.delete(FechasEventos, {
             idEvento: eventoEmpresa,
           });
 
-          fechas_evento.map((fecha) => {
+          console.log('fechas_evento', fechas_evento);
+
+          const fechasEventos = fechas_evento.map((fecha) => {
             return this.fechasEventosRepository.create({
               idEvento: eventoEmpresa,
               fechaInicio: fecha.fecha_inicio,
               fechaFin: fecha.fecha_fin,
             });
           });
+
+          await this.fechasEventosRepository.save(fechasEventos);
         }
 
-        if (archivosEvento) {
+        if (archivosEvento && archivosEvento.length > 0) {
           await queryRunner.manager.delete(ArchivosEventos, {
             idEvento: eventoEmpresa,
           });
@@ -238,7 +278,7 @@ export class EventosEmpresaService {
           );
         }
 
-        if (AreasEventos) {
+        if (AreasEventos && AreasEventos.length > 0) {
           const newAreasEventos = await this.getAreasEventos(AreasEventos);
           eventoEmpresa.areasEventos = newAreasEventos;
         }
@@ -255,6 +295,7 @@ export class EventosEmpresaService {
         return new GenericResponse('500', `Error`, error);
       }
     } catch (error) {
+      console.log('Error', error);
       return new GenericResponse('500', `Error`, error);
     }
   }
@@ -284,30 +325,31 @@ export class EventosEmpresaService {
     archivosEventos: number[],
     eventoEmpresa: EventosEmpresa,
   ) {
-    const documentosEnviados = [];
     const documentoEventoToInsert: {
       idEvento: EventosEmpresa;
-      idTipoDocumento: TipoDocumentos;
+      idDocumento: TipoDocumentos;
     }[] = [];
 
-    archivosEventos.map(async (archivo) => {
-      const tipoDocumento = await this.tiposDocumentosRepository.findOneBy({
-        id: archivo,
-      });
-
-      if (!tipoDocumento) {
-        throw new NotFoundException(
-          `Tipo de documento con id ${archivo} no encontrado`,
-        );
-      }
-
-      documentosEnviados.push(tipoDocumento);
+    const documentosEnviados = await this.tiposDocumentosRepository.find({
+      where: { id: In(archivosEventos), estado: 1 },
     });
+
+    const idEncontrados = documentosEnviados.map((documento) => documento.id);
+
+    const idNoEncontrados = archivosEventos.filter(
+      (documento) => !idEncontrados.includes(documento),
+    );
+
+    if (idNoEncontrados.length > 0) {
+      throw new NotFoundException(
+        `Tipo de documento con id ${idNoEncontrados} no encontrado o inactivo`,
+      );
+    }
 
     documentosEnviados.map(async (documento) => {
       documentoEventoToInsert.push({
         idEvento: eventoEmpresa,
-        idTipoDocumento: documento,
+        idDocumento: documento,
       });
     });
 
@@ -315,21 +357,21 @@ export class EventosEmpresaService {
   }
 
   async getAreasEventos(areasEventos: number[]) {
-    const areasEnviadas = [];
-
-    areasEventos.map(async (area) => {
-      const areaEvento = await this.areasEventosRepository.findOneBy({
-        idArea: area,
-      });
-
-      if (!areaEvento) {
-        throw new NotFoundException(
-          `Area de evento con id ${area} no encontrado`,
-        );
-      }
-
-      areasEnviadas.push(areaEvento);
+    const areasEnviadas = await this.areasEventosRepository.find({
+      where: { idArea: In(areasEventos) },
     });
+
+    const idEncontrados = areasEnviadas.map((area) => area.idArea);
+
+    const idNoEncontrados = areasEventos.filter(
+      (area) => !idEncontrados.includes(area),
+    );
+
+    if (idNoEncontrados.length > 0) {
+      throw new NotFoundException(
+        `Areas de evento con id ${idNoEncontrados} no encontrados`,
+      );
+    }
 
     return areasEnviadas;
   }
@@ -352,7 +394,7 @@ export class EventosEmpresaService {
       });
     });
 
-    await this.archivosEventosRepository.insert(preguntasConcursoToInsert);
+    await this.formularioRepository.insert(preguntasConcursoToInsert);
   }
 
   async notifyNewEvents(

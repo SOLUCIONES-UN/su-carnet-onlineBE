@@ -26,38 +26,41 @@ export class CreateEventosEmpresaDto {
   ubicacion?: string;
 
   @IsNumber()
-  @IsNotEmpty({ message: 'El campo tipo_evento es requerido' })
-  tipo_evento: number;
+  @IsNotEmpty({ message: 'El campo tipoEvento es requerido' })
+  tipoEvento: number;
 
   @IsNumber()
   @IsNotEmpty({ message: 'El campo creado_por es requerido' })
   creado_por: number;
 
   @IsString()
-  @IsNotEmpty({ message: 'El campo fecha_creacion es requerido' })
-  fecha_creacion: Date;
+  @IsNotEmpty({ message: 'El campo fechaPublicacion es requerido' })
+  fechaPublicacion: String;
 
   @IsString()
-  @IsNotEmpty({ message: 'El campo fecha_publicacion es requerido' })
-  fecha_publicacion: Date;
-
-  @IsString()
-  @IsNotEmpty({ message: 'El campo path_image  es requerido' })
-  path_image: string;
+  @IsNotEmpty({ message: 'El campo pathImage  es requerido' })
+  pathImage: string;
 
   @IsString()
   @IsNotEmpty({ message: 'El campo color_letra  es requerido' })
-  color_letra: string;
+  colorLetra: string;
 
   @IsArray({ each: true })
   @IsNotEmpty({ message: 'El campo fechas_evento es requerido' })
   fechas_evento: FechasEvento[];
 
-  @IsArray({ each: true })
+  @IsArray({ message: 'El campo archivosEvento debe ser un array' })
   @IsOptional()
+  @IsNumber(
+    {},
+    {
+      each: true,
+      message: 'El campo archivosEvento debe ser un array de numeros',
+    },
+  )
   archivosEvento?: number[];
 
-  @IsArray({ each: true })
+  @IsArray({ message: 'El campo AreasEventos debe ser un array' })
   @IsOptional()
   AreasEventos?: number[];
 

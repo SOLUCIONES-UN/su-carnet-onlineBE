@@ -54,6 +54,7 @@ import { TarjetasCompartidasModule } from './tarjetas_compartidas/tarjetas_compa
 import { RolesModule } from './roles/roles.module';
 import { EventosEmpresaModule } from './eventos_empresa/eventos_empresa.module';
 import { ParticipacionUsuariosModule } from './participacion-usuarios/participacion-usuarios.module';
+import { AreasEventosModule } from './areas_eventos/areas_eventos.module';
 
 @Module({
   imports: [
@@ -176,6 +177,8 @@ import { ParticipacionUsuariosModule } from './participacion-usuarios/participac
     EventosEmpresaModule,
 
     ParticipacionUsuariosModule,
+
+    AreasEventosModule,
   ],
 })
 export class AppModule {}
