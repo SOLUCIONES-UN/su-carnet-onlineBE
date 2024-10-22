@@ -7,6 +7,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { AreasEventos } from "./AreasEventos";
 import { EmpresasDocumentos } from "./EmpresasDocumentos";
 import { Vendedores } from "./Vendedores";
 import { Tiposcuentas } from "./Tiposcuentas";
@@ -86,6 +87,9 @@ export class EmpresasInformacion {
     length: 250,
   })
   codigoEmpresa: string | null;
+
+  @OneToMany(() => AreasEventos, (areasEventos) => areasEventos.idEmpresa)
+  areasEventos: AreasEventos[];
 
   @OneToMany(
     () => EmpresasDocumentos,

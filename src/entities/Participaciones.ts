@@ -6,6 +6,8 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from "typeorm";
+import { AreasEventos } from "./AreasEventos";
+import { FechasEventos } from "./FechasEventos";
 import { EventosEmpresa } from "./EventosEmpresa";
 import { RegistroInformacion } from "./RegistroInformacion";
 
@@ -15,14 +17,28 @@ export class Participaciones {
   @PrimaryGeneratedColumn({ type: "integer", name: "id_participacion" })
   idParticipacion: number;
 
-  @Column("boolean", { name: "participa", default: () => "false" })
-  participa: boolean;
-
   @Column("timestamp without time zone", {
     name: "fecha_respuesta",
     nullable: true,
+    default: () => "now()",
   })
   fechaRespuesta: Date | null;
+
+  @Column("integer", { name: "estado", default: () => "1" })
+  estado: number;
+
+  @ManyToOne(() => AreasEventos, (areasEventos) => areasEventos.participaciones)
+  @JoinColumn([{ name: "area_inscrito", referencedColumnName: "idArea" }])
+  areaInscrito: AreasEventos;
+
+  @ManyToOne(
+    () => FechasEventos,
+    (fechasEventos) => fechasEventos.participaciones
+  )
+  @JoinColumn([
+    { name: "fecha_participacion", referencedColumnName: "idFecha" },
+  ])
+  fechaParticipacion: FechasEventos;
 
   @ManyToOne(
     () => EventosEmpresa,

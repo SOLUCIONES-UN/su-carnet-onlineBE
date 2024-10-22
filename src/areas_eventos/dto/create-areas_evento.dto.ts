@@ -18,6 +18,10 @@ export class CreateAreasEventoDto {
 
   @IsOptional()
   @IsNumber()
-  @IsPositive()
   precio: number;
+
+  @IsNumber()
+  @IsPositive()
+  @IsNotEmpty()
+  idEmpresa: number;
 }

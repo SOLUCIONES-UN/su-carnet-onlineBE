@@ -2,11 +2,16 @@ import {
   Column,
   Entity,
   Index,
+  JoinColumn,
   JoinTable,
   ManyToMany,
+  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { EventosEmpresa } from "./EventosEmpresa";
+import { EmpresasInformacion } from "./EmpresasInformacion";
+import { Participaciones } from "./Participaciones";
 
 @Index("areas_eventos_pkey", ["idArea"], { unique: true })
 @Entity("areas_eventos", { schema: "public" })
@@ -39,4 +44,17 @@ export class AreasEventos {
     schema: "public",
   })
   eventosEmpresas: EventosEmpresa[];
+
+  @ManyToOne(
+    () => EmpresasInformacion,
+    (empresasInformacion) => empresasInformacion.areasEventos
+  )
+  @JoinColumn([{ name: "id_empresa", referencedColumnName: "id" }])
+  idEmpresa: EmpresasInformacion;
+
+  @OneToMany(
+    () => Participaciones,
+    (participaciones) => participaciones.areaInscrito
+  )
+  participaciones: Participaciones[];
 }

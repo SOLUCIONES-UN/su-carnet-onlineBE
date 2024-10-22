@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { AreasEventosService } from './areas_eventos.service';
 import { CreateAreasEventoDto } from './dto/create-areas_evento.dto';
 import { UpdateAreasEventoDto } from './dto/update-areas_evento.dto';
@@ -19,11 +27,14 @@ export class AreasEventosController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.areasEventosService.findOne(+id);
+    return this.areasEventosService.findAllByEmpresa(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAreasEventoDto: UpdateAreasEventoDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateAreasEventoDto: UpdateAreasEventoDto,
+  ) {
     return this.areasEventosService.update(+id, updateAreasEventoDto);
   }
 

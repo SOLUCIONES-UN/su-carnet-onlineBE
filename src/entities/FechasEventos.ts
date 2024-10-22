@@ -4,9 +4,11 @@ import {
   Index,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { EventosEmpresa } from "./EventosEmpresa";
+import { Participaciones } from "./Participaciones";
 
 @Index("fechas_eventos_pkey", ["idFecha"], { unique: true })
 @Entity("fechas_eventos", { schema: "public" })
@@ -26,4 +28,10 @@ export class FechasEventos {
   )
   @JoinColumn([{ name: "id_evento", referencedColumnName: "idEvento" }])
   idEvento: EventosEmpresa;
+
+  @OneToMany(
+    () => Participaciones,
+    (participaciones) => participaciones.fechaParticipacion
+  )
+  participaciones: Participaciones[];
 }

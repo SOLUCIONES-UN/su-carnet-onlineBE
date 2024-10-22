@@ -16,6 +16,7 @@ import { FirebaseAdminModule } from '../firebase-admin/firebase-admin.module';
 import { AreasEventos } from '../entities/AreasEventos';
 import { RegistroInformacion } from '../entities/RegistroInformacion';
 import { FormulariosConcursos } from '../entities/FormulariosConcursos';
+import { Participaciones } from '../entities/Participaciones';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { FormulariosConcursos } from '../entities/FormulariosConcursos';
       AreasEventos,
       RegistroInformacion,
       FormulariosConcursos,
+      Participaciones,
     ]),
   ],
 

@@ -30,6 +30,11 @@ export class EventosEmpresaController {
     return this.eventosEmpresaService.findAllByEmpresa(+idEmpresa);
   }
 
+  @Get('/obtenerRespuestasEvento/:idEvento')
+  obtenerRespuestasEvento(@Param('idEvento') idEvento: string) {
+    return this.eventosEmpresaService.obtenerRespuestasEvento(+idEvento);
+  }
+
   @Patch(':id')
   update(
     @Param('id') id: string,

@@ -1,20 +1,38 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { ParticipacionUsuariosService } from './participacion-usuarios.service';
 import { CreateParticipacionUsuarioDto } from './dto/create-participacion-usuario.dto';
 import { UpdateParticipacionUsuarioDto } from './dto/update-participacion-usuario.dto';
+import { ResponseFormDto } from './dto/response-form-dto';
 
 @Controller('participacion-usuarios')
 export class ParticipacionUsuariosController {
-  constructor(private readonly participacionUsuariosService: ParticipacionUsuariosService) {}
+  constructor(
+    private readonly participacionUsuariosService: ParticipacionUsuariosService,
+  ) {}
 
   @Post()
   create(@Body() createParticipacionUsuarioDto: CreateParticipacionUsuarioDto) {
-    return this.participacionUsuariosService.create(createParticipacionUsuarioDto);
+    return this.participacionUsuariosService.create(
+      createParticipacionUsuarioDto,
+    );
   }
 
-  @Get()
-  findAll() {
-    return this.participacionUsuariosService.findAll();
+  @Post('/formulario')
+  responseForm(@Body() responseFormDTO: ResponseFormDto) {
+    return this.participacionUsuariosService.responseForm(responseFormDTO);
+  }
+
+  @Get(':idEvento')
+  findAll(@Param('idEvento') idEvento: string) {
+    return this.participacionUsuariosService.findAllByEvento(+idEvento);
   }
 
   @Get(':id')
@@ -22,9 +40,15 @@ export class ParticipacionUsuariosController {
     return this.participacionUsuariosService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateParticipacionUsuarioDto: UpdateParticipacionUsuarioDto) {
-    return this.participacionUsuariosService.update(+id, updateParticipacionUsuarioDto);
+  @Patch(':idParticipacion')
+  update(
+    @Param('idParticipacion') idParticipacion: string,
+    @Body() updateParticipacionUsuarioDto: UpdateParticipacionUsuarioDto,
+  ) {
+    return this.participacionUsuariosService.update(
+      +idParticipacion,
+      updateParticipacionUsuarioDto,
+    );
   }
 
   @Delete(':id')

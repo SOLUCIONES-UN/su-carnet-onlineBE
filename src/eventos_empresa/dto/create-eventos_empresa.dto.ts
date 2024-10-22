@@ -65,8 +65,8 @@ export class CreateEventosEmpresaDto {
   AreasEventos?: number[];
 
   @IsArray({ each: true })
-  @IsOptional()
-  preguntas_concurso?: preguntasConcurso[];
+  @IsNotEmpty()
+  preguntas_concurso: preguntasConcurso[];
 }
 
 export interface preguntasConcurso {

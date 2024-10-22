@@ -22,6 +22,7 @@ import { AreasEventos } from '../entities/AreasEventos';
 import { FormulariosConcursos } from '../entities/FormulariosConcursos';
 import { RegistroInformacion } from '../entities/RegistroInformacion';
 import { Console } from 'console';
+import { Participaciones } from '../entities/Participaciones';
 
 @Injectable()
 export class EventosEmpresaService {
@@ -60,6 +61,9 @@ export class EventosEmpresaService {
 
     @InjectRepository(FormulariosConcursos)
     private formularioRepository: Repository<FormulariosConcursos>,
+
+    @InjectRepository(Participaciones)
+    private participacionesRepository: Repository<Participaciones>,
 
     private readonly dataSource: DataSource,
   ) {}
@@ -197,10 +201,68 @@ export class EventosEmpresaService {
         });
       });
 
-      return new GenericResponse('200', `EXITO`, eventosEmpresa);
+      const eventsWithAreasCapacity = await Promise.all(
+        eventosEmpresa.map(async (evento) => {
+          const fechas_aventos = await Promise.all(
+            evento.fechasEventos.map(async (fecha) => {
+              const areas = await Promise.all(
+                evento.areasEventos.map(async (area) => {
+                  const capacityAvailable =
+                    await this.calculateCapacityOfEvents(area, fecha);
+
+                  return {
+                    nombreArea: area.nombreArea,
+                    cupoMaximo: area.cupoMaximo,
+                    disponibilidad: area.cupoMaximo - capacityAvailable,
+                  };
+                }),
+              );
+
+              return {
+                ...fecha,
+                areas,
+              };
+            }),
+          );
+
+          return {
+            ...evento,
+            fechasEventos: fechas_aventos,
+          };
+        }),
+      );
+
+      return new GenericResponse('200', `EXITO`, eventsWithAreasCapacity);
     } catch (error) {
       console.log('Error', error);
       return new GenericResponse('500', `Error: `, error);
+    }
+  }
+
+  async obtenerRespuestasEvento(idEvento: number) {
+    try {
+      const evento = await this.eventosEmpresaRepository.findOne({
+        relations: {
+          formulariosConcursos: {
+            respuestasUsuariosConcursos: {
+              idUsuario: true,
+            },
+          },
+        },
+        where: { idEvento: idEvento },
+      });
+
+      if (!evento) {
+        return new GenericResponse(
+          '400',
+          `Evento con id ${idEvento} no encontrado `,
+          [],
+        );
+      }
+
+      return new GenericResponse('200', `EXITO`, evento);
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error);
     }
   }
 
@@ -238,8 +300,6 @@ export class EventosEmpresaService {
           idEmpresa: empresaFound,
           ...eventosData,
         });
-
-        console.log('eventoEmpresa', eventoEmpresa);
 
         if (fechas_evento && fechas_evento.length > 0) {
           await queryRunner.manager.delete(FechasEventos, {
@@ -461,5 +521,16 @@ export class EventosEmpresaService {
         // });
       }
     } catch (error) {}
+  }
+
+  async calculateCapacityOfEvents(area: AreasEventos, fecha: FechasEventos) {
+    const countParticipations =
+      await this.participacionesRepository.findAndCountBy({
+        areaInscrito: area,
+        estado: 1,
+        fechaParticipacion: fecha,
+      });
+
+    return countParticipations[1];
   }
 }
