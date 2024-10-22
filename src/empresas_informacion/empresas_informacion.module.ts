@@ -6,11 +6,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Vendedores } from '../entities/Vendedores';
 import { Usuarios } from '../entities/Usuarios';
 import { RegistroAfiliaciones } from '../entities/RegistroAfiliaciones';
+import { Tiposcuentas } from '../entities/Tiposcuentas';
 
 @Module({
 
   imports:[
-    TypeOrmModule.forFeature([EmpresasInformacion, Vendedores, Usuarios, RegistroAfiliaciones]),
+    TypeOrmModule.forFeature([EmpresasInformacion, Vendedores, Usuarios, RegistroAfiliaciones, Tiposcuentas]),
   ],
 
   controllers: [EmpresasInformacionController],
