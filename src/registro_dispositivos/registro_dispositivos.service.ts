@@ -50,7 +50,7 @@ export class RegistroDispositivosService {
       return new GenericResponse('200', `EXITO`, RegistroDispositivos);
 
     } catch (error) {
-      return new GenericResponse('500', `Error`, error);
+      return new GenericResponse('500', `Error`, error.message);
     }
   }
 
