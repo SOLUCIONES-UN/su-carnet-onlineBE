@@ -65,6 +65,9 @@ export class EventosEmpresaService {
     @InjectRepository(Participaciones)
     private participacionesRepository: Repository<Participaciones>,
 
+    @InjectRepository(Usuarios)
+    private usersRepository: Repository<Usuarios>,
+
     private readonly dataSource: DataSource,
   ) {}
 
@@ -259,6 +262,96 @@ export class EventosEmpresaService {
           [],
         );
       }
+
+      return new GenericResponse('200', `EXITO`, evento);
+    } catch (error) {
+      return new GenericResponse('500', `Error`, error);
+    }
+  }
+
+  async getEventosEmpresasAfiliadas(idUsuario: number) {
+    try {
+      const usuario = await this.usersRepository.findOneBy({
+        id: idUsuario,
+      });
+
+      if (!usuario) {
+        return new GenericResponse('400', `Usuario no encontrado`, []);
+      }
+
+      const empresasUsarioAfiliado =
+        await this.registroAfiliacionesRepository.find({
+          where: { idUsuario: usuario, estado: 'ACEP' },
+          relations: ['idEmpresa'],
+        });
+
+      if (empresasUsarioAfiliado.length === 0) {
+        return new GenericResponse(
+          '400',
+          `El usuario no esta afiliado a ninguna empresa`,
+          [],
+        );
+      }
+
+      const eventosEmpresasUsuarioAfiliado =
+        await this.eventosEmpresaRepository.find({
+          where: {
+            idEmpresa: In(
+              empresasUsarioAfiliado.map((empresa) => empresa.idEmpresa.id),
+            ),
+          },
+          relations: {
+            idEmpresa: true,
+            fechasEventos: true,
+            areasEventos: true,
+            formulariosConcursos: true,
+            archivosEventos: {
+              idDocumento: true,
+            },
+          },
+        });
+
+      return new GenericResponse(
+        '200',
+        `EXITO`,
+        eventosEmpresasUsuarioAfiliado,
+      );
+    } catch (error) {
+      console.log('Error', error);
+      return new GenericResponse('500', `Error`, error);
+    }
+  }
+
+  async getReporteParticipantesEvento(idEvento: number) {
+    try {
+      const evento = await this.eventosEmpresaRepository.findOne({
+        relations: {
+          participaciones: {
+            idUsuario: true,
+            areaInscrito: true,
+          },
+          formulariosConcursos: {
+            respuestasUsuariosConcursos: {
+              idUsuario: true,
+            },
+          },
+        },
+
+        where: { idEvento: idEvento, estado: 1 },
+      });
+
+      if (!evento) {
+        return new GenericResponse(
+          '400',
+          `Evento con id ${idEvento} no encontrado `,
+          [],
+        );
+      }
+
+      // const participaciones = await this.participacionesRepository.find({
+      //   where: { idEvento: evento, estado: 1 },
+      //   relations: ['idUsuario'],
+      // });
 
       return new GenericResponse('200', `EXITO`, evento);
     } catch (error) {

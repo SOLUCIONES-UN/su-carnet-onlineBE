@@ -35,6 +35,16 @@ export class EventosEmpresaController {
     return this.eventosEmpresaService.obtenerRespuestasEvento(+idEvento);
   }
 
+  @Get('/eventos-empresas-afiliadas/:idUsuario')
+  getEventosEmpresasAfiliadas(@Param('idUsuario') idUsuario: string) {
+    return this.eventosEmpresaService.getEventosEmpresasAfiliadas(+idUsuario);
+  }
+
+  @Get('/reporte-participaciones/:idEvento')
+  getReporteParticipaciones(@Param('idEvento') idEvento: string) {
+    return this.eventosEmpresaService.getReporteParticipantesEvento(+idEvento);
+  }
+
   @Patch(':id')
   update(
     @Param('id') id: string,
